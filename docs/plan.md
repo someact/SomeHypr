@@ -38,7 +38,7 @@ The user runs Hyprland 0.56.2 (Lua config) on CachyOS (Ryzen 5 5600, RTX 3060, 1
 | Notifications, `HyprlandXkb.qml:113` | Rewrite a whole JSON file on every event |
 
 **Quickshell version**
-- Installed: **Quickshell 0.2.1**, pinned by `illogical-impulse-quickshell-git`.
+- Was **Quickshell 0.2.1** (pinned by `illogical-impulse-quickshell-git`); upgraded to **0.3.1** in Phase 0.
 - `quickshell 0.3.1` is available in `cachyos-extra-v3`. It brings:
   - Networking and Bluetooth services, and a Polkit agent
   - idle monitor and idle inhibitor
@@ -180,68 +180,96 @@ apps/             kitty, zen userChrome additions
 
 ## Roadmap
 Each phase ends usable, and ii stays as the rollback until Phase 8.
+`[x]` done · `[ ]` to do · `[~]` done differently (see note)
 
-**Phase 0: Safety and toolkit**
-- Back up `~/.config/{hypr,quickshell,illogical-impulse,matugen}` to `~/Backups/somehypr-pre-<date>.tar.zst`.
-- `git init` the repo; write `install.sh` and `CLAUDE.md`.
-- Replace `illogical-impulse-quickshell-git` with **`quickshell` 0.3.1** (`cachyos-extra-v3`). Confirm ii still runs on it. If it doesn't, downgrade from `/var/cache/pacman/pkg`.
+### Phase 0: Safety and toolkit ✅
+- [x] Back up `~/.config/{hypr,quickshell,illogical-impulse,matugen,kitty,fuzzel,gtk-3.0,gtk-4.0}` to `~/Backups/somehypr-pre-2026-10-02.tar.zst`
+- [x] `git init` the repo
+- [x] Write `install.sh` (verify → backup → symlink → reload, auto-rollback on errors, `--check`, `--rollback`)
+- [x] Write `CLAUDE.md`
+- [x] Replace `illogical-impulse-quickshell-git` with `quickshell` 0.3.1
+- [x] Confirm ii still runs on 0.3.1 (no new errors in its log)
+- [x] Push to GitHub (`someact/SomeHypr`, private)
 
-**Phase 1: Hyprland core rewrite** (ii is still the shell)
-- 1:1 bind port through the `binds/shell.lua` action map.
-- NVIDIA env: `LIBVA_DRIVER_NAME=nvidia`, `__GLX_VENDOR_LIBRARY_NAME=nvidia`, `NVD_BACKEND=direct`.
-- Fixes:
-  - Add the Thai-layout code:10-19 binds for SUPER+ALT+N.
-  - Use a single look file, so nothing overrides it.
-  - Remove the dead rules and files.
-  - Fix hyprlock and theme it with matugen.
-  - Drop the easyeffects exec.
-- Add spring curves, the tablet section and the gaming rules list.
-- **Spike:** confirm how to set Hyprland options at runtime under Lua (needed for game mode).
-- Validate in a nested `Hyprland -c` window first, then swap the symlink.
+### Phase 1: Hyprland core rewrite ✅ (ii is still the shell)
+- [x] 1:1 bind port through the `binds/shell.lua` action map (191 → 201 binds; the 10 new ones are Thai keycode binds)
+- [x] NVIDIA env: `LIBVA_DRIVER_NAME=nvidia`, `__GLX_VENDOR_LIBRARY_NAME=nvidia`, `NVD_BACKEND=direct`
+- [x] Thai-layout code:10-19 binds for SUPER+ALT+N
+- [x] Single look file (`core/look.lua`), so nothing overrides it
+- [x] Remove dead rules and files (ags/walker layer rules, touchpad gestures, `monitors.conf`, `workspaces.conf`)
+- [x] Fix hyprlock (no missing scripts, wallpaper background) and theme it with matugen
+- [x] Drop the easyeffects exec
+- [x] Spring curves (`core/motion.lua`)
+- [x] Tablet mapped to DP-1 at the screen's aspect ratio
+- [x] Gaming rules list (`immediate`, `content = "game"`, idle inhibit) plus `vrr = 2` and `direct_scanout = 2`
+- [x] Spike: runtime config under Lua → `hyprctl eval` / `hyprctl repl`
+- [x] Game mode in Hyprland Lua (`modes/gamemode.lua`), tested on and off
+- [x] Move matugen into the repo, with hypr outputs written to `hypr/generated/`
+- [~] Validate in a nested `Hyprland -c` window → replaced by `Hyprland --verify-config` plus auto-rollback in `install.sh` (a nested session would have started a second ii, hypridle and clipboard watchers)
+- [x] Swap the symlink live and check `hyprctl configerrors` is empty
+- [ ] Hands-on check by you: Super+Alt+number on the TH layout, tablet feel in CSP, a fullscreen game turns game mode on
 
-**Phase 2: Shell foundation and island MVP** ← first daily driver
-- core/, components/ and services/.
-- The island with all ambient states and the Search, Commands, Control, Media, Notifications, Power, Clipboard and Emoji views.
-- Corner pills, a plain wallpaper layer and the native Polkit agent.
-- Switch `shell = "somehypr"`.
-- Region tools and the overlay temporarily fall back to CLI scripts or ii binds.
+### Phase 2: Shell foundation and island MVP ← first daily driver
+- [ ] `shell/core/`: Config (JsonAdapter → `~/.config/somehypr/config.json`), Theme (matugen colors + tokens), Motion (spring presets), Paths, UiState
+- [ ] `shell/components/`: Icon, Label, PressButton, Slider, Toggle, GlassSurface, KeyNavList
+- [ ] Services: Audio, Media (Mpris), Notifications, HyprData (`Quickshell.Hyprland`), Apps (fuzzy + frecency), Clipboard, Tray, Network, Bluetooth, Brightness (ddcutil), KbLayout, Privacy, GameMode bridge
+- [ ] Island window: notch shape, input mask, `BackgroundEffect` blur, focus grab
+- [ ] Ambient states: polkit, notification peek, OSD, recording/screenshare, media, game-mode dot, idle clock
+- [ ] Super-tap search (apps, calculator, windows)
+- [ ] Commands view (`/wallpaper /settings /power /lock /clip /emoji /project /game /dnd /shot /ocr /record /keys`)
+- [ ] Control view (toggles + volume/mic/brightness sliders)
+- [ ] Media, Notifications, System, Power views
+- [ ] Clipboard and Emoji views
+- [ ] Corner pills: workspaces + active app (left), tray/layout/net/BT/volume/clock (right)
+- [ ] Plain wallpaper background layer
+- [ ] Native Polkit agent
+- [ ] Global shortcuts under appid `somehypr`, IPC targets for every view
+- [ ] Switch `shell = "somehypr"` in `hypr/user.lua`
+- [ ] Region tools and overlay fall back to CLI scripts for now
 
-**Phase 3: Wallpaper and theming**
-- `/wallpaper` picker with cached thumbnails.
-- mpvpaper video wallpapers (`hwdec=nvdec`), paused over its IPC socket during games, fullscreen and lock. A frame is extracted for matugen.
-- Day/night schedule.
-- App templates (GTK, Qt, kitty, Zen, vesktop).
+### Phase 3: Wallpaper and theming
+- [ ] `/wallpaper` picker with cached thumbnails
+- [ ] mpvpaper video wallpapers (`hwdec=nvdec`), paused during games, fullscreen and lock
+- [ ] Extract a video frame for matugen
+- [ ] Day/night schedule (wallpaper set, matugen mode, hyprsunset)
+- [ ] matugen-only terminal colors (replace ii's Python + `applycolor.sh`)
+- [ ] App templates: GTK, Qt/KDE color scheme, kitty, Zen glass, vesktop
 
-**Phase 4: Dock and Overview**
-- Bottom dock: pinned and running apps, intellihide, drag to reorder, context menu.
-- Overview (Super+Tab), ported: live `ScreencopyView` only while open, drag-and-drop between workspaces, special-workspace tile.
+### Phase 4: Dock and Overview
+- [ ] Bottom dock: pinned + running apps
+- [ ] Intellihide, drag to reorder, context menu
+- [ ] Overview (Super+Tab): live `ScreencopyView` only while open
+- [ ] Overview drag-and-drop between workspaces, special-workspace tile
 
-**Phase 5: Settings app and keybinds**
-- A separate `qs -p` window that is unloaded when closed.
-- Pages: Appearance (notch / floating / satellites, glass, motion), Island, Dock, Wallpaper, **Keybinds**, Hyprland and monitors (port your page), Autostart, Modes.
-- The **Keybinds** page edits `keybinds.json`, checks conflicts against `hyprctl binds -j`, then runs `hyprctl reload`.
-- The cheatsheet becomes the island `/keys` view, built from bind descriptions.
+### Phase 5: Settings app and keybinds
+- [ ] Separate `qs -p` settings window, unloaded when closed
+- [ ] Pages: Appearance (notch / floating / satellites, glass, motion), Island, Dock, Wallpaper
+- [ ] Keybinds page: edits `keybinds.json`, checks conflicts against `hyprctl binds -j`, then `hyprctl reload`
+- [ ] Hyprland + monitors page (port your page), Autostart, Modes
+- [ ] Island `/keys` cheatsheet built from bind descriptions
 
-**Phase 6: Capture and gaming tools**
-- Region tools UI: screenshot, OCR, Lens and translate (Super+Shift+S/X/A/T), plus record with an island indicator.
-- Game overlay (Super+G): crosshair, fps limit, notes, resources and mixer. It loads only when toggled.
-- Polish game mode.
+### Phase 6: Capture and gaming tools
+- [ ] Region tools UI: screenshot, OCR, Lens, translate (Super+Shift+S/X/A/T)
+- [ ] Record with an island indicator
+- [ ] Game overlay (Super+G): crosshair, fps limit, notes, resources, mixer
+- [ ] Game mode polish (gamemoded D-Bus, pause mpvpaper, hide widgets)
+- [ ] Streamer mode (DND, masked notifications, `no_screen_share`)
 
-**Phase 7: Lock, widgets, OSK**
-- The Quickshell lock screen, with hyprlock as the automatic fallback.
-- Desktop widgets (clock, media, system, notes) with a drag edit mode.
-- On-screen keyboard (Super+K).
+### Phase 7: Lock, widgets, OSK
+- [ ] Quickshell lock screen, hyprlock as automatic fallback
+- [ ] Desktop widgets (clock, media, system, notes) with drag edit mode
+- [ ] On-screen keyboard (Super+K)
 
-**Phase 8: Audit and retire ii**
-- Measure against the Targets.
-- Remove ii from autostart.
-- Offer an optional cleanup list for approval: the ii venv, unused Plasma services, `illogical-impulse-*` meta packages (Quickshell itself stays).
-- Optional experiment: the hyprglass refraction plugin.
+### Phase 8: Audit and retire ii
+- [ ] Measure against the Targets
+- [ ] Remove ii from autostart and the `hypr/hyprland/scripts` compat link
+- [ ] Optional cleanup for approval: ii venv, unused Plasma services, `illogical-impulse-*` meta packages
+- [ ] Optional experiment: hyprglass refraction plugin
 
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.
-  - `hyprctl binds -j | jq length` is 191 minus the intentionally removed binds.
+  - `hyprctl binds -j | jq length` is 201 (ii's 191 plus 10 Thai keycode binds).
   - Spot-check options with `hyprctl getoption`.
   - SUPER+ALT+N works with the TH layout active.
 - **Shell:**
