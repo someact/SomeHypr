@@ -1,0 +1,32 @@
+-- SomeHypr: Hyprland entry point.
+--
+-- Load order is fixed and every setting has exactly one home, so nothing
+-- silently overrides anything else. Machine-written files load last:
+--   generated/colors.lua    matugen (wallpaper colors)
+--   monitors.lua            display settings page
+--   generated/overrides.lua settings app (Phase 5)
+
+require("lib.util")
+require("user")
+
+require("core.env")
+require("core.input")
+require("core.look")
+require("core.motion")
+require("core.misc")
+
+require("rules.windows")
+require("rules.media")
+require("rules.art")
+require("rules.gaming")
+require("rules.layers")
+
+require("binds.keybinds")
+require("modes.gamemode")
+require("core.execs")
+
+if not require_optional("generated.colors") then
+    require("core.colors_default")
+end
+require_optional("monitors")
+require_optional("generated.overrides")

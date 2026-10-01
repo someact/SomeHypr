@@ -1,0 +1,6 @@
+# Machine-written at runtime (matugen, settings app)
+hypr/generated/*
+!hypr/generated/.gitkeep
+# ii writes video-wallpaper restore scripts and Hyprland overrides here
+hypr/custom/
+hypr/hyprland/shellOverrides/
