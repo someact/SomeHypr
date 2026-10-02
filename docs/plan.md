@@ -378,7 +378,7 @@ Root causes found:
   - Cost (live, video playing): Hyprland CPU 9.5→9.7 %, GPU 24.5→21.5 %, power 51→49 W, all within noise; +~40 MB VRAM; Hyprland RSS unchanged. Stats: ~4 layer draws per frame, background re-sampled only on change (~79 % cache hits)
 - [x] Settings → Appearance → Liquid glass: Build button (runs the script) when the plugin is missing, then the on/off switch, Look (Pomme/Clear/Subtle/Glass), On windows too
 - [x] Island glass on/off: off keeps only the island solid black (no frost, no rim); pills, dock and cards stay glass (`config.json` `glass.island`, `Theme.islandBlur`)
-- [ ] Hands-on check by you: Liquid glass look over real windows, which preset you like, and that the island tint (0.55) does not hide the effect too much
+- [ ] Hands-on check by you: a wrong password on the real lock screen (shapes stay through the shake, then clear); Liquid glass look over real windows, which preset you like, and that the island tint (0.55) does not hide the effect too much
 
 **9a++. README and workflow** (added 2026-10-03, on request)
 - [x] `README.md`: how it works (repo layout, Hyprland load order, the shell's parts, settings files), install, update, liquid glass, checks
@@ -403,7 +403,8 @@ Root causes found:
   - Settings → Island → Floating text (`pills.halo`, default shadow). Shadow: one MultiEffect drop shadow per floating pill (black 90 %, blur 0.35), only while floating. Outline: the glyph outline (no layer). Compared over a bright wallpaper (grim)
 - [x] Workspaces drawn with the Material shapes: the active one morphs into an expressive shape with its number (added on request)
   - Each workspace is a `MaterialShape`: empty 5 px dot, occupied 7 px, active 20 px `pills.workspaceShape` (Cookie, Clover, Sunny, Pill, Circle in Settings → Island) with its number; switching morphs and resizes on springs. Verified mid-switch frames (grim)
-- [ ] Password characters on the lock screen as Material shapes; only the typed or deleted one animates (covers 9g's lock dots item)
+- [x] Password characters on the lock screen as Material shapes; only the typed or deleted one animates (covers 9g's lock dots item)
+  - A fixed pool of 22 shape slots (shapes shuffled per lock): typing grows only the new one (bouncy scale + spin), backspace shrinks only the last, the row slides to stay centered; the placeholder fades in as the last shapes leave. A wrong password keeps the shapes through the shake (360 ms) and then clears them together. Verified typing, backspace and Esc in `lock preview` with ydotool (grim); the wrong-password path needs PAM → hands-on check
 - [x] Glass or floating per part of the corner pills (workspaces, app title, system tray, status icons, clock); neighboring glass parts join into one pill
   - `corners/PillPart.qml` per part (`Config.pills.<part>`); `CornerWindow` lays the visible parts out, draws one Glass per run of glass parts with dividers inside, blurs only those runs (no region when every part floats) and springs positions. Replaces the single `island.pillStyle`. Settings → Island → Corner pills: a Glass/Floating row per part plus Floating text. Verified all-glass (same look as before), floating workspaces + glass title, glass status + floating clock (grim)
 
@@ -430,7 +431,8 @@ Root causes found:
 - [ ] `/translate live` command and an overlay card entry
 
 **9g. Widgets and lock polish**
-- [ ] Lock dots: only the added or removed dot animates; smooth clear after the shake
+- [x] Lock dots: only the added or removed dot animates; smooth clear after the shake
+  - Done in 9b+ (password shapes)
 - [ ] New widgets: wallpaper, gallery, calendar, weather, lyrics, quick launch
 
 - [ ] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode

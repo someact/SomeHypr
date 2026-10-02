@@ -41,6 +41,29 @@ Item {
         function onFailed() {
             shake.restart();
         }
+        // A wrong password clears the text while PAM is still finishing: keep
+        // the shapes through the shake, then let them all spring out together
+        function onTextChanged() {
+            if (Lock.text === "" && Lock.busy)
+                clearAfterShake.restart();
+            else if (!clearAfterShake.running)
+                root.dotCount = Math.min(Lock.text.length, 22);
+        }
+    }
+    property int dotCount: 0
+    Timer {
+        id: clearAfterShake
+        interval: Motion.reduced ? 0 : 360
+        onTriggered: root.dotCount = Math.min(Lock.text.length, 22)
+    }
+    // A shuffled set of shapes per lock, so the password reads as a playful string
+    readonly property var passShapes: {
+        const s = ["cookie4Sided", "clover4Leaf", "sunny", "cookie7Sided", "heart", "softBurst", "pentagon", "clover8Leaf", "gem", "cookie12Sided", "flower", "puffy", "triangle", "diamond"];
+        for (let i = s.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [s[i], s[j]] = [s[j], s[i]];
+        }
+        return s;
     }
 
     // ── Backdrop ────────────────────────────────────────────────────────────
@@ -222,27 +245,51 @@ Item {
 
             Label {
                 anchors.centerIn: parent
-                visible: Lock.text === ""
+                // Fades in as the last shapes spring out
+                opacity: root.dotCount === 0 ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity {
+                    NumberAnimation { duration: Motion.normal }
+                }
                 text: Lock.busy ? "Checking…" : Lock.preview ? "Preview · Esc closes" : "Enter password"
                 color: Qt.rgba(1, 1, 1, 0.6)
             }
 
+            // Typed characters as Material shapes (ii's lock look). A fixed pool of
+            // 22: typing only changes which are shown, so only the added or deleted
+            // shape animates, and the row slides to stay centered.
             Row {
                 anchors.centerIn: parent
                 anchors.horizontalCenterOffset: -12
-                spacing: 7
                 Repeater {
-                    model: Math.min(Lock.text.length, 22)
-                    Rectangle {
-                        width: 9
-                        height: 9
-                        radius: 4.5
-                        color: "white"
-                        opacity: Lock.busy ? 0.5 : 1
-                        scale: 0
-                        Component.onCompleted: scale = 1
-                        Behavior on scale {
-                            Spring { preset: "bouncy" }
+                    model: 22
+                    Item {
+                        id: dot
+                        required property int index
+                        readonly property bool on: index < root.dotCount
+                        width: on ? 17 : 0
+                        height: 17
+                        Behavior on width {
+                            Spring { preset: "snappy" }
+                        }
+                        MaterialShape {
+                            anchors.centerIn: parent
+                            width: 13
+                            height: 13
+                            shape: root.passShapes[dot.index % root.passShapes.length]
+                            color: "white"
+                            opacity: Lock.busy ? 0.5 : 1
+                            scale: dot.on ? 1 : 0
+                            rotation: dot.on ? 0 : -60
+                            Behavior on scale {
+                                Spring { preset: "bouncy" }
+                            }
+                            Behavior on rotation {
+                                Spring { preset: "smooth" }
+                            }
+                            Behavior on opacity {
+                                NumberAnimation { duration: Motion.fast }
+                            }
                         }
                     }
                 }
