@@ -387,7 +387,8 @@ Root causes found:
 **9b. Expressive icon and type style**
 - [~] Port ii's `MaterialShape` + `shapes/` to `components/Shape*.qml`
   - Shape math vendored unchanged in `shell/lib/shapes/` (Apache-2.0, attribution README); `components/MaterialShape.qml` draws it with QtQuick.Shapes (CurveRenderer) instead of ii's Canvas, so no offscreen texture per shape. `shape` changes morph with a spring; the path is rebuilt only during the morph. Verified all 35 names render and morph (grim)
-- [ ] `components/ShapeIcon.qml`: floating icon with no background and an outline or soft shadow; tinted shape only when active
+- [x] `components/ShapeIcon.qml`: floating icon with no background and an outline or soft shadow; tinted shape only when active
+  - The halo is a glyph outline (`Text.Outline`, black 35 %), not a shadow effect, so it adds no layer; active springs the shape in (bouncy) and fills the icon. Verified on a light background (grim)
 - [ ] Toggles, IconButton and PressButton morph their corner radius (pill ↔ squircle) when active
 - [ ] Type: titles at wght 550, tabular numbers; Material Symbols face count stays ≤ 5
 - [ ] Pill icon style setting: `floating` (phone status bar) / `glass`
