@@ -99,8 +99,9 @@ Page {
         SettingRow {
             icon: "cookie"
             title: "Active workspace shape"
+            subtitle: "Dynamic gives every workspace number its own shape"
             Choice {
-                model: [{ value: "cookie7Sided", label: "Cookie" }, { value: "clover4Leaf", label: "Clover" }, { value: "sunny", label: "Sunny" }, { value: "pill", label: "Pill" }, { value: "circle", label: "Circle" }]
+                model: [{ value: "dynamic", label: "Dynamic" }, { value: "cookie7Sided", label: "Cookie" }, { value: "clover4Leaf", label: "Clover" }, { value: "sunny", label: "Sunny" }, { value: "pill", label: "Pill" }, { value: "circle", label: "Circle" }]
                 value: Config.pills.workspaceShape
                 onPicked: v => Config.pills.workspaceShape = v
             }

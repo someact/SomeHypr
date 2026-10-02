@@ -15,6 +15,15 @@ QtObject {
 
     required property var win     // the CornerWindow (tray menus anchor to it)
 
+    // The active workspace's shape: the one picked in Settings, or with
+    // "dynamic" a fixed shape per workspace number (stable, so a workspace
+    // always looks the same and switching morphs between them)
+    readonly property var dynamicShapes: ["cookie4Sided", "clover4Leaf", "cookie7Sided", "sunny", "flower", "softBurst", "pentagon", "cookie9Sided", "clover8Leaf", "puffy"]
+    function wsShape(id) {
+        const s = Config.pills.workspaceShape;
+        return s === "dynamic" ? dynamicShapes[((id - 1) % 10 + 10) % 10] : s;
+    }
+
     property SystemClock time: SystemClock {
         precision: SystemClock.Minutes
     }
@@ -55,7 +64,7 @@ QtObject {
                     }
 
                     // Expressive: the active workspace morphs from a dot into a Material
-                    // shape (Config.pills.workspaceShape) holding its number. Holding Super
+                    // shape (root.wsShape) holding its number. Holding Super
                     // turns every slot into that shape with its number: filled when it
                     // has windows, an outline when empty.
                     readonly property bool held: UiState.superHeld
@@ -63,7 +72,7 @@ QtObject {
                         anchors.centerIn: parent
                         width: ws.isActive ? 20 : ws.held ? 18 : ws.isOccupied ? 7 : 5
                         height: width
-                        shape: ws.isActive || ws.held ? Config.pills.workspaceShape : "circle"
+                        shape: ws.isActive || ws.held ? root.wsShape(ws.wsId) : "circle"
                         color: ws.isActive ? Theme.primary : ws.held ? (ws.isOccupied ? wsPart.fg : "transparent") : ws.isOccupied ? wsPart.fg : wsPart.floating ? wsPart.fgDim : Theme.outlineVariant
                         borderWidth: ws.held && !ws.isActive && !ws.isOccupied ? 1.5 : wsPart.outline ? 1 : 0
                         borderColor: ws.held && !ws.isActive && !ws.isOccupied ? wsPart.fgDim : wsPart.halo
@@ -128,7 +137,7 @@ QtObject {
                         icon: "star"
                         size: 13
                         padding: 3
-                        shape: Config.pills.workspaceShape
+                        shape: Config.pills.workspaceShape === "dynamic" ? "cookie12Sided" : Config.pills.workspaceShape
                         active: sp.open
                         halo: specialPart.outline
                         iconColor: specialPart.fg

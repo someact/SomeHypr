@@ -422,6 +422,9 @@ Root causes found:
 - [x] Pill layout: each part (workspaces, title, tray, status, clock) can go to the left or right corner or beside the island, be reordered, and be shown or hidden; editor in Settings → Island (added 2026-10-03)
   - `corners/PillParts.qml` holds every part by id (workspaces, special, title, tray, status, clock); `corners/Pills.qml` makes up to four zone windows per screen (left, islandLeft, islandRight, right), each only while its list in `pills.layout` is non-empty; `CornerWindow` loads its zone's parts in order. Settings → Island → Pill layout: place (Left, ◂ Island, Island ▸, Right, Off) and ‹ › to reorder. Verified clicks: moving Workspaces to the right corner and reordering it before the tray
 
+- [x] "Dynamic" active workspace shape: a fixed shape per workspace number (like the password shapes, but stable) (added 2026-10-03)
+  - Settings → Island → Active workspace shape → Dynamic: 1 cookie4, 2 clover4, 3 cookie7, 4 sunny, 5 flower, 6 soft burst, 7 pentagon, 8 cookie9, 9 clover8, 10 puffy (repeats per group); also the Super-held view. Verified switching 1 → 2 morphs cookie → clover and the held view shows all ten (grim)
+
 **9d. Island interaction**
 - [ ] Hover peek (~180 ms) with a top-edge hot strip; leaving closes it after ~300 ms; a click or Super opens the full view; no keyboard focus; off in game mode and fullscreen
 - [ ] Quick options: a stable tile model (`services/QuickTiles.qml`) that fixes the frame skip; icon or full tiles; edit mode (add, hide, reorder) stored in `control.tiles`
