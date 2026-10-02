@@ -36,7 +36,7 @@ PressButton {
             Label {
                 width: parent.width
                 text: root.title
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
                 color: root.active ? Theme.fgPrimary : Theme.fgIsland
             }
             Label {

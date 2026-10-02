@@ -90,7 +90,7 @@ FocusScope {
             mono: true
             text: Math.round(meter.value * 100) + "%"
             font.pixelSize: Theme.font.title
-            font.weight: Font.DemiBold
+            font.weight: Theme.font.weightTitle
         }
         Rectangle {
             x: 14

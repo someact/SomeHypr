@@ -70,7 +70,7 @@ PressButton {
         text: key.label
         color: key.active ? Theme.fgPrimary : Theme.fgSurface
         font.pixelSize: key.keyData.l.length > 1 && !key.thaiLabels ? Math.round(key.unit * 0.3) : Math.round(key.unit * 0.42)
-        font.weight: key.keyData.l.length > 1 ? Font.Medium : Font.Normal
+        font.weight: key.keyData.l.length > 1 ? Font.Medium : Theme.font.weight
         elide: Text.ElideNone
     }
 }

@@ -59,7 +59,7 @@ CornerWindow {
         text: KbLayout.code
         visible: text !== ""
         font.pixelSize: Theme.font.small
-        font.weight: Font.DemiBold
+        font.weight: Theme.font.weightTitle
         color: Theme.fgSurface
         MouseArea {
             anchors.fill: parent
@@ -88,7 +88,7 @@ CornerWindow {
         // The island shows the time while idle; don't repeat it here
         text: UiState.ambient === "clock" ? Qt.formatDateTime(clock.date, Config.clock.dateFormat) : Qt.formatDateTime(clock.date, Config.clock.dateFormat + "  " + Config.clock.format)
         font.pixelSize: Theme.font.small
-        font.weight: Font.DemiBold
+        font.weight: Theme.font.weightTitle
         color: Theme.fgSurface
         MouseArea {
             anchors.fill: parent

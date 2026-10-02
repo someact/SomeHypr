@@ -116,7 +116,7 @@ Item {
             text: Qt.formatTime(clock.date, Config.clock.format)
             color: "white"
             font.pixelSize: Math.round(Math.min(root.height * 0.17, 180))
-            font.weight: Font.DemiBold
+            font.weight: Theme.font.weightTitle
             font.features: ({ "tnum": 1 })
             style: Text.Normal
         }
@@ -145,7 +145,7 @@ Item {
                 text: Lock.userName.charAt(0).toUpperCase()
                 color: "white"
                 font.pixelSize: 30
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
             }
             Image {
                 anchors.fill: parent
@@ -161,7 +161,7 @@ Item {
             text: Lock.userName
             color: "white"
             font.pixelSize: Theme.font.large
-            font.weight: Font.DemiBold
+            font.weight: Theme.font.weightTitle
         }
 
         // The field: a glass pill with dots for typed characters
@@ -334,7 +334,7 @@ Item {
                 text: chip.text
                 color: "white"
                 font.pixelSize: Theme.font.small
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
             }
         }
     }
@@ -399,7 +399,7 @@ Item {
                         width: parent.width
                         text: Media.title
                         color: "white"
-                        font.weight: Font.DemiBold
+                        font.weight: Theme.font.weightTitle
                     }
                     Label {
                         id: artistText

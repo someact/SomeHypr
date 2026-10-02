@@ -66,7 +66,7 @@ Item {
                 width: parent.width
                 text: root.title
                 mono: root.monoTitle
-                font.weight: root.current ? Font.DemiBold : Font.Normal
+                font.weight: root.current ? Theme.font.weightTitle : Theme.font.weight
             }
             Label {
                 width: parent.width

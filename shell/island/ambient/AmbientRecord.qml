@@ -31,7 +31,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             mono: true
             text: Recorder.elapsedText
-            font.weight: Font.DemiBold
+            font.weight: Theme.font.weightTitle
         }
         Icon {
             anchors.verticalCenter: parent.verticalCenter

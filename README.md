@@ -65,6 +65,8 @@ paru -S ttf-material-symbols-variable-git ttf-jetbrains-mono-nerd
 # plus Google Sans Flex (from Google Fonts) in ~/.local/share/fonts
 ```
 
+> On this machine, Google Sans Flex and the Material Symbols file the shell loads both come from ii's `ii-sddm-theme-fonts` package. Before you remove the `illogical-impulse-*` packages, copy the fonts to `~/.local/share/fonts`, or the shell falls back to other fonts.
+
 Then link everything:
 
 ```sh

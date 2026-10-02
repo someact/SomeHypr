@@ -58,7 +58,7 @@ FilterListView {
             text: row.modelData.group ?? ""
             color: Theme.primary
             font.pixelSize: Theme.font.small
-            font.weight: Font.DemiBold
+            font.weight: Theme.font.weightTitle
         }
 
         Label {

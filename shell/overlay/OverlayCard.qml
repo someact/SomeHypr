@@ -76,7 +76,7 @@ Item {
             Label {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.title
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
             }
         }
         MouseArea {

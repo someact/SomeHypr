@@ -199,7 +199,7 @@ Scope {
                             anchors.centerIn: parent
                             text: "Done"
                             color: Theme.fgPrimary
-                            font.weight: Font.DemiBold
+                            font.weight: Theme.font.weightTitle
                         }
                     }
                 }

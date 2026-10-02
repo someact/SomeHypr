@@ -68,7 +68,7 @@ Page {
                 SText {
                     width: parent.width
                     text: page.current === "" ? "No wallpaper set" : page.current.split("/").pop()
-                    font.weight: Font.DemiBold
+                    font.weight: Theme.font.weightTitle
                 }
                 SText {
                     width: parent.width

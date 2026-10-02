@@ -59,7 +59,7 @@ FocusScope {
                 width: parent.width
                 text: Media.title
                 font.pixelSize: Theme.font.large
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
             }
             Label {
                 width: parent.width

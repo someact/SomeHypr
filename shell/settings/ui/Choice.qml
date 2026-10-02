@@ -50,7 +50,7 @@ Row {
                     anchors.verticalCenter: parent.verticalCenter
                     text: seg.modelData.label
                     color: seg.on ? Theme.fgSecondaryContainer : Theme.fgSurface
-                    font.weight: seg.on ? Font.DemiBold : Font.Normal
+                    font.weight: seg.on ? Theme.font.weightTitle : Theme.font.weight
                 }
             }
         }

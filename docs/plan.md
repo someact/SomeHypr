@@ -391,7 +391,10 @@ Root causes found:
   - The halo is a glyph outline (`Text.Outline`, black 35 %), not a shadow effect, so it adds no layer; active springs the shape in (bouncy) and fills the icon. Verified on a light background (grim)
 - [x] Toggles, IconButton and PressButton morph their corner radius (pill ↔ squircle) when active
   - `PressButton.radius` (rest) / `activeRadius` (on), a press tightens the corners to 80 %, all on a retargeting spring. Toggle tiles: pill off, 14 px squircle on; IconButton: circle off, 32 % squircle on. Buttons that set only `radius` keep their shape. Verified in the Control view (grim)
-- [ ] Type: titles at wght 550, tabular numbers; Material Symbols face count stays ≤ 5
+- [x] Type: titles at wght 550, tabular numbers; Material Symbols face count stays ≤ 5
+  - `Theme.font.weight` 450 (body, every Label) and `weightTitle` 550 (was DemiBold 600 in 41 places), set with `font.weight` (the variable font's wght axis), not `variableAxes`. Label digits are always tabular
+  - Fresh shell after opening every main view: Google Sans Flex 1 mapping, Material Symbols 5, anon 152 MB (Phase 8 fresh: ~170 MB)
+  - Found: both fonts load from ii's `ii-sddm-theme-fonts` package; README warns to copy them before removing ii packages
 - [ ] Pill icon style setting: `floating` (phone status bar) / `glass`
 
 **9c. Corner pills and workspaces**

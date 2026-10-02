@@ -66,7 +66,7 @@ FocusScope {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Translate"
                 font.pixelSize: Theme.font.large
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
             }
             Item {
                 width: parent.width - 22 - x - langs.width - 10

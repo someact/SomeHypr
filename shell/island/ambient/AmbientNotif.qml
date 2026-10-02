@@ -35,7 +35,7 @@ Item {
             Label {
                 width: parent.width
                 text: root.n?.summary || root.n?.appName || ""
-                font.weight: Font.DemiBold
+                font.weight: Theme.font.weightTitle
             }
             Label {
                 width: parent.width

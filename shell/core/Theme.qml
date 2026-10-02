@@ -71,6 +71,9 @@ Singleton {
         readonly property string ui: "Google Sans Flex"
         readonly property string mono: "JetBrainsMono Nerd Font"
         readonly property string icon: "Material Symbols Rounded"
+        // Google Sans Flex is variable: these weights land on its wght axis (ii's look)
+        readonly property int weight: 450       // body text, a touch firmer than Regular on glass
+        readonly property int weightTitle: 550  // titles and labels that were DemiBold
         readonly property int small: 11
         readonly property int normal: 13
         readonly property int large: 16

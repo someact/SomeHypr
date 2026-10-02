@@ -86,7 +86,7 @@ Scope {
                         Label {
                             width: parent.width
                             text: win.n?.summary || win.n?.appName || ""
-                            font.weight: Font.DemiBold
+                            font.weight: Theme.font.weightTitle
                         }
                         Label {
                             width: parent.width
