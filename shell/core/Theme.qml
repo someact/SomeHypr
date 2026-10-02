@@ -57,7 +57,9 @@ Singleton {
     readonly property color fgPill: pillsFloating ? "#ffffff" : fgSurface
     readonly property color fgPillDim: pillsFloating ? Qt.rgba(1, 1, 1, 0.6) : outline
     readonly property color pillHalo: Qt.rgba(0, 0, 0, 0.6)
-    readonly property int pillTextStyle: pillsFloating ? Text.Outline : Text.Normal
+    // Halo: a soft drop shadow (one MultiEffect per floating pill) or a glyph outline (free)
+    readonly property bool pillShadow: pillsFloating && Config.pills.halo === "shadow"
+    readonly property int pillTextStyle: pillsFloating && !pillShadow ? Text.Outline : Text.Normal
 
     // Tokens
     readonly property QtObject radius: QtObject {

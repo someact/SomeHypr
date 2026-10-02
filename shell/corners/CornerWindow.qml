@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import qs.core
@@ -60,6 +61,17 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             x: 8
             spacing: 8
+
+            layer.enabled: Theme.pillShadow
+            layer.effect: MultiEffect {
+                autoPaddingEnabled: true
+                shadowEnabled: true
+                shadowColor: Qt.rgba(0, 0, 0, 0.9)
+                shadowBlur: 0.35
+                blurMax: 6
+                shadowVerticalOffset: 1
+                shadowHorizontalOffset: 0
+            }
         }
     }
 }

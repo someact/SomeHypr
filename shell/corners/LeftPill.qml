@@ -40,7 +40,7 @@ CornerWindow {
                     height: 6
                     radius: 3
                     color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgPill : Theme.pillsFloating ? Theme.fgPillDim : Theme.outlineVariant
-                    border.width: Theme.pillsFloating ? 1 : 0
+                    border.width: Theme.pillsFloating && !Theme.pillShadow ? 1 : 0
                     border.color: Theme.pillHalo
                     Behavior on width {
                         Spring { preset: "snappy" }

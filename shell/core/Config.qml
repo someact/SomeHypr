@@ -12,6 +12,7 @@ Singleton {
 
     readonly property alias island: adapter.island
     readonly property alias glass: adapter.glass
+    readonly property alias pills: adapter.pills
     readonly property alias motion: adapter.motion
     readonly property alias clock: adapter.clock
     readonly property alias search: adapter.search
@@ -58,6 +59,9 @@ Singleton {
                 property real islandTint: 0.55        // the island's darker "hardware" tint
                 property bool rim: true               // 1 px light rim and top highlight
                 property bool island: true            // false: the island alone is solid black (no frost)
+            }
+            property JsonObject pills: JsonObject {
+                property string halo: "shadow"        // floating text and icons: shadow (soft) | outline
             }
             property JsonObject motion: JsonObject {
                 property real speed: 1.0              // scales every spring

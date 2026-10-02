@@ -398,6 +398,11 @@ Root causes found:
 - [x] Pill icon style setting: `floating` (phone status bar) / `glass`
   - Settings → Island → Corner pills (`island.pillStyle`). Floating: no background or blur; text, icons and workspace dots are white with a 60 % dark glyph halo (`Theme.fgPill`, `pillHalo`). On a very bright wallpaper white text stays a little weak (no per-wallpaper adaptive color yet)
 
+**9b+. Pill parts and halo** (added 2026-10-03, on request)
+- [x] Floating text and icons: halo choice, soft shadow or outline
+  - Settings → Island → Floating text (`pills.halo`, default shadow). Shadow: one MultiEffect drop shadow per floating pill (black 90 %, blur 0.35), only while floating. Outline: the glyph outline (no layer). Compared over a bright wallpaper (grim)
+- [ ] Glass or floating per part of the corner pills (workspaces, app title, system tray, status icons, clock); neighboring glass parts join into one pill
+
 **9c. Corner pills and workspaces**
 - [ ] Show only occupied workspaces plus the active one; they spring in and out
 - [ ] Special-workspace chip (click toggles it)

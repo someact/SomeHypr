@@ -20,6 +20,17 @@ Page {
                 onPicked: v => Config.island.pillStyle = v
             }
         }
+        SettingRow {
+            icon: "shadow"
+            title: "Floating text"
+            subtitle: "How floating icons and text stay readable: a soft shadow, or a thin outline (lightest)"
+            enabled: Config.island.pillStyle === "floating"
+            Choice {
+                model: [{ value: "shadow", label: "Shadow" }, { value: "outline", label: "Outline" }]
+                value: Config.pills.halo
+                onPicked: v => Config.pills.halo = v
+            }
+        }
     }
 
     Section {
