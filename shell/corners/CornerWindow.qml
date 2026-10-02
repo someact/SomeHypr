@@ -21,7 +21,9 @@ PanelWindow {
     anchors.top: true
     anchors.left: left
     anchors.right: !left
-    implicitWidth: 640
+    // Satellites: the window reaches the screen center so the pill can sit beside the island
+    readonly property bool satellite: Config.island.style === "satellites"
+    implicitWidth: satellite ? Math.floor(modelData.width / 2) : 640
     implicitHeight: Theme.barHeight + 8
     color: "transparent"
 
@@ -38,7 +40,7 @@ PanelWindow {
 
     GlassSurface {
         id: pill
-        x: win.left ? 6 : win.width - width - 6
+        x: win.satellite ? (win.left ? win.width - UiState.islandWidth / 2 - 6 - width : UiState.islandWidth / 2 + 6) : (win.left ? 6 : win.width - width - 6)
         y: UiState.hidden ? -height - 4 : 3
         height: Theme.barHeight - 6
         width: row.implicitWidth + 16

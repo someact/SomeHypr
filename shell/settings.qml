@@ -1,0 +1,179 @@
+//@ pragma UseQApplication
+//@ pragma Env QS_NO_RELOAD_POPUP=1
+//@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
+//@ pragma Env __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
+
+// SomeHypr settings app: `qs -p ~/.config/quickshell/somehypr/settings.qml`
+// (or `qs -c somehypr ipc call settings open`). Its own process, so it costs
+// nothing while closed. Pages load one at a time.
+
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import Quickshell.Hyprland
+import qs.core
+import qs.components
+import qs.settings
+import qs.settings.ui
+
+ShellRoot {
+    id: app
+
+    readonly property var pages: [
+        { id: "appearance", name: "Appearance", icon: "palette" },
+        { id: "island", name: "Island", icon: "toast" },
+        { id: "dock", name: "Dock", icon: "dock_to_bottom" },
+        { id: "wallpaper", name: "Wallpaper", icon: "wallpaper" },
+        { id: "keybinds", name: "Keybinds", icon: "keyboard" },
+        { id: "hyprland", name: "Hyprland", icon: "tune" },
+        { id: "displays", name: "Displays", icon: "desktop_windows" },
+        { id: "apps", name: "Apps & Autostart", icon: "apps" },
+        { id: "modes", name: "Modes", icon: "sports_esports" }
+    ]
+    property string page: pageOrDefault(Quickshell.env("SOMEHYPR_SETTINGS_PAGE"))
+
+    function pageOrDefault(id) {
+        return pages.some(p => p.id === id) ? id : "appearance";
+    }
+    function fileFor(id) {
+        return "settings/pages/" + id.charAt(0).toUpperCase() + id.slice(1) + "Page.qml";
+    }
+
+    IpcHandler {
+        target: "settingsApp"
+        function focus(page: string): void {
+            if (page !== "")
+                app.page = app.pageOrDefault(page);
+            Hyprland.dispatch(`hl.dsp.focus({ window = "title:^(SomeHypr Settings)$" })`);
+        }
+    }
+
+    FloatingWindow {
+        id: win
+        title: "SomeHypr Settings"
+        implicitWidth: 1080
+        implicitHeight: 740
+        minimumSize: Qt.size(760, 480)
+        color: Theme.surface
+        onClosed: Qt.quit()
+
+        // Navigation rail
+        Rectangle {
+            id: rail
+            width: 232
+            height: parent.height
+            color: Theme.surfaceContainer
+
+            Column {
+                x: 12
+                y: 20
+                width: parent.width - 24
+                spacing: 2
+
+                SText {
+                    leftPadding: 12
+                    bottomPadding: 14
+                    text: "Settings"
+                    font.pixelSize: Theme.font.title
+                    font.weight: Font.DemiBold
+                }
+
+                Repeater {
+                    model: app.pages
+                    PressButton {
+                        id: nav
+                        required property var modelData
+                        readonly property bool current: app.page === modelData.id
+                        width: parent.width
+                        height: 44
+                        radius: 22
+                        color: current ? Theme.secondaryContainer : "transparent"
+                        hoverColor: current ? Theme.secondaryContainer : Theme.surfaceHigh
+                        onClicked: app.page = modelData.id
+
+                        Row {
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: 16
+                            spacing: 14
+                            Icon {
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: nav.modelData.icon
+                                size: 22
+                                fill: nav.current ? 1 : 0
+                                color: nav.current ? Theme.fgSecondaryContainer : Theme.fgSurfaceVariant
+                            }
+                            SText {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: nav.modelData.name
+                                color: nav.current ? Theme.fgSecondaryContainer : Theme.fgSurface
+                                font.weight: nav.current ? Font.DemiBold : Font.Normal
+                            }
+                        }
+                    }
+                }
+            }
+
+            SText {
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 16
+                x: 24
+                width: parent.width - 48
+                text: HyprSettings.reloading ? "Applying…" : "Changes apply as you make them"
+                dim: true
+                font.pixelSize: Theme.font.small
+                wrapMode: Text.Wrap
+                elide: Text.ElideNone
+            }
+        }
+
+        Loader {
+            id: pageLoader
+            anchors.left: rail.right
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: errorBar.top
+            source: app.fileFor(app.page)
+            onLoaded: {
+                item.opacity = 0;
+                fadeIn.restart();
+            }
+            NumberAnimation {
+                id: fadeIn
+                target: pageLoader.item
+                property: "opacity"
+                to: 1
+                duration: Motion.normal
+            }
+        }
+
+        // Hyprland config errors after the last change
+        Rectangle {
+            id: errorBar
+            anchors.left: rail.right
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: visible ? errText.implicitHeight + 24 : 0
+            visible: HyprSettings.errors !== ""
+            color: Theme.error
+            Icon {
+                id: errIcon
+                x: 20
+                y: 12
+                name: "error"
+                size: 20
+                color: Theme.surface
+            }
+            SText {
+                id: errText
+                x: 52
+                y: 12
+                width: parent.width - 72
+                text: "Hyprland reported a problem:\n" + HyprSettings.errors
+                color: Theme.surface
+                wrapMode: Text.Wrap
+                elide: Text.ElideNone
+                maximumLineCount: 8
+            }
+        }
+    }
+}

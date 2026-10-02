@@ -26,4 +26,11 @@ hl.on("hyprland.start", function()
     end
 
     hl.exec_cmd("hyprctl setcursor Bibata-Modern-Classic 24")
+
+    -- Your own autostart entries (settings app, Autostart page)
+    for _, entry in ipairs(setting("autostart", {})) do
+        if type(entry) == "table" and entry.enabled ~= false and type(entry.command) == "string" and entry.command ~= "" then
+            hl.exec_cmd(entry.command)
+        end
+    end
 end)

@@ -38,3 +38,25 @@ function matches_any(s, patterns)
     end
     return false
 end
+
+JSON = require("lib.json")
+SOMEHYPR_DIR = (os.getenv("XDG_CONFIG_HOME") or HOME .. "/.config") .. "/somehypr"
+
+-- Choices made in the settings app (~/.config/somehypr/hypr.json). The file only
+-- holds what was changed there, so the repo defaults apply to everything else.
+-- A broken file is ignored (SETTINGS_ERROR says why) rather than breaking the config.
+SETTINGS, SETTINGS_ERROR = JSON.read(SOMEHYPR_DIR .. "/hypr.json")
+if SETTINGS_ERROR == "missing" then SETTINGS_ERROR = nil end
+SETTINGS = type(SETTINGS) == "table" and SETTINGS or {}
+
+-- setting("apps.terminal", "kitty"): the hypr.json value at a dotted path, or
+-- `default` when unset (empty strings count as unset)
+function setting(path, default)
+    local v = SETTINGS
+    for part in path:gmatch("[^.]+") do
+        if type(v) ~= "table" then return default end
+        v = v[part]
+    end
+    if v == nil or v == "" then return default end
+    return v
+end

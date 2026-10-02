@@ -28,6 +28,8 @@ for _, title in ipairs({ ".*Welcome", "^(illogical-impulse Settings)$", ".*Shell
     hl.window_rule({ match = { title = title }, float = true })
 end
 
+hl.window_rule({ match = { title = "^(SomeHypr Settings)$" }, center = true, size = { 1080, 740 } })
+
 -- kde-material-you-colors flashes a window when switching dark/light: hide it off-screen
 hl.window_rule({ match = { class = "^(plasma-changeicons)$" }, float = true, no_initial_focus = true, move = { 999999, 999999 } })
 

@@ -18,6 +18,7 @@ Singleton {
     property bool hidden: false          // Super+J hides the island and pills
     property bool caffeine: false        // block idle (screen off / lock)
     property string ambient: "clock"     // what the collapsed island shows (set by Island)
+    property real islandWidth: 160       // live island width (satellite pills sit beside it)
     property bool overview: false        // Super+Tab workspace overview (never open together with the island)
 
     // Super tap: press arms it, any other key while held disarms it

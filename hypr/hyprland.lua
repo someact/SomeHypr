@@ -3,8 +3,8 @@
 -- Load order is fixed and every setting has exactly one home, so nothing
 -- silently overrides anything else. Machine-written files load last:
 --   generated/colors.lua    matugen (wallpaper colors)
---   monitors.lua            display settings page
---   generated/overrides.lua settings app (Phase 5)
+--   monitors.lua            settings app, Displays page
+--   core/settings.lua       settings app choices (~/.config/somehypr/hypr.json)
 
 require("lib.util")
 require("user")
@@ -21,7 +21,9 @@ require("rules.art")
 require("rules.gaming")
 require("rules.layers")
 
+require("binds.user")      -- keybinds.json: remaps apply while keybinds.lua binds
 require("binds.keybinds")
+UserBinds.finish()
 require("modes.gamemode")
 require("core.execs")
 
@@ -29,4 +31,4 @@ if not require_optional("generated.colors") then
     require("core.colors_default")
 end
 require_optional("monitors")
-require_optional("generated.overrides")
+require("core.settings")

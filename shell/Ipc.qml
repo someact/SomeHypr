@@ -75,10 +75,15 @@ Scope {
         }
     }
 
+    // The settings app is its own process (`qs -p settings.qml`), alive only while
+    // its window is open. A second open raises the running one instead.
     IpcHandler {
         target: "settings"
         function open(): void {
-            Quickshell.execDetached(["xdg-open", Paths.config]);
+            Session.openSettings("");
+        }
+        function page(name: string): void {
+            Session.openSettings(name);
         }
     }
 
@@ -89,6 +94,18 @@ Scope {
         }
         function random(): void {
             Wallpaper.random();
+        }
+        function pick(): void {
+            Wallpaper.pick();
+        }
+        // dark | light
+        function mode(m: string): void {
+            Wallpaper.setMode(m);
+        }
+        // a matugen scheme, e.g. scheme-tonal-spot
+        function scheme(name: string): void {
+            Config.theme.scheme = name;
+            Wallpaper.retheme();
         }
     }
 }

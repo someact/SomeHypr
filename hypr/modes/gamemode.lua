@@ -31,7 +31,7 @@ local function apply(on)
     else
         hl.config({
             decoration = { blur = { enabled = look.blur.enabled }, shadow = { enabled = look.shadow.enabled } },
-            animations = { enabled = true },
+            animations = { enabled = look.animations ~= false },
         })
     end
 end

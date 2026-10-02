@@ -1,4 +1,5 @@
--- User choices. Hand-edited for now; the settings app (Phase 5) will own these.
+-- User choices: the defaults below, overridden by the settings app (hypr.json,
+-- see the end of this file). `shell` is only ever set here.
 
 -- Which Quickshell config draws the desktop: "ii" (end-4, current) or
 -- "somehypr" (the new shell, from Phase 2). Changing this switches every
@@ -25,3 +26,10 @@ glass = false
 
 -- Game mode: turn off blur, shadows and animations while a game is fullscreen.
 gameModeAuto = true
+
+-- Settings app overrides (Appearance, Modes and Apps pages)
+glass = setting("glass", glass)
+gameModeAuto = setting("gameModeAuto", gameModeAuto)
+for _, name in ipairs({ "terminal", "fileManager", "browser", "codeEditor", "textEditor", "officeSoftware", "volumeMixer", "taskManager" }) do
+    _G[name] = setting("apps." .. name, _G[name])
+end

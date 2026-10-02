@@ -5,10 +5,11 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
 
 ## Layout
 - `hypr/` is linked to `~/.config/hypr`. `hyprland.lua` loads files in a fixed order, and each setting lives in exactly one file:
-  - `user.lua` holds user choices: `shell`, apps, `glass`, `gameModeAuto`.
+  - `user.lua` holds user choices: `shell`, apps, `glass`, `gameModeAuto`. The settings app overrides all but `shell` through `~/.config/somehypr/hypr.json` (`SETTINGS`, loaded by `lib/util.lua` with `lib/json.lua`); `core/settings.lua` loads last and applies its `hyprland` table (a partial `hl.config`). The file only holds changed values.
   - `core/` covers env (NVIDIA), input and tablet, look, motion, misc, and execs.
   - `rules/` holds window rules (windows, media, art, gaming) and layer rules.
   - `binds/keybinds.lua` holds every bind. Shell binds go through `shell_bind()` / `SHELL_ACTIONS` in `binds/shell.lua`, so switching `shell` retargets them.
+  - `binds/user.lua` applies `~/.config/somehypr/keybinds.json` (settings app): it wraps `hl.bind` while keybinds.lua runs (remap/disable by normalized combo), then `UserBinds.finish()` adds custom binds and the `somehypr-record` submap. User changes never go into keybinds.lua.
   - `modes/gamemode.lua` turns blur, shadows and animations off while a game is the focused fullscreen window. Control it with `hyprctl eval 'GameMode.toggle()'` and `'GameMode.auto()'`.
   - `generated/` is machine-written (matugen) and gitignored. `monitors.lua` is written by the display settings page.
   - `hyprland/scripts` is a symlink so that ii's hardcoded paths keep working. Remove it with ii in Phase 8.
@@ -19,6 +20,7 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `island/Island.qml` is the notch window; `island/views/*View.qml` are loaded only while open; `island/ambient/` holds the collapsed states.
   - `commands/` holds one file per `/command`, registered in `commands/Commands.qml`.
   - `Shortcuts.qml` (global shortcuts) and `Ipc.qml` (IPC targets) sit at the root; `corners/` holds the pills and `wallpaper/` the background layer.
+  - `settings.qml` + `settings/` is the settings app, a separate process (`qs -c somehypr ipc call settings open` or `settings page <id>`; a second call focuses the running one). `settings/` holds its stores (HyprSettings, KeybindStore, ShellIpc), `ui/` and one file per page in `pages/`. It changes shell state over IPC, never by running a second copy of a service.
   - `dock/` is the bottom dock (contents from `services/Taskbar.qml`, settings under `dock` in config.json). `overview/` is Super+Tab, created only while open.
   - Blur gotcha: an empty `BackgroundEffect.blurRegion` blurs the whole surface, so set it to `null` whenever the shape is off-surface.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
@@ -34,7 +36,7 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
 ```sh
 ./install.sh --check                 # Hyprland --verify-config on the repo config
 hyprctl reload && hyprctl configerrors   # live; must print nothing
-hyprctl binds -j | jq length         # 199 with shell = "somehypr" (201 with "ii": its panel-family and welcome binds)
+hyprctl binds -j | jq length         # 200 with shell = "somehypr" (202 with "ii": its panel-family and welcome binds); with no keybinds.json
 ```
 Shell changes:
 ```sh
@@ -42,7 +44,9 @@ timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"   # dev copy; while
 qs -c somehypr ipc call island open <view>                     # search control media notifications system power clipboard emoji keys
 qs -c somehypr ipc call island state
 qs -c somehypr ipc call overview toggle
+timeout 8 qs -p shell/settings.qml 2>&1 | grep -E "WARN|ERROR"   # settings app
 ```
+- IPC function names must not clash with `qs ipc` subcommands (`show`, `call`, `prop`): `qs ipc call x show` is parsed as `qs ipc show`.
 Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are the rollback.
 
 ## Phase workflow

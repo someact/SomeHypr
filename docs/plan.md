@@ -259,12 +259,22 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Fix: an empty `BackgroundEffect.blurRegion` blurs the *whole* surface (with `xray` that paints the wallpaper over every window). The dock, the island and the pills now drop the region whenever their shape is slid off-surface (dock hidden, Super+J)
 - [ ] Hands-on check by you: intellihide feel with floating windows, drag-to-reorder and drag-out-to-unpin, overview drag between workspaces
 
-### Phase 5: Settings app and keybinds
-- [ ] Separate `qs -p` settings window, unloaded when closed
-- [ ] Pages: Appearance (notch / floating / satellites, glass, motion), Island, Dock, Wallpaper
-- [ ] Keybinds page: edits `keybinds.json`, checks conflicts against `hyprctl binds -j`, then `hyprctl reload`
-- [ ] Hyprland + monitors page (port your page), Autostart, Modes
-- [ ] Island `/keys` cheatsheet built from bind descriptions
+### Phase 5: Settings app and keybinds ✅
+- [x] Separate `qs -p` settings window, unloaded when closed (`shell/settings.qml`; closing the window ends the process, ~400 MB RSS only while open). `ipc call settings open` / `settings page <id>` and `/settings [page]` focus the running window instead of starting another
+- [x] Pages: Appearance (notch / floating / satellites, glass, motion), Island, Dock, Wallpaper
+  - Island styles are live: **floating** is a free pill level with the corner pills; **satellites** also pulls the pills beside the island, following its width as it morphs
+  - Shell settings write `config.json` (the shell reloads it live); wallpaper, mode and scheme go to the running shell over IPC
+- [x] Keybinds page: edits `keybinds.json`, checks conflicts against `hyprctl binds -j`, then `hyprctl reload`
+  - `hypr/binds/user.lua` wraps `hl.bind` while keybinds.lua runs, so keybinds.lua stays the untouched 1:1 port; remap, turn off, reset, custom shortcuts (`exec`)
+  - Recording parks Hyprland in an empty `somehypr-record` submap so already-bound combos can be recorded (always left on capture/cancel/10 s; CTRL+ALT+Escape escapes). Keys are recorded by keycode with US names, so Shift and the Thai layout don't change them
+  - A conflicting combo is not saved until "Use anyway"
+- [x] Hyprland + monitors page (port your page), Autostart, Modes
+  - [~] Hyprland options live in `~/.config/somehypr/hypr.json` (only changed keys, applied last by `core/settings.lua`) instead of a generated `overrides.lua`; the page shows Hyprland's live values and a reset per option. `lib/json.lua` is a small decoder written for this, not vendored rxi
+  - Displays (port of the ii page) writes `hypr/monitors.lua`, with an arrangement preview and a 15 s keep-or-revert after Apply
+  - Apps & Autostart: default apps (override user.lua) and autostart commands (run by `core/execs.lua`); Modes: game mode auto/force, DND
+  - Config errors after any change show in a banner
+- [x] Island `/keys` cheatsheet built from bind descriptions: grouped with key caps, includes custom shortcuts; Enter opens the Keybinds page
+- [ ] Hands-on check by you: record a few shortcuts (incl. on the TH layout), try floating/satellites, Displays apply + revert
 
 ### Phase 6: Capture and gaming tools
 - [ ] Region tools UI: screenshot, OCR, Lens, translate (Super+Shift+S/X/A/T)
@@ -287,7 +297,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.
-  - `hyprctl binds -j | jq length` is 199 with `shell = "somehypr"` (201 with ii: 191 plus 10 Thai keycode binds).
+  - `hyprctl binds -j | jq length` is 200 with `shell = "somehypr"` (202 with ii: 191 plus 10 Thai keycode binds plus the record-submap escape) when `keybinds.json` adds nothing.
   - Spot-check options with `hyprctl getoption`.
   - SUPER+ALT+N works with the TH layout active.
 - **Shell:**

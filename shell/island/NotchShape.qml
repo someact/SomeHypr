@@ -11,7 +11,8 @@ import qs.core
 //         |           body             |
 //          \__________________________/
 //
-// The item is `ear` wider than the body on each side.
+// The item is `ear` wider than the body on each side. With `floating` there are
+// no ears: the body is a free-standing rounded pill (floating/satellites styles).
 Shape {
     id: root
 
@@ -20,15 +21,17 @@ Shape {
     property real ear: 12
     property real radius: 16
     property color color: Theme.island
+    property bool floating: false
 
-    readonly property real r: Math.max(0, Math.min(radius, bodyHeight - ear, bodyWidth / 2))
+    readonly property real r: floating ? Math.max(0, Math.min(radius, bodyHeight / 2, bodyWidth / 2)) : Math.max(0, Math.min(radius, bodyHeight - ear, bodyWidth / 2))
 
     width: bodyWidth + ear * 2
     height: bodyHeight
     preferredRendererType: Shape.CurveRenderer
 
+    // Notch: ears into the screen edge, rounded bottom
     ShapePath {
-        fillColor: root.color
+        fillColor: root.floating ? "transparent" : root.color
         strokeWidth: -1
         startX: 0
         startY: 0
@@ -76,6 +79,59 @@ Shape {
         PathLine {
             x: 0
             y: 0
+        }
+    }
+
+    // Floating: every corner rounded
+    ShapePath {
+        fillColor: root.floating ? root.color : "transparent"
+        strokeWidth: -1
+        startX: 0
+        startY: root.r
+
+        PathArc {
+            x: root.r
+            y: 0
+            radiusX: root.r
+            radiusY: root.r
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: root.width - root.r
+            y: 0
+        }
+        PathArc {
+            x: root.width
+            y: root.r
+            radiusX: root.r
+            radiusY: root.r
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: root.width
+            y: root.bodyHeight - root.r
+        }
+        PathArc {
+            x: root.width - root.r
+            y: root.bodyHeight
+            radiusX: root.r
+            radiusY: root.r
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: root.r
+            y: root.bodyHeight
+        }
+        PathArc {
+            x: 0
+            y: root.bodyHeight - root.r
+            radiusX: root.r
+            radiusY: root.r
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: 0
+            y: root.r
         }
     }
 }

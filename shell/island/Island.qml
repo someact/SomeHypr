@@ -42,7 +42,11 @@ PanelWindow {
         return "clock";
     }
 
-    readonly property real ear: 12
+    // Styles: notch hangs from the edge; floating and satellites are a free pill
+    // level with the corner pills (satellites also pulls the pills to its sides)
+    readonly property bool floating: Config.island.style !== "notch"
+    readonly property real topGap: floating ? 3 : 0
+    readonly property real ear: floating ? 0 : 12
     readonly property real pad: 18
     readonly property real minCollapsedWidth: 160
     readonly property bool showTabs: UiState.mainViews.includes(UiState.view)
@@ -61,7 +65,8 @@ PanelWindow {
         const a = ambientLoader.item;
         if (ambient === "dot")
             return a?.implicitHeight ?? 6;
-        return Math.max(Theme.barHeight, a?.implicitHeight ?? Theme.barHeight);
+        const h = Math.max(Theme.barHeight, a?.implicitHeight ?? Theme.barHeight);
+        return win.floating ? h - 6 : h;
     }
 
     WlrLayershell.namespace: "somehypr:island"
@@ -81,6 +86,8 @@ PanelWindow {
     Region {
         id: blurArea
         item: body
+        topLeftRadius: win.floating ? notch.r : 0
+        topRightRadius: win.floating ? notch.r : 0
         bottomLeftRadius: notch.r
         bottomRightRadius: notch.r
     }
@@ -91,6 +98,13 @@ PanelWindow {
         target: UiState
         property: "ambient"
         value: win.ambient
+        when: win.isFocusedScreen
+    }
+    // Satellite pills follow the island's live width
+    Binding {
+        target: UiState
+        property: "islandWidth"
+        value: body.width
         when: win.isFocusedScreen
     }
 
@@ -147,6 +161,7 @@ PanelWindow {
         bodyWidth: body.width
         bodyHeight: body.height
         ear: Math.min(win.ear, body.height)
+        floating: win.floating
         radius: win.open ? Theme.radius.island : Math.min(body.height / 2, Theme.radius.island)
         color: Theme.island
     }
@@ -157,7 +172,7 @@ PanelWindow {
         width: win.targetWidth
         height: win.targetHeight
         x: Math.round((win.width - width) / 2)
-        y: UiState.hidden ? -height - 4 : 0
+        y: UiState.hidden ? -height - 4 : win.topGap
         clip: true
 
         Behavior on width {

@@ -5,6 +5,12 @@ import Quickshell
 
 // Power and session actions.
 Singleton {
+    // Settings app: raise the running one, or start it (optionally on a page)
+    function openSettings(page) {
+        const app = Quickshell.shellPath("settings.qml");
+        Quickshell.execDetached(["sh", "-c", `qs -p "$1" ipc call settingsApp focus "$2" 2>/dev/null || SOMEHYPR_SETTINGS_PAGE="$2" qs -p "$1"`, "sh", app, page ?? ""]);
+    }
+
     function lock() {
         Quickshell.execDetached(["loginctl", "lock-session"]);
     }
