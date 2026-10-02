@@ -18,6 +18,7 @@ Singleton {
     property bool hidden: false          // Super+J hides the island and pills
     property bool caffeine: false        // block idle (screen off / lock)
     property string ambient: "clock"     // what the collapsed island shows (set by Island)
+    property bool overview: false        // Super+Tab workspace overview (never open together with the island)
 
     // Super tap: press arms it, any other key while held disarms it
     property bool superMightTrigger: false
@@ -35,6 +36,7 @@ Singleton {
             searchText = text ?? "";
             searchReset();
         }
+        overview = false;
         expanded = true;
     }
 
@@ -47,6 +49,12 @@ Singleton {
             close();
         else
             open(name, text);
+    }
+
+    function toggleOverview() {
+        overview = !overview;
+        if (overview)
+            close();
     }
 
     // Shared keys for views: Esc closes, ←/→ switch views

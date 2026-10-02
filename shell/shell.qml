@@ -5,8 +5,9 @@
 //@ pragma Env __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
 // SomeHypr shell. Run with `qs -c somehypr`.
-// One island and two corner pills per monitor, a wallpaper layer, global
-// shortcuts and IPC. Every panel inside the island is loaded on demand.
+// One island, two corner pills and a dock per monitor, a wallpaper layer,
+// global shortcuts and IPC. Every panel inside the island, and the overview,
+// is loaded on demand.
 
 import QtQuick
 import Quickshell
@@ -14,6 +15,8 @@ import qs.services
 import "island"
 import "corners"
 import "wallpaper"
+import "dock"
+import "overview"
 
 ShellRoot {
     Variants {
@@ -30,8 +33,14 @@ ShellRoot {
     }
     Variants {
         model: Quickshell.screens
+        Dock {}
+    }
+    Variants {
+        model: Quickshell.screens
         Island {}
     }
+
+    Overview {}
 
     Shortcuts {}
     Ipc {}

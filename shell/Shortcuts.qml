@@ -58,6 +58,11 @@ Scope {
     }
 
     Shortcut {
+        name: "overviewToggle"
+        description: "Workspace overview"
+        onPressed: UiState.toggleOverview()
+    }
+    Shortcut {
         name: "clipboardToggle"
         description: "Clipboard history"
         onPressed: UiState.toggle("clipboard")

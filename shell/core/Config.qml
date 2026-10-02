@@ -16,6 +16,8 @@ Singleton {
     readonly property alias search: adapter.search
     readonly property alias notifications: adapter.notifications
     readonly property alias theme: adapter.theme
+    readonly property alias dock: adapter.dock
+    readonly property alias overview: adapter.overview
     property bool ready: false
 
     FileView {
@@ -57,6 +59,19 @@ Singleton {
             property JsonObject notifications: JsonObject {
                 property bool dnd: false
                 property int keep: 50
+            }
+            property JsonObject dock: JsonObject {
+                property bool enabled: true
+                // intelli: hide while a window covers it · auto: show on hover only · never: always shown, reserves space
+                property string autohide: "intelli"
+                property int iconSize: 44
+                property list<string> pinned: ["org.kde.dolphin", "kitty", "brave-origin", "antigravity"]
+            }
+            property JsonObject overview: JsonObject {
+                property int rows: 2
+                property int columns: 5
+                property real scale: 0.17             // workspace tile size relative to the screen
+                property bool showSpecial: true
             }
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)

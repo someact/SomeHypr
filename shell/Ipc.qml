@@ -29,6 +29,30 @@ Scope {
     }
 
     IpcHandler {
+        target: "overview"
+        function toggle(): void {
+            UiState.toggleOverview();
+        }
+        function open(): void {
+            if (!UiState.overview)
+                UiState.toggleOverview();
+        }
+        function close(): void {
+            UiState.overview = false;
+        }
+    }
+
+    IpcHandler {
+        target: "dock"
+        function pin(appId: string): void {
+            Taskbar.pin(appId.toLowerCase());
+        }
+        function unpin(appId: string): void {
+            Taskbar.unpin(appId.toLowerCase());
+        }
+    }
+
+    IpcHandler {
         target: "brightness"
         function increment(): void {
             Brightness.increment();

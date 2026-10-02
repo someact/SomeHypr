@@ -247,11 +247,17 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] matugen 4 needs `--source-color-index 0` without a terminal (it failed silently from the shell before)
 - [ ] Note for Phase 8: mpvpaper with a 1080p video uses ~760 MB RSS
 
-### Phase 4: Dock and Overview
-- [ ] Bottom dock: pinned + running apps
-- [ ] Intellihide, drag to reorder, context menu
-- [ ] Overview (Super+Tab): live `ScreencopyView` only while open
-- [ ] Overview drag-and-drop between workspaces, special-workspace tile
+### Phase 4: Dock and Overview ✅
+- [x] Bottom dock: pinned + running apps (`dock/`, `services/Taskbar.qml`). Windows are grouped by app id; the model is a `ScriptModel` over plain app-key strings, so delegates survive window changes (ii's `TaskbarApps` recreated every entry). Click focuses the last used window or cycles, middle-click opens a new window, wheel cycles windows. Pinned apps carried over from ii, stored in `config.json` `dock.pinned`
+- [x] Intellihide, drag to reorder, context menu
+  - `dock.autohide`: `intelli` (hide while a window on the monitor's visible workspace, or its open scratchpad, overlaps the dock; always hidden over fullscreen), `auto` (hover only), `never` (always shown, reserves space). The bottom 2 px strip reveals it
+  - Window rects come from `HyprlandToplevel.lastIpcObject`, refreshed over the socket (no process), debounced, only on window/workspace events and only while intellihide or the overview needs it. Dragging a floating window with the mouse emits no event, so the dock catches up on the next focus/window event
+  - Drag reorders pinned apps live; dropping a running app among them pins it; pulling a pinned app up out of the dock unpins it
+  - Right-click menu (windows, desktop actions, new window, pin/unpin, close) is drawn inside the dock window; a focus grab closes it
+- [x] Overview (Super+Tab): live `ScreencopyView` only while open. The whole window sits behind a `LazyLoader` (+~9 MB while open, released on close). Overlay layer, compositor frost behind it, wallpaper on every tile
+- [x] Overview drag-and-drop between workspaces, special-workspace tile ("Scratchpad"; dropping a window there sends it to `special:special`). Click a tile/window to go there, middle-click closes a window, arrows + Enter, 1–0 jump, Esc closes, typing anything else hands the text to island search
+- [x] Fix: an empty `BackgroundEffect.blurRegion` blurs the *whole* surface (with `xray` that paints the wallpaper over every window). The dock, the island and the pills now drop the region whenever their shape is slid off-surface (dock hidden, Super+J)
+- [ ] Hands-on check by you: intellihide feel with floating windows, drag-to-reorder and drag-out-to-unpin, overview drag between workspaces
 
 ### Phase 5: Settings app and keybinds
 - [ ] Separate `qs -p` settings window, unloaded when closed

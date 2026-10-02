@@ -19,6 +19,8 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `island/Island.qml` is the notch window; `island/views/*View.qml` are loaded only while open; `island/ambient/` holds the collapsed states.
   - `commands/` holds one file per `/command`, registered in `commands/Commands.qml`.
   - `Shortcuts.qml` (global shortcuts) and `Ipc.qml` (IPC targets) sit at the root; `corners/` holds the pills and `wallpaper/` the background layer.
+  - `dock/` is the bottom dock (contents from `services/Taskbar.qml`, settings under `dock` in config.json). `overview/` is Super+Tab, created only while open.
+  - Blur gotcha: an empty `BackgroundEffect.blurRegion` blurs the whole surface, so set it to `null` whenever the shape is off-surface.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
 - `install.sh` links everything and reloads, rolling back automatically if there are config errors. `--check` only verifies; `--rollback` restores `~/.config/*.pre-somehypr`.
 
@@ -39,6 +41,7 @@ Shell changes:
 timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"   # dev copy; while ii runs, only its notification/polkit clashes may appear
 qs -c somehypr ipc call island open <view>                     # search control media notifications system power clipboard emoji keys
 qs -c somehypr ipc call island state
+qs -c somehypr ipc call overview toggle
 ```
 Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are the rollback.
 

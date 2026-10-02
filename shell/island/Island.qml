@@ -84,7 +84,8 @@ PanelWindow {
         bottomLeftRadius: notch.r
         bottomRightRadius: notch.r
     }
-    BackgroundEffect.blurRegion: Theme.glass && !GameMode.active ? blurArea : null
+    // Not while hidden off the surface: an empty region blurs the whole window
+    BackgroundEffect.blurRegion: Theme.glass && !GameMode.active && body.y + body.height > 1 ? blurArea : null
 
     Binding {
         target: UiState
