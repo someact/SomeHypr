@@ -10,10 +10,11 @@
 -- Runs inside Hyprland (no extra process). Manual control from anywhere:
 --   hyprctl eval 'GameMode.toggle()'   force on/off
 --   hyprctl eval 'GameMode.auto()'     back to automatic
+--   hyprctl eval 'GameMode.overlay(true)'  blur on for the game overlay (the shell does this)
 --   hyprctl repl 'return GameMode.active'
 -- The shell follows changes through a socket2 `custom` event, see apply().
 
-GameMode = { active = false, forced = nil, clients = {} }
+GameMode = { active = false, forced = nil, clients = {}, overlay_open = false }
 
 local function is_game(w)
     if w == nil or matches_any(w.class, NOT_GAME_CLASS_PATTERNS) then return false end
@@ -32,7 +33,7 @@ local function apply(on)
     hl.dispatch(hl.dsp.event("somehypr_gamemode," .. (on and "1" or "0")))
     if on then
         hl.config({
-            decoration = { blur = { enabled = false }, shadow = { enabled = false } },
+            decoration = { blur = { enabled = GameMode.overlay_open and look.blur.enabled }, shadow = { enabled = false } },
             animations = { enabled = false },
         })
     else
@@ -63,6 +64,16 @@ function GameMode.set_clients(pids)
     for _, pid in ipairs(pids or {}) do GameMode.clients[pid] = true end
     evaluate()
     return GameMode.active
+end
+
+-- The Super+G overlay frosts its cards over the game: blur comes back while it
+-- is open (only the shell's cards ask for it; the game itself is opaque).
+function GameMode.overlay(open)
+    GameMode.overlay_open = open == true
+    if GameMode.active then
+        hl.config({ decoration = { blur = { enabled = GameMode.overlay_open and look.blur.enabled } } })
+    end
+    return GameMode.overlay_open
 end
 
 function GameMode.auto()

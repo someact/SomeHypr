@@ -55,14 +55,13 @@ Scope {
             mask: Region {
                 item: board
             }
-            Region {
+            GlassRegion {
                 id: blurArea
-                item: board
-                radius: board.radius
+                target: board
             }
-            BackgroundEffect.blurRegion: Theme.glass && board.y < win.height - 1 ? blurArea : null
+            BackgroundEffect.blurRegion: Theme.blur && board.y < win.height - 1 ? blurArea : null
 
-            Rectangle {
+            Glass {
                 id: board
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: UiState.osk ? 12 : win.height + 4
@@ -72,9 +71,7 @@ Scope {
                 width: content.implicitWidth + 24
                 height: content.implicitHeight + 24
                 radius: Theme.radius.large
-                color: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b, Theme.glass ? 0.82 : 0.97)
-                border.width: 1
-                border.color: Qt.rgba(1, 1, 1, 0.08)
+                tint: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b, Theme.blur ? Math.max(0.6, Theme.glassAlpha) : 0.97)
 
                 Row {
                     id: content

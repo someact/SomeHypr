@@ -85,17 +85,50 @@ PanelWindow {
         item: notch
     }
 
-    // Compositor frost behind the notch body only
+    // Compositor frost behind the notch. Region corners are whole-pixel steps, so
+    // the region stays 1 px inside the anti-aliased shape (the rim covers that
+    // pixel); the notch's top edge is the screen edge and needs no inset. The
+    // concave ears get a few strips that stay inside their curve.
     Region {
         id: blurArea
-        item: body
-        topLeftRadius: win.floating ? notch.r : 0
-        topRightRadius: win.floating ? notch.r : 0
-        bottomLeftRadius: notch.r
-        bottomRightRadius: notch.r
+        readonly property int inset: 1
+        readonly property int top: win.floating ? inset : 0
+        readonly property int r: Math.max(0, Math.round(notch.r) - inset)
+        x: Math.ceil(body.x) + inset
+        y: Math.ceil(body.y) + top
+        width: Math.max(0, Math.floor(body.width) - inset * 2)
+        height: Math.max(0, Math.floor(body.height) - inset - top)
+        topLeftRadius: win.floating ? r : 0
+        topRightRadius: win.floating ? r : 0
+        bottomLeftRadius: r
+        bottomRightRadius: r
+
+        EarStrip { row: 0; left: true }
+        EarStrip { row: 1; left: true }
+        EarStrip { row: 2; left: true }
+        EarStrip { row: 0; left: false }
+        EarStrip { row: 1; left: false }
+        EarStrip { row: 2; left: false }
     }
     // Not while hidden off the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.glass && !GameMode.active && body.y + body.height > 1 ? blurArea : null
+    BackgroundEffect.blurRegion: Theme.islandBlur && body.y + body.height > 1 ? blurArea : null
+
+    // One 2 px band of an ear. The ear is filled outside a circle of radius e
+    // centered at (0, e) (left ear, shape coordinates), so in a band ending at
+    // row y1 it is filled from x = sqrt(e² - (e - y1)²) on; +1 px keeps the strip
+    // under the curve's anti-aliasing. It overlaps the body region by 1 px.
+    component EarStrip: Region {
+        required property int row
+        required property bool left
+        readonly property real e: notch.ear
+        readonly property int y1: (row + 1) * 2
+        readonly property int from: e > 0 && y1 < e ? Math.ceil(Math.sqrt(e * e - (e - y1) * (e - y1))) + 1 : 0
+        readonly property int w: from > 0 && from < e ? Math.ceil(e) - from + 2 : 0
+        x: left ? Math.ceil(body.x) - w + 2 : Math.floor(body.x + body.width) - 2
+        y: Math.ceil(body.y) + row * 2
+        width: w
+        height: w > 0 ? 2 : 0
+    }
 
     Binding {
         target: UiState
@@ -167,6 +200,7 @@ PanelWindow {
         floating: win.floating
         radius: win.open ? Theme.radius.island : Math.min(body.height / 2, Theme.radius.island)
         color: Theme.island
+        rim: Theme.islandBlur ? Theme.glassRim : "transparent"
     }
 
     Item {

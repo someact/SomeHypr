@@ -45,12 +45,16 @@ Item {
         Spring { preset: "snappy" }
     }
 
-    Rectangle {
+    // Frosted while the overlay is open (GameOverlay blurs the cards then);
+    // pinned and click-through over a game, a plain dark card
+    readonly property alias card: card
+    Glass {
+        id: card
         anchors.fill: parent
         radius: Theme.radius.large
-        color: Qt.rgba(0, 0, 0, root.interactive ? 0.78 : 0.55)
-        border.width: 1
-        border.color: Qt.rgba(1, 1, 1, root.interactive ? 0.1 : 0.05)
+        tint: Qt.rgba(0, 0, 0, !root.interactive ? 0.55 : Theme.glass ? 0.5 : 0.78)
+        highlight: root.interactive && Config.glass.rim
+        border.color: root.interactive ? Theme.glassRim : Qt.rgba(1, 1, 1, 0.05)
     }
 
     Item {

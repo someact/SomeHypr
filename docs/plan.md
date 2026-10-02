@@ -341,9 +341,79 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
   - Binds: 201 (the wallpaper action lost ii's `switchwall.sh` fallback; panel-family/welcome were already unbound)
   - `~/.config/quickshell/ii` and `~/.config/hypr.pre-somehypr` stay on disk, so `install.sh --rollback` still works
 - [ ] Optional cleanup for approval: ii venv (`~/.local/state/quickshell/.venv`, 331 MB), unused Plasma services (`kded6` 150 MB + `kactivitymanagerd` 89 MB RSS, both D-Bus/systemd activated), 13 `illogical-impulse-*` meta packages
-- [ ] Optional experiment: hyprglass refraction plugin
+- [x] Optional experiment: hyprglass refraction plugin → done in Phase 9a (Liquid glass)
 - [ ] Note: mpvpaper with a 1080p video still uses ~760 MB RSS (Phase 3); not re-measured here
 - [ ] Hands-on check by you: island morph smoothness after the Icon change (fill no longer fades), wallpaper picker crossfade, Super+Shift+R with the shell killed (record.sh fallback)
+
+### Phase 9: Refine ⏳ (glass, expressive icons, island UX)
+From `Improvement idea.md` (2026-10-03). Style: ii's Material 3 Expressive icons (Android/ChromeOS) + Apple-style glass and motion.
+Decisions: "dock" = island + top pills (bottom dock gets only the new icon/glass style); hover shows a peek and a click or Super opens the full view; real blur of the windows behind (no `xray` on shell layers); the translator is a pinned live area.
+
+Root causes found:
+- Pixelated edges and wallpaper behind the island: `rules/layers.lua` sets `xray = true` on every layer, so the blur samples only the wallpaper. Also, `Region` corners are integer-pixel steps while `NotchShape` is anti-aliased, and the ears sit outside the blur region.
+- Not "true glass": the island is black at 0.72 alpha with no rim or highlight; the overlay is black at 0.78 with no blur.
+- Toggles reset and skip frames: `ControlView.toggles` is one array bound to every live value, so any change (the recording timer, the network name) recreates every Toggle.
+- Lock dots: `Repeater { model: <int> }` rebuilds every dot on each key press.
+- Workspaces: the left pill always draws all 10 and never shows special workspaces.
+
+**9a. Glass foundation**
+- [x] `xray = false` for the `somehypr:*` glass layers (island, pill, dock, overview, overlay, widgets, osk); game mode still turns blur off
+  - Verified with grim: the open island, overlay cards and OSK frost the terminal and browser behind them
+- [~] `components/Glass.qml` (replaces GlassSurface): lighter tint, 1 px gradient rim, inner top highlight; `Theme.glass*` tokens; the island keeps a darker "hardware" tint option
+  - The rim is a flat 1 px light border; the top highlight gradient gives the light-top look (Qt cannot draw a gradient border cheaply). Tints: pill/card 0.4 (was 0.55), island 0.55 black (was 0.72); without frost (glass off, game mode) they turn near-opaque. New `Theme.blur` = glass on and not game mode
+- [x] Edge fix: blur region inset 1 px under the anti-aliased rim, ears covered, integer radii
+  - `components/GlassRegion.qml`, `Glass.frost`/`frostRadius`; the island region is hand-built (no inset at the screen edge) with three 2 px strips per ear inside the concave curve. The notch rim stroke leaves the top edge open, so no line shows at the screen edge
+- [x] Apply to the island, pills, dock, overview, widgets, OSK and overlay (overlay gets `BackgroundEffect`); update the CLAUDE.md gotchas
+  - Overlay: the bar and open cards are frosted; pinned click-through cards stay plain dark. Game mode disables compositor blur, so `GameMode.overlay(open)` (`modes/gamemode.lua`, called from `core/GameMode.qml`) turns it back on only while the overlay is open
+- [x] Settings → Appearance: glass strength and rim on/off
+  - Glass tint, Island tint, Rim light (`config.json` `glass`)
+
+**9a+. Liquid glass and island options** (added 2026-10-03, on request)
+- [x] hyprglass plugin as an option: `liquidGlass` (off by default), `liquidGlassPreset` (pomme), `liquidGlassWindows` in `user.lua` / hypr.json; `hypr/core/liquidglass.lua` loads it only if built for the running Hyprland version
+  - `hypr/scripts/hyprglass.sh` builds upstream's `hyprland-<x.y>` branch + `hypr/plugins/hyprglass-fit-shape.patch` into `~/.local/share/somehypr/plugins/hyprglass-<version>.so` (no hyprpm on this system)
+  - The patch: on layers, upstream glass covers the whole layer surface with square corners, and the shell's surfaces are larger than what they draw. With `layers:fit_shape` the glass is the rounded box the blur region outlines (radii read from the region, grown back the 1 px inset), and the shader measures refraction, lens, specular and bezel on that box (identity for windows)
+  - Only island, pill, dock and OSK get it (one shape per surface); the overlay and desktop widgets keep plain blur; windows are tagged `hyprglass_disabled` unless `liquidGlassWindows`
+  - Crash found and fixed: `hl.plugin.load()` is declarative and must run on every config load. Skipping it once the plugin was loaded made Hyprland unload, load and reload in a loop until it segfaulted (3 crashes on 2026-10-03). Verified in a nested Hyprland: on, reload, off (clean unload), on again; then live: two reloads, no config errors, 201 binds
+  - Cost (live, video playing): Hyprland CPU 9.5→9.7 %, GPU 24.5→21.5 %, power 51→49 W, all within noise; +~40 MB VRAM; Hyprland RSS unchanged. Stats: ~4 layer draws per frame, background re-sampled only on change (~79 % cache hits)
+- [x] Settings → Appearance → Liquid glass: Build button (runs the script) when the plugin is missing, then the on/off switch, Look (Pomme/Clear/Subtle/Glass), On windows too
+- [x] Island glass on/off: off keeps only the island solid black (no frost, no rim); pills, dock and cards stay glass (`config.json` `glass.island`, `Theme.islandBlur`)
+- [ ] Hands-on check by you: Liquid glass look over real windows, which preset you like, and that the island tint (0.55) does not hide the effect too much
+
+**9b. Expressive icon and type style**
+- [ ] Port ii's `MaterialShape` + `shapes/` to `components/Shape*.qml`
+- [ ] `components/ShapeIcon.qml`: floating icon with no background and an outline or soft shadow; tinted shape only when active
+- [ ] Toggles, IconButton and PressButton morph their corner radius (pill ↔ squircle) when active
+- [ ] Type: titles at wght 550, tabular numbers; Material Symbols face count stays ≤ 5
+- [ ] Pill icon style setting: `floating` (phone status bar) / `glass`
+
+**9c. Corner pills and workspaces**
+- [ ] Show only occupied workspaces plus the active one; they spring in and out
+- [ ] Special-workspace chip (click toggles it)
+- [ ] Super-held numbers stay; setting "show empty workspaces" (default off)
+
+**9d. Island interaction**
+- [ ] Hover peek (~180 ms) with a top-edge hot strip; leaving closes it after ~300 ms; a click or Super opens the full view; no keyboard focus; off in game mode and fullscreen
+- [ ] Quick options: a stable tile model (`services/QuickTiles.qml`) that fixes the frame skip; icon or full tiles; edit mode (add, hide, reorder) stored in `control.tiles`
+- [ ] Right-click detail pages: Wi-Fi list, Bluetooth devices, night light temperature, audio devices; other tiles open their settings page
+- [ ] Mixer: right-click volume → `MixerView` (per-app streams, output and input pickers); shared `Audio.streams`
+- [ ] Motion pass: no restart-from-zero animations, retargeting press squash, tune `bouncy` damping, shared `components/Reveal.qml`
+
+**9e. Media and lyrics**
+- [ ] `services/Lyrics.qml`: LRCLIB via curl on track change, cached in `~/.cache/somehypr/lyrics/`, synced LRC, `media.lyrics` toggle
+- [ ] MediaView: lyrics pane and per-player volume (MPRIS volume, or the PipeWire stream)
+- [ ] Ambient/peek lyric line (optional); MediaWidget lyrics and volume
+
+**9f. Game overlay and live translator**
+- [ ] Overlay style settings (glass/solid/minimal, opacity, accent, radius, compact) under `overlay.style`
+- [ ] Live area translator (`overlay/TranslateCard.qml` + `services/LiveTranslate.qml`): pick an area once; re-run OCR and `trans` only when the pixels change, with one chain at a time; stops on unpin
+- [ ] `/translate live` command and an overlay card entry
+
+**9g. Widgets and lock polish**
+- [ ] Lock dots: only the added or removed dot animates; smooth clear after the shake
+- [ ] New widgets: wallpaper, gallery, calendar, weather, lyrics, quick launch
+
+- [ ] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode
+- [ ] Hands-on check by you: feel of the hover peek, glass over real windows, lyrics, live translator in a game
 
 ## Verification
 - **Hyprland:**

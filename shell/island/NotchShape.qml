@@ -21,6 +21,7 @@ Shape {
     property real ear: 12
     property real radius: 16
     property color color: Theme.island
+    property color rim: Theme.glassRim
     property bool floating: false
 
     readonly property real r: floating ? Math.max(0, Math.min(radius, bodyHeight / 2, bodyWidth / 2)) : Math.max(0, Math.min(radius, bodyHeight - ear, bodyWidth / 2))
@@ -29,10 +30,13 @@ Shape {
     height: bodyHeight
     preferredRendererType: Shape.CurveRenderer
 
-    // Notch: ears into the screen edge, rounded bottom
+    // Notch: ears into the screen edge, rounded bottom. The path is left open
+    // along the top: the fill closes it, the rim stroke does not, so the rim
+    // never draws a line at the screen edge.
     ShapePath {
         fillColor: root.floating ? "transparent" : root.color
-        strokeWidth: -1
+        strokeColor: root.floating ? "transparent" : root.rim
+        strokeWidth: root.floating ? -1 : 1
         startX: 0
         startY: 0
 
@@ -76,16 +80,13 @@ Shape {
             radiusY: root.ear
             direction: PathArc.Clockwise
         }
-        PathLine {
-            x: 0
-            y: 0
-        }
     }
 
     // Floating: every corner rounded
     ShapePath {
         fillColor: root.floating ? root.color : "transparent"
-        strokeWidth: -1
+        strokeColor: root.floating ? root.rim : "transparent"
+        strokeWidth: root.floating ? 1 : -1
         startX: 0
         startY: root.r
 

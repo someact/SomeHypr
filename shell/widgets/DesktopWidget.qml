@@ -49,13 +49,14 @@ Item {
         Spring { preset: "smooth" }
     }
 
-    Rectangle {
+    Glass {
         id: card
         anchors.fill: parent
         radius: Theme.radius.large + 4
-        color: root.framed ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, Theme.glass ? 0.42 : 0.85) : "transparent"
+        tint: root.framed ? Theme.pill : "transparent"
+        highlight: root.framed && Config.glass.rim
         border.width: root.framed || root.editing ? 1 : 0
-        border.color: root.editing ? Theme.primary : Qt.rgba(1, 1, 1, 0.1)
+        border.color: root.editing ? Theme.primary : Theme.glassRim
     }
 
     Item {

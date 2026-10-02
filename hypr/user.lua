@@ -19,11 +19,21 @@ workspaceGroupSize = 10
 -- false = every window opaque, blur only on shell surfaces (your current look).
 glass = false
 
+-- Liquid glass (hyprglass plugin, see core/liquidglass.lua): refraction and an
+-- edge light on the island, pills, dock and keyboard. Build it once with
+-- scripts/hyprglass.sh. Presets: pomme (Apple-like), clear, subtle, glass, high_contrast.
+liquidGlass = false
+liquidGlassPreset = "pomme"
+liquidGlassWindows = false   -- also on translucent windows (with glass = true)
+
 -- Game mode: turn off blur, shadows and animations while a game is fullscreen.
 gameModeAuto = true
 
 -- Settings app overrides (Appearance, Modes and Apps pages)
 glass = setting("glass", glass)
+liquidGlass = setting("liquidGlass", liquidGlass)
+liquidGlassPreset = setting("liquidGlassPreset", liquidGlassPreset)
+liquidGlassWindows = setting("liquidGlassWindows", liquidGlassWindows)
 gameModeAuto = setting("gameModeAuto", gameModeAuto)
 for _, name in ipairs({ "terminal", "fileManager", "browser", "codeEditor", "textEditor", "officeSoftware", "volumeMixer", "taskManager" }) do
     _G[name] = setting("apps." .. name, _G[name])

@@ -37,7 +37,7 @@ Rectangle {
     radius: Theme.radius.normal
     color: Theme.island
     border.width: 1
-    border.color: Qt.rgba(1, 1, 1, 0.08)
+    border.color: Theme.glassRim
 
     visible: opacity > 0
     opacity: open ? 1 : 0

@@ -20,6 +20,14 @@ Singleton {
         Quickshell.execDetached(["hyprctl", "eval", "GameMode.auto()"]);
     }
 
+    // The game overlay frosts its cards: Hyprland keeps blur on while it is open
+    Connections {
+        target: UiState
+        function onOverlayChanged() {
+            Quickshell.execDetached(["hyprctl", "eval", `GameMode.overlay(${UiState.overlay})`]);
+        }
+    }
+
     Connections {
         target: Hyprland
         function onRawEvent(event) {

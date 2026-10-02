@@ -56,12 +56,12 @@ Scope {
                 id: frost
                 item: backdrop
             }
-            BackgroundEffect.blurRegion: Theme.glass && !GameMode.active && shown ? frost : null
+            BackgroundEffect.blurRegion: Theme.blur && shown ? frost : null
 
             Rectangle {
                 id: backdrop
                 anchors.fill: parent
-                color: Qt.rgba(0, 0, 0, Theme.glass ? 0.4 : 0.7)
+                color: Qt.rgba(0, 0, 0, Theme.blur ? 0.4 : 0.7)
                 opacity: win.shown ? 1 : 0
                 Behavior on opacity {
                     NumberAnimation { duration: Motion.normal }

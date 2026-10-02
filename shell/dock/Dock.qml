@@ -85,17 +85,16 @@ PanelWindow {
             item: menu.open ? menu : null
         }
     }
-    Region {
+    GlassRegion {
         id: blurArea
-        item: bg
-        radius: bg.radius
+        target: bg
         Region {
             item: menu.open ? menu : null
             radius: menu.radius
         }
     }
     // Only while the dock is on the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.glass && bg.y < win.height - 1 ? blurArea : null
+    BackgroundEffect.blurRegion: Theme.blur && bg.y < win.height - 1 ? blurArea : null
 
     // Clicking anywhere else closes the menu
     HyprlandFocusGrab {
@@ -115,7 +114,7 @@ PanelWindow {
         }
     }
 
-    GlassSurface {
+    Glass {
         id: bg
         x: Math.round((win.width - width) / 2)
         y: win.shown ? win.height - win.margin - height : win.height + 8

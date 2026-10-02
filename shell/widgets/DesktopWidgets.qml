@@ -49,12 +49,12 @@ Scope {
                 Region { item: notes.item }
             }
             // Frost behind framed cards. Never an empty region (that blurs everything).
-            readonly property bool anyFramed: Theme.glass && Config.widgets.glass && (media.item?.visible || system.item || notes.item)
+            readonly property bool anyFramed: Theme.blur && Config.widgets.glass && (media.item?.visible || system.item || notes.item)
             Region {
                 id: blurArea
-                Region { item: media.item?.visible ? media.item.card : null; radius: media.item?.card.radius ?? 0 }
-                Region { item: system.item?.card ?? null; radius: system.item?.card.radius ?? 0 }
-                Region { item: notes.item?.card ?? null; radius: notes.item?.card.radius ?? 0 }
+                Region { item: media.item?.visible ? media.item.card.frost : null; radius: media.item?.card.frostRadius ?? 0 }
+                Region { item: system.item?.card.frost ?? null; radius: system.item?.card.frostRadius ?? 0 }
+                Region { item: notes.item?.card.frost ?? null; radius: notes.item?.card.frostRadius ?? 0 }
             }
             BackgroundEffect.blurRegion: anyFramed ? blurArea : null
 

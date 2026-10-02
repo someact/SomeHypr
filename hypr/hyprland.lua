@@ -20,6 +20,7 @@ require("rules.media")
 require("rules.art")
 require("rules.gaming")
 require("rules.layers")
+require("core.liquidglass")
 
 require("binds.user")      -- keybinds.json: remaps apply while keybinds.lua binds
 require("binds.keybinds")

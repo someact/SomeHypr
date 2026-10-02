@@ -35,16 +35,22 @@ Singleton {
     readonly property color shadow: pick("shadow", "#000000")
 
     // The island is always near-black so it reads as a hardware notch
-    readonly property color island: glass ? Qt.rgba(0, 0, 0, glassAlpha) : "#000000"
+    readonly property color island: islandBlur ? Qt.rgba(0, 0, 0, Config.glass.islandTint) : "#000000"
     readonly property color fgIsland: "#f4f2f8"
     readonly property color fgIslandDim: "#a8a6b0"
     readonly property color islandRaised: Qt.rgba(1, 1, 1, 0.08)
     readonly property color islandRaisedHover: Qt.rgba(1, 1, 1, 0.14)
-    readonly property color pill: Qt.rgba(surface.r, surface.g, surface.b, glass ? 0.55 : 0.92)
+    readonly property color pill: Qt.rgba(surface.r, surface.g, surface.b, blur ? glassAlpha : 0.92)
 
-    // Glass
+    // Glass: a tint over the compositor frost, a 1 px light rim and a soft top
+    // highlight (components/Glass.qml). Without frost (glass off, game mode) the
+    // tints turn nearly opaque so text stays readable over anything.
     readonly property bool glass: Config.island.glass
-    readonly property real glassAlpha: 0.72
+    readonly property bool blur: glass && !GameMode.active
+    readonly property bool islandBlur: blur && Config.glass.island   // off: a solid black notch
+    readonly property real glassAlpha: Config.glass.tint
+    readonly property color glassRim: Qt.rgba(1, 1, 1, Config.glass.rim ? 0.14 : 0.05)
+    readonly property color glassHighlight: Qt.rgba(1, 1, 1, Config.glass.rim ? 0.07 : 0)
 
     // Tokens
     readonly property QtObject radius: QtObject {

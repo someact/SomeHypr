@@ -72,8 +72,19 @@ Scope {
                 item: win.shown ? backdrop : null
             }
 
-            // No compositor blur: layers blur with xray (wallpaper only), which
-            // would hide the game underneath. A plain dim keeps it visible.
+            // Frost behind the bar and the open cards (no xray on this layer, so it
+            // blurs the game itself). Game mode turns compositor blur off; while the
+            // overlay is open it is switched back on (hypr/modes/gamemode.lua).
+            Region {
+                id: frost
+                Region { item: bar.frost; radius: bar.frostRadius }
+                Region { item: crosshairCard.item?.card.frost ?? null; radius: crosshairCard.item?.card.frostRadius ?? 0 }
+                Region { item: fpsCard.item?.card.frost ?? null; radius: fpsCard.item?.card.frostRadius ?? 0 }
+                Region { item: resourcesCard.item?.card.frost ?? null; radius: resourcesCard.item?.card.frostRadius ?? 0 }
+                Region { item: mixerCard.item?.card.frost ?? null; radius: mixerCard.item?.card.frostRadius ?? 0 }
+                Region { item: notesCard.item?.card.frost ?? null; radius: notesCard.item?.card.frostRadius ?? 0 }
+            }
+            BackgroundEffect.blurRegion: Theme.glass && win.shown ? frost : null
 
             Rectangle {
                 id: backdrop
@@ -108,6 +119,7 @@ Scope {
                     }
                 }
                 Loader {
+                    id: crosshairCard
                     active: win.isOpen("crosshair")
                     sourceComponent: CrosshairCard {
                         widgetId: "crosshair"
@@ -116,6 +128,7 @@ Scope {
                     }
                 }
                 Loader {
+                    id: fpsCard
                     active: win.isOpen("fps")
                     sourceComponent: FpsCard {
                         widgetId: "fps"
@@ -124,6 +137,7 @@ Scope {
                     }
                 }
                 Loader {
+                    id: resourcesCard
                     active: win.isOpen("resources")
                     sourceComponent: ResourcesCard {
                         widgetId: "resources"
@@ -132,6 +146,7 @@ Scope {
                     }
                 }
                 Loader {
+                    id: mixerCard
                     active: win.isOpen("mixer")
                     sourceComponent: MixerCard {
                         widgetId: "mixer"
@@ -140,6 +155,7 @@ Scope {
                     }
                 }
                 Loader {
+                    id: notesCard
                     active: win.isOpen("notes")
                     sourceComponent: NotesCard {
                         widgetId: "notes"
@@ -150,7 +166,7 @@ Scope {
             }
 
             // Tool bar: widgets, quick record, close
-            Rectangle {
+            Glass {
                 id: bar
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: win.shown ? 18 : -height - 10
@@ -160,9 +176,7 @@ Scope {
                 width: tools.implicitWidth + 12
                 height: 48
                 radius: height / 2
-                color: Qt.rgba(0, 0, 0, 0.8)
-                border.width: 1
-                border.color: Qt.rgba(1, 1, 1, 0.08)
+                tint: Qt.rgba(0, 0, 0, Theme.glass ? 0.5 : 0.8)
 
                 Row {
                     id: tools

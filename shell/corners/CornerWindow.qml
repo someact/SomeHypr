@@ -30,15 +30,14 @@ PanelWindow {
     mask: Region {
         item: pill
     }
-    Region {
+    GlassRegion {
         id: blurArea
-        item: pill
-        radius: pill.radius
+        target: pill
     }
     // Not while slid off the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.glass && !GameMode.active && pill.y + pill.height > 1 ? blurArea : null
+    BackgroundEffect.blurRegion: Theme.blur && pill.y + pill.height > 1 ? blurArea : null
 
-    GlassSurface {
+    Glass {
         id: pill
         x: win.satellite ? (win.left ? win.width - UiState.islandWidth / 2 - 6 - width : UiState.islandWidth / 2 + 6) : (win.left ? 6 : win.width - width - 6)
         y: UiState.hidden ? -height - 4 : 3

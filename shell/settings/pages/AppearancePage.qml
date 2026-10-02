@@ -1,10 +1,13 @@
 import QtQuick
+import Quickshell
+import Quickshell.Io
 import qs.core
 import qs.components
 import qs.settings
 import qs.settings.ui
 
 Page {
+    id: page
     title: "Appearance"
     subtitle: "How the island looks, glass, motion and colors."
 
@@ -27,6 +30,131 @@ Page {
             Switch {
                 checked: Config.island.glass
                 onToggled: on => Config.island.glass = on
+            }
+        }
+        SettingRow {
+            icon: "toast"
+            title: "Island glass"
+            subtitle: "Off keeps only the island solid black, like a hardware notch. Pills, dock and cards stay glass."
+            enabled: Config.island.glass
+            Switch {
+                checked: Config.glass.island
+                onToggled: on => Config.glass.island = on
+            }
+        }
+        SettingRow {
+            icon: "opacity"
+            title: "Glass tint"
+            subtitle: "How much color covers the frost on pills, dock and cards. Lower is clearer."
+            enabled: Config.island.glass
+            changed: Math.abs(Config.glass.tint - 0.4) > 0.001
+            onReset: Config.glass.tint = 0.4
+            ValueSlider {
+                from: 0.1
+                to: 0.9
+                stepSize: 0.05
+                value: Config.glass.tint
+                onMoved: v => Config.glass.tint = v
+            }
+        }
+        SettingRow {
+            icon: "toast"
+            title: "Island tint"
+            subtitle: "Darkness of the island glass. Higher reads more like a hardware notch."
+            enabled: Config.island.glass && Config.glass.island
+            changed: Math.abs(Config.glass.islandTint - 0.55) > 0.001
+            onReset: Config.glass.islandTint = 0.55
+            ValueSlider {
+                from: 0.2
+                to: 0.95
+                stepSize: 0.05
+                value: Config.glass.islandTint
+                onMoved: v => Config.glass.islandTint = v
+            }
+        }
+        SettingRow {
+            icon: "border_outer"
+            title: "Rim light"
+            subtitle: "A thin light edge and a soft top highlight on glass surfaces"
+            Switch {
+                checked: Config.glass.rim
+                onToggled: on => Config.glass.rim = on
+            }
+        }
+    }
+
+    // hyprglass plugin (hypr/core/liquidglass.lua): built per Hyprland version
+    property bool pluginBuilt: false
+    property bool building: false
+    property string buildError: ""
+    Process {
+        id: checkBuilt
+        running: true
+        command: ["sh", "-c", "test -f \"$(" + Quickshell.env("HOME") + "/.config/hypr/scripts/hyprglass.sh --path)\""]
+        onExited: code => page.pluginBuilt = code === 0
+    }
+    Process {
+        id: build
+        command: [Quickshell.env("HOME") + "/.config/hypr/scripts/hyprglass.sh"]
+        stderr: StdioCollector {
+            id: buildErr
+        }
+        onExited: code => {
+            page.building = false;
+            page.buildError = code === 0 ? "" : (buildErr.text.trim().split("\n").pop() || "build failed");
+            checkBuilt.running = true;
+        }
+    }
+
+    Section {
+        title: "Liquid glass"
+        note: "Refraction, an edge light and a soft lens on the island, pills, dock and keyboard (hyprglass plugin). No measurable GPU or CPU cost on this machine, about 40 MB more VRAM."
+        SettingRow {
+            icon: "water_drop"
+            title: "Liquid glass"
+            subtitle: page.building ? "Building the plugin… (about 20 s)" : page.buildError !== "" ? "Build failed: " + page.buildError : page.pluginBuilt ? "Bends the light at the edges of the glass. Applies with the next Hyprland reload, right away." : "The plugin is not built for this Hyprland version yet"
+            changed: HyprSettings.isSet("liquidGlass")
+            onReset: HyprSettings.unset("liquidGlass")
+            SButton {
+                visible: !page.pluginBuilt
+                enabled: !page.building
+                icon: "build"
+                text: page.building ? "Building…" : "Build"
+                onClicked: {
+                    page.building = true;
+                    page.buildError = "";
+                    build.running = true;
+                }
+            }
+            Switch {
+                visible: page.pluginBuilt
+                checked: HyprSettings.get("liquidGlass", false)
+                onToggled: on => HyprSettings.set("liquidGlass", on)
+            }
+        }
+        SettingRow {
+            icon: "style"
+            title: "Look"
+            subtitle: "Pomme is closest to Apple's liquid glass"
+            enabled: page.pluginBuilt && HyprSettings.get("liquidGlass", false)
+            changed: HyprSettings.isSet("liquidGlassPreset")
+            onReset: HyprSettings.unset("liquidGlassPreset")
+            Choice {
+                model: [{ value: "pomme", label: "Pomme" }, { value: "clear", label: "Clear" }, { value: "subtle", label: "Subtle" }, { value: "glass", label: "Glass" }]
+                value: HyprSettings.get("liquidGlassPreset", "pomme")
+                onPicked: v => HyprSettings.set("liquidGlassPreset", v)
+            }
+        }
+        SettingRow {
+            icon: "select_window"
+            title: "On windows too"
+            subtitle: "Also on translucent windows (needs Glass windows below)"
+            enabled: page.pluginBuilt && HyprSettings.get("liquidGlass", false)
+            changed: HyprSettings.isSet("liquidGlassWindows")
+            onReset: HyprSettings.unset("liquidGlassWindows")
+            Switch {
+                checked: HyprSettings.get("liquidGlassWindows", false)
+                onToggled: on => HyprSettings.set("liquidGlassWindows", on)
             }
         }
     }
