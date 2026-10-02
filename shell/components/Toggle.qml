@@ -11,7 +11,9 @@ PressButton {
 
     implicitWidth: 170
     implicitHeight: 52
-    radius: Theme.radius.large
+    // Off: a pill. On: a squircle (Material 3 Expressive tiles)
+    radius: height / 2
+    activeRadius: Theme.radius.normal
     color: Theme.islandRaised
     activeColor: Theme.primary
 

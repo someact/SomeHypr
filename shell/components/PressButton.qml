@@ -3,11 +3,16 @@ import qs.core
 
 // Rounded button with hover tint and a springy squash on press.
 // Put content inside; it is centered unless anchored otherwise.
+//
+// Expressive shape: the corners morph with a spring. `radius` is the resting
+// shape, `activeRadius` the toggled-on one (e.g. pill → squircle), and a press
+// tightens the corners a little. Springs retarget, so fast clicks never jump.
 Item {
     id: root
 
     default property alias content: inner.data
-    property alias radius: bg.radius
+    property real radius: Math.min(width, height) / 2
+    property real activeRadius: radius
     property color color: "transparent"
     property color hoverColor: Theme.islandRaisedHover
     property color activeColor: Theme.primary
@@ -33,7 +38,13 @@ Item {
     Rectangle {
         id: bg
         anchors.fill: parent
-        radius: Math.min(width, height) / 2
+        radius: {
+            const r = root.active ? root.activeRadius : root.radius;
+            return root.pressed ? r * 0.8 : r;
+        }
+        Behavior on radius {
+            Spring { preset: "snappy" }
+        }
         color: root.active ? root.activeColor : (root.hovered || root.highlighted) ? root.hoverColor : root.color
         Behavior on color {
             ColorAnimation { duration: Motion.fast }
