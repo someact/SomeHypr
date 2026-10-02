@@ -26,6 +26,7 @@ Singleton {
     readonly property string cacheHome: Quickshell.env("XDG_CACHE_HOME") || home + "/.cache"
     readonly property string thumbs: cacheHome + "/somehypr/thumbs"
     readonly property string mpvSocket: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/somehypr-mpvpaper.sock"
+    readonly property string mpvPid: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/somehypr-mpvpaper.pid"
 
     readonly property string hyprDir: configHome + "/hypr"
     readonly property string scripts: hyprDir + "/scripts"

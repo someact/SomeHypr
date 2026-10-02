@@ -29,8 +29,13 @@ PanelWindow {
 
     // Load the new image into the hidden slot; fade it in once decoded
     onSourceChanged: {
-        const back = frontIsA ? b : a;
-        back.source = source;
+        const front = frontIsA ? a : b, back = frontIsA ? b : a;
+        if (front.source.toString() === source)
+            return;     // switched back before the fade: keep showing it
+        if (back.source.toString() === source && back.status === Image.Ready)
+            frontIsA = !frontIsA;   // already decoded (A→B→A): no status change will come
+        else
+            back.source = source;
     }
     Component.onCompleted: a.source = source
 
@@ -51,11 +56,11 @@ PanelWindow {
     Slot {
         id: a
         opacity: win.frontIsA ? 1 : 0
-        onStatusChanged: if (status === Image.Ready && !win.frontIsA) win.frontIsA = true
+        onStatusChanged: if (status === Image.Ready && !win.frontIsA && source.toString() === win.source) win.frontIsA = true
     }
     Slot {
         id: b
         opacity: win.frontIsA ? 0 : 1
-        onStatusChanged: if (status === Image.Ready && win.frontIsA) win.frontIsA = false
+        onStatusChanged: if (status === Image.Ready && win.frontIsA && source.toString() === win.source) win.frontIsA = false
     }
 }

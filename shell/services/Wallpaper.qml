@@ -40,14 +40,11 @@ Singleton {
         }
         path = file;
         save();
-        if (isVideo) {
-            frame.command = ["ffmpeg", "-loglevel", "error", "-y", "-ss", "1", "-i", file, "-frames:v", "1", "-vf", "scale=1280:-2", Paths.videoFrame];
-            frame.running = true;
-            startVideo();
-        } else {
-            stopVideo();
+        syncVideo();
+        if (isVideo)
+            grabFrame();
+        else
             theme(file);
-        }
     }
 
     // Re-run matugen on the current wallpaper (after a mode or scheme change)
@@ -79,16 +76,91 @@ Singleton {
         pickProc.running = true;
     }
 
+    // Rapid changes: each of matugen, the frame grab and mpvpaper control runs
+    // one process at a time; a request made while one runs is remembered, and
+    // the latest one runs when it finishes. So the last wallpaper picked always
+    // wins, whatever order the processes would have finished in.
+
     function theme(image) {
-        Quickshell.execDetached(["matugen", "image", image, "-m", mode, "-t", Config.theme.scheme, "--source-color-index", "0"]);
+        matugen.target = [image, mode, Config.theme.scheme];
+        matugen.kick();
     }
 
-    function startVideo() {
-        Quickshell.execDetached(["sh", "-c", 'pkill -x mpvpaper; exec mpvpaper -p -a FULL -o "no-audio loop hwdec=nvdec panscan=1.0 input-ipc-server=$2" ALL "$1"', "_", path, Paths.mpvSocket]);
-        pauseSync.restart();
+    function grabFrame() {
+        frame.kick();
     }
-    function stopVideo() {
-        Quickshell.execDetached(["pkill", "-x", "mpvpaper"]);
+
+    // Make mpvpaper match `path`: stop it, then start it again if it is a video
+    function syncVideo() {
+        mpvCtl.kick();
+    }
+
+    component LatestProcess: Process {
+        property bool again: false
+        function kick() {
+            if (running) {
+                again = true;
+                return;
+            }
+            again = false;
+            command = build();
+            running = true;
+        }
+        function build() {
+            return [];
+        }
+        function finished(code) {}
+        onExited: code => {
+            if (again)
+                kick();
+            else
+                finished(code);
+        }
+    }
+
+    LatestProcess {
+        id: matugen
+        property var target: []
+        function build() {
+            return ["matugen", "image", target[0], "-m", target[1], "-t", target[2], "--source-color-index", "0"];
+        }
+    }
+
+    LatestProcess {
+        id: frame
+        property string file
+        function build() {
+            file = root.path;
+            return ["ffmpeg", "-loglevel", "error", "-y", "-ss", "1", "-i", file, "-frames:v", "1", "-vf", "scale=1280:-2", Paths.videoFrame];
+        }
+        function finished(code) {
+            if (file !== root.path)
+                return;     // superseded by an image; nothing to theme from
+            if (code === 0)
+                root.theme(Paths.videoFrame);
+            else
+                console.warn("Wallpaper: could not grab a frame from", file);
+        }
+    }
+
+    LatestProcess {
+        id: mpvCtl
+        function build() {
+            // Stop the old player by PID (a name match can miss one that is still
+            // starting) and by name. mpvpaper ignores SIGTERM while auto-paused
+            // (hidden), so after 1 s it gets SIGKILL. Then start the new one in its
+            // own session so it outlives shell restarts.
+            return ["sh", "-c", 'pf="$3"; old="$(cat "$pf" 2>/dev/null) $(pidof mpvpaper)"; rm -f "$pf"; '
+                + 'kill $old 2>/dev/null; i=0; while pidof -q mpvpaper && [ $i -lt 20 ]; do sleep 0.05; i=$((i+1)); done; '
+                + 'kill -9 $old 2>/dev/null; pkill -9 -x mpvpaper; while pidof -q mpvpaper; do sleep 0.05; done; '
+                + '[ -n "$1" ] || exit 0; '
+                + 'setsid mpvpaper -p -a FULL -o "no-audio loop hwdec=nvdec panscan=1.0 input-ipc-server=$2" ALL "$1" >/dev/null 2>&1 & echo $! > "$pf"',
+                "_", root.isVideo ? root.path : "", Paths.mpvSocket, Paths.mpvPid];
+        }
+        function finished(code) {
+            if (root.isVideo)
+                pauseSync.restart();
+        }
     }
 
     function save() {
@@ -118,16 +190,6 @@ Singleton {
     }
 
     Process {
-        id: frame
-        onExited: code => {
-            if (code === 0)
-                root.theme(Paths.videoFrame);
-            else
-                console.warn("Wallpaper: could not grab a frame from", root.path);
-        }
-    }
-
-    Process {
         id: pickProc
         command: ["kdialog", "--title", "Wallpaper", "--getopenfilename", Paths.wallpapers, "*.jpg *.jpeg *.png *.webp *.avif *.mp4 *.webm *.mkv *.mov *.gif|Images and videos"]
         stdout: StdioCollector {
@@ -152,7 +214,7 @@ Singleton {
         command: ["pidof", "mpvpaper"]
         onExited: code => {
             if (code !== 0 && root.isVideo)
-                root.startVideo();
+                root.syncVideo();
         }
     }
 
