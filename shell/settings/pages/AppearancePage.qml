@@ -16,9 +16,9 @@ Page {
         SettingRow {
             icon: "toast"
             title: "Style"
-            subtitle: "Notch hangs from the top edge. Floating is a free pill. Satellites pulls the corner pills in beside it."
+            subtitle: "Notch hangs from the top edge. Floating is a free pill. Pills can sit beside either (Island → Pill layout)."
             Choice {
-                model: [{ value: "notch", label: "Notch" }, { value: "floating", label: "Floating" }, { value: "satellites", label: "Satellites" }]
+                model: [{ value: "notch", label: "Notch" }, { value: "floating", label: "Floating" }]
                 value: Config.island.style
                 onPicked: v => Config.island.style = v
             }

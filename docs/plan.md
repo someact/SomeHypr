@@ -417,8 +417,10 @@ Root causes found:
   - Held: every slot morphs into `pills.workspaceShape` (18 px; active 20 px in the accent), filled with a dark number when it has windows, an outline with a dim number when empty; release morphs back to dots. Verified with ydotool holding Super (grim); the island did not open
 - [x] Special-workspace chip (click toggles it)
   - A part after the workspaces (same style): a star `ShapeIcon` per special workspace with windows, plus its name unless it is the default `special`; the shape lights while it is open on this monitor. Verified with a window moved to `special:test`: chip appears, lights when toggled open, goes away when the window closes (grim)
-- [ ] Island style and pill placement split: the island is notch or floating, and pills can sit beside the island with either (satellites with a notch) (added 2026-10-03)
-- [ ] Pill layout: each part (workspaces, title, tray, status, clock) can go to the left or right corner or beside the island, be reordered, and be shown or hidden; editor in Settings → Island (added 2026-10-03)
+- [x] Island style and pill placement split: the island is notch or floating, and pills can sit beside the island with either (satellites with a notch) (added 2026-10-03)
+  - Island style is Notch or Floating; "Satellites" is gone, it is now placing parts beside the island (clears the notch's ears). Verified notch with workspaces left and status + clock right of it, sliding out when the island opens (grim)
+- [x] Pill layout: each part (workspaces, title, tray, status, clock) can go to the left or right corner or beside the island, be reordered, and be shown or hidden; editor in Settings → Island (added 2026-10-03)
+  - `corners/PillParts.qml` holds every part by id (workspaces, special, title, tray, status, clock); `corners/Pills.qml` makes up to four zone windows per screen (left, islandLeft, islandRight, right), each only while its list in `pills.layout` is non-empty; `CornerWindow` loads its zone's parts in order. Settings → Island → Pill layout: place (Left, ◂ Island, Island ▸, Right, Off) and ‹ › to reorder. Verified clicks: moving Workspaces to the right corner and reordering it before the tray
 
 **9d. Island interaction**
 - [ ] Hover peek (~180 ms) with a top-edge hot strip; leaving closes it after ~300 ms; a click or Super opens the full view; no keyboard focus; off in game mode and fullscreen

@@ -47,7 +47,7 @@ Singleton {
             id: adapter
 
             property JsonObject island: JsonObject {
-                property string style: "notch"        // notch (floating, satellites: Phase 5)
+                property string style: "notch"        // notch (hangs from the edge) | floating (a free pill)
                 property bool glass: true             // compositor blur behind the island
                 property int peekMs: 4000             // notification peek
                 property int osdMs: 1500              // volume / brightness / layout
@@ -70,6 +70,9 @@ Singleton {
                 property string halo: "shadow"        // floating text and icons: shadow (soft) | outline
                 property string workspaceShape: "cookie7Sided"   // the active workspace (components/MaterialShape.qml names)
                 property bool showEmpty: false        // also show workspaces without windows
+                // Where each part sits, in order: the top corners or beside the island.
+                // A part in no list is hidden. Ids: workspaces special title tray status clock
+                property var layout: ({ left: ["workspaces", "special", "title"], islandLeft: [], islandRight: [], right: ["tray", "status", "clock"] })
             }
             property JsonObject motion: JsonObject {
                 property real speed: 1.0              // scales every spring

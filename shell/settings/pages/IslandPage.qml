@@ -5,8 +5,88 @@ import qs.settings
 import qs.settings.ui
 
 Page {
+    id: page
     title: "Island"
     subtitle: "What the island shows while collapsed, and for how long."
+
+    // Pill layout: which zone each part sits in, and its order there
+    readonly property var zones: ["left", "islandLeft", "islandRight", "right"]
+    readonly property var partNames: ({ workspaces: "Workspaces", special: "Special workspaces", title: "App title", tray: "System tray", status: "Status icons", clock: "Date and time" })
+    readonly property var partIcons: ({ workspaces: "view_week", special: "star", title: "web_asset", tray: "apps", status: "wifi", clock: "schedule" })
+    function zoneOf(id) {
+        const l = Config.pills.layout;
+        return zones.find(z => (l[z] ?? []).includes(id)) ?? "off";
+    }
+    function copyLayout() {
+        const l = Config.pills.layout, c = {};
+        for (const z of zones)
+            c[z] = [...(l[z] ?? [])];
+        return c;
+    }
+    function moveTo(id, zone) {
+        const c = copyLayout();
+        for (const z of zones)
+            c[z] = c[z].filter(p => p !== id);
+        if (zone !== "off")
+            c[zone].push(id);
+        Config.pills.layout = c;
+    }
+    function shift(id, delta) {
+        const z = zoneOf(id);
+        if (z === "off")
+            return;
+        const c = copyLayout(), a = c[z], i = a.indexOf(id), j = i + delta;
+        if (j < 0 || j >= a.length)
+            return;
+        [a[i], a[j]] = [a[j], a[i]];
+        Config.pills.layout = c;
+    }
+
+    Section {
+        title: "Pill layout"
+        note: "Put each part in a top corner or beside the island, or turn it off. The arrows move it earlier or later within its place."
+        Repeater {
+            model: ["workspaces", "special", "title", "tray", "status", "clock"]
+            SettingRow {
+                id: layoutRow
+                required property string modelData
+                readonly property string zone: page.zoneOf(modelData)
+                readonly property var list: Config.pills.layout[zone] ?? []
+                icon: page.partIcons[modelData]
+                title: page.partNames[modelData]
+                subtitle: zone === "off" ? "Hidden" : (list.indexOf(modelData) + 1) + " of " + list.length + " in " + ({ left: "the left corner", islandLeft: "left of the island", islandRight: "right of the island", right: "the right corner" })[zone]
+                Row {
+                    spacing: 6
+                    IconButton {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 30
+                        height: 30
+                        iconSize: 18
+                        icon: "chevron_left"
+                        enabled: layoutRow.zone !== "off" && layoutRow.list.indexOf(layoutRow.modelData) > 0
+                        iconColor: Theme.fgSurface
+                        onClicked: page.shift(layoutRow.modelData, -1)
+                    }
+                    IconButton {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 30
+                        height: 30
+                        iconSize: 18
+                        icon: "chevron_right"
+                        enabled: layoutRow.zone !== "off" && layoutRow.list.indexOf(layoutRow.modelData) < layoutRow.list.length - 1
+                        iconColor: Theme.fgSurface
+                        onClicked: page.shift(layoutRow.modelData, 1)
+                    }
+                    Choice {
+                        anchors.verticalCenter: parent.verticalCenter
+                        model: [{ value: "left", label: "Left" }, { value: "islandLeft", label: "◂ Island" }, { value: "islandRight", label: "Island ▸" }, { value: "right", label: "Right" }, { value: "off", label: "Off" }]
+                        value: layoutRow.zone
+                        onPicked: v => page.moveTo(layoutRow.modelData, v)
+                    }
+                }
+            }
+        }
+    }
 
     Section {
         title: "Corner pills"

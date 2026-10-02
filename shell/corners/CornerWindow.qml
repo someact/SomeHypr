@@ -4,16 +4,19 @@ import Quickshell.Wayland
 import qs.core
 import qs.components
 
-// A top corner: a row of PillParts. Each run of neighboring glass parts sits
-// in one frosted pill (thin dividers between its parts); floating parts have
-// no background. The window is fixed-size so content changes never resize the
-// surface; only the parts take input and only the glass runs get blurred.
+// One pill zone: a top corner, or beside the island (`zone`: left, right,
+// islandLeft, islandRight). It shows the parts Config.pills.layout lists for
+// the zone, in order (corners/PillParts.qml). Each run of neighboring glass
+// parts sits in one frosted pill (thin dividers between its parts); floating
+// parts have no background. The window is fixed-size so content changes never
+// resize the surface; only the parts take input and only the glass runs blur.
 PanelWindow {
     id: win
 
     required property ShellScreen modelData
-    property bool left: true
-    default property alias content: parts.data
+    required property string zone
+    readonly property bool left: zone === "left" || zone === "islandLeft"
+    readonly property var partIds: Config.pills.layout[zone] ?? []
     property alias bar: bar
 
     screen: modelData
@@ -23,8 +26,10 @@ PanelWindow {
     anchors.top: true
     anchors.left: left
     anchors.right: !left
-    // Satellites: the window reaches the screen center so the pill can sit beside the island
-    readonly property bool satellite: Config.island.style === "satellites"
+    // Beside the island: the window reaches the screen center so the bar can
+    // follow the island's live width (and clear a notch's ears)
+    readonly property bool satellite: zone === "islandLeft" || zone === "islandRight"
+    readonly property real islandEdge: UiState.islandWidth / 2 + (Config.island.style === "notch" ? 12 : 0) + gap
     implicitWidth: satellite ? Math.floor(modelData.width / 2) : 640
     implicitHeight: Theme.barHeight + 8
     color: "transparent"
@@ -35,21 +40,21 @@ PanelWindow {
     // Layout of the visible parts: x of each part, the glass runs and the
     // dividers inside them, and the total width
     readonly property var geo: {
-        const ps = parts.children.filter(c => c.floating !== undefined && c.visible && c.implicitWidth > 0);
+        const ps = parts.children.filter(c => c.isPartSlot && c.item && c.item.visible && c.item.implicitWidth > 0);
         const xs = [], runs = [], seps = [];
         let x = 0, prev = null;
         for (const p of ps) {
-            const glass = !p.floating;
+            const glass = !p.item.floating;
             if (prev === null) {
                 if (glass) {
                     runs.push({ x: 0 });
                     x = pad;
                 }
-            } else if (glass && !prev.floating) {
+            } else if (glass && !prev.item.floating) {
                 seps.push(x + pad);
                 x += pad * 2 + 1;
             } else {
-                if (!prev.floating) {
+                if (!prev.item.floating) {
                     x += pad;
                     runs[runs.length - 1].w = x - runs[runs.length - 1].x;
                 }
@@ -60,10 +65,10 @@ PanelWindow {
                 }
             }
             xs.push(x);
-            x += p.implicitWidth;
+            x += p.item.implicitWidth;
             prev = p;
         }
-        if (prev && !prev.floating) {
+        if (prev && !prev.item.floating) {
             x += pad;
             runs[runs.length - 1].w = x - runs[runs.length - 1].x;
         }
@@ -83,7 +88,7 @@ PanelWindow {
 
     Item {
         id: bar
-        x: win.satellite ? (win.left ? win.width - UiState.islandWidth / 2 - 6 - width : UiState.islandWidth / 2 + 6) : (win.left ? 6 : win.width - width - 6)
+        x: win.satellite ? (win.left ? win.width - win.islandEdge - width : win.islandEdge) : (win.left ? 6 : win.width - width - 6)
         y: UiState.hidden ? -height - 4 : 3
         height: Theme.barHeight - 6
         width: win.geo.width
@@ -117,13 +122,33 @@ PanelWindow {
             }
         }
 
-        // The parts; PillPart reads its x from xOf()
+        PillParts {
+            id: registry
+            win: win
+        }
+
+        // The parts, one slot per id in this zone
         Item {
             id: parts
             anchors.fill: parent
             function xOf(item) {
                 const i = win.geo.parts.indexOf(item);
                 return i >= 0 ? win.geo.xs[i] : 0;
+            }
+            Repeater {
+                model: win.partIds
+                Loader {
+                    id: slot
+                    required property string modelData
+                    readonly property bool isPartSlot: true
+                    sourceComponent: registry[modelData] ?? null
+                    x: parts.xOf(slot)
+                    width: item ? item.implicitWidth : 0
+                    height: parent.height
+                    Behavior on x {
+                        Spring { preset: "snappy" }
+                    }
+                }
             }
         }
     }

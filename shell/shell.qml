@@ -35,11 +35,7 @@ ShellRoot {
     }
     Variants {
         model: Quickshell.screens
-        LeftPill {}
-    }
-    Variants {
-        model: Quickshell.screens
-        RightPill {}
+        Pills {}
     }
     Variants {
         model: Quickshell.screens

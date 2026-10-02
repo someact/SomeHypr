@@ -28,10 +28,6 @@ Item {
     visible: shown
     implicitWidth: row.implicitWidth - row.leftPadding - row.rightPadding
     height: parent ? parent.height : Theme.barHeight - 6
-    x: parent?.xOf ? parent.xOf(root) : 0
-    Behavior on x {
-        Spring { preset: "snappy" }
-    }
 
     // The padding is room around the content that the shadow layer also renders:
     // a layer is cut at its item's bounds, which flattened shapes that reach the

@@ -37,7 +37,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 | Part | What it does |
 |---|---|
 | **Island** | The notch at the top. Collapsed, it shows the clock, media, notifications, OSD and recording. Opened (tap Super), it holds search, quick controls, media, notifications, system and power. |
-| **Corner pills** | Workspaces and the focused app on the left; tray, keyboard layout, network and clock on the right. |
+| **Pills** | Workspaces, app title, tray, status icons and clock. Each one can sit in a top corner or beside the island, in any order, as glass or floating (Settings → Island). |
 | **Dock** | Bottom bar with pinned and running apps. |
 | **Super+Tab** | Workspace overview. |
 | **Super+G** | Game overlay with resources, mixer, crosshair, FPS limit and notes. |
