@@ -90,6 +90,52 @@ CornerWindow {
     }
 
     PillPart {
+        id: specialPart
+        // Special workspaces (scratchpads) that hold windows: a star chip each,
+        // its shape lit while open on this monitor; click opens or closes it
+        readonly property var specials: Hyprland.workspaces.values.filter(w => w.id < 0 && w.toplevels.values.length > 0)
+        style: Config.pills.workspaces
+        shown: specials.length > 0
+        spacing: 2
+
+        Repeater {
+            model: specialPart.specials
+            Row {
+                id: sp
+                required property HyprlandWorkspace modelData
+                readonly property string label: modelData.name.replace(/^special:/, "")
+                readonly property bool open: (HyprData.special[win.modelData.name] ?? "") === modelData.name
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 2
+
+                ShapeIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    icon: "star"
+                    size: 13
+                    padding: 3
+                    shape: Config.pills.workspaceShape
+                    active: sp.open
+                    halo: specialPart.outline
+                    iconColor: specialPart.fg
+                }
+                Label {
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: sp.label !== "special"
+                    text: sp.label
+                    font.pixelSize: Theme.font.small
+                    color: specialPart.fg
+                    style: specialPart.textStyle
+                    styleColor: specialPart.halo
+                }
+                TapHandler {
+                    cursorShape: Qt.PointingHandCursor
+                    onTapped: HyprData.toggleSpecial(sp.label)
+                }
+            }
+        }
+    }
+
+    PillPart {
         id: titlePart
         style: Config.pills.title
         shown: HyprData.activeTitle !== ""
