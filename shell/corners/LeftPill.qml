@@ -11,9 +11,9 @@ CornerWindow {
     id: win
     left: true
 
-    Row {
-        id: workspaces
-        anchors.verticalCenter: parent.verticalCenter
+    PillPart {
+        id: wsPart
+        style: Config.pills.workspaces
         spacing: 2
 
         Repeater {
@@ -39,9 +39,9 @@ CornerWindow {
                     width: ws.isActive ? 18 : 6
                     height: 6
                     radius: 3
-                    color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgPill : Theme.pillsFloating ? Theme.fgPillDim : Theme.outlineVariant
-                    border.width: Theme.pillsFloating && !Theme.pillShadow ? 1 : 0
-                    border.color: Theme.pillHalo
+                    color: ws.isActive ? Theme.primary : ws.isOccupied ? wsPart.fg : wsPart.floating ? wsPart.fgDim : Theme.outlineVariant
+                    border.width: wsPart.outline ? 1 : 0
+                    border.color: wsPart.halo
                     Behavior on width {
                         Spring { preset: "snappy" }
                     }
@@ -52,9 +52,9 @@ CornerWindow {
                     text: (ws.wsId - 1) % 10 + 1
                     mono: true
                     font.pixelSize: Theme.font.small
-                    color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgPill : Theme.fgPillDim
-                    style: Theme.pillTextStyle
-                    styleColor: Theme.pillHalo
+                    color: ws.isActive ? Theme.primary : ws.isOccupied ? wsPart.fg : wsPart.fgDim
+                    style: wsPart.textStyle
+                    styleColor: wsPart.halo
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -65,17 +65,10 @@ CornerWindow {
         }
     }
 
-    Rectangle {
-        anchors.verticalCenter: parent.verticalCenter
-        visible: HyprData.activeTitle !== ""
-        width: 1
-        height: 14
-        color: Theme.pillsFloating ? Theme.fgPillDim : Theme.outlineVariant
-    }
-
-    Row {
-        anchors.verticalCenter: parent.verticalCenter
-        visible: HyprData.activeTitle !== ""
+    PillPart {
+        id: titlePart
+        style: Config.pills.title
+        shown: HyprData.activeTitle !== ""
         spacing: 6
 
         IconImage {
@@ -88,16 +81,16 @@ CornerWindow {
             anchors.verticalCenter: parent.verticalCenter
             width: Math.min(implicitWidth, 300)
             text: HyprData.activeTitle
-            color: Theme.fgPill
-            style: Theme.pillTextStyle
-            styleColor: Theme.pillHalo
+            color: titlePart.fg
+            style: titlePart.textStyle
+            styleColor: titlePart.halo
             font.pixelSize: Theme.font.small
         }
     }
 
     WheelHandler {
         target: null
-        parent: win.pill
+        parent: win.bar
         onWheel: event => HyprData.focusWorkspace(event.angleDelta.y > 0 ? "r-1" : "r+1")
     }
 }

@@ -10,26 +10,53 @@ Page {
 
     Section {
         title: "Corner pills"
-        SettingRow {
-            icon: "toolbar"
-            title: "Style"
-            subtitle: "Glass is a frosted pill. Floating shows only the icons and text, like a phone's status bar."
-            Choice {
-                model: [{ value: "glass", label: "Glass" }, { value: "floating", label: "Floating" }]
-                value: Config.island.pillStyle
-                onPicked: v => Config.island.pillStyle = v
-            }
+        note: "Each part is a frosted glass pill (glass parts side by side share one pill) or floats with no background, like a phone's status bar."
+        PartRow {
+            part: "workspaces"
+            icon: "view_week"
+            title: "Workspaces"
+        }
+        PartRow {
+            part: "title"
+            icon: "web_asset"
+            title: "App title"
+        }
+        PartRow {
+            part: "tray"
+            icon: "apps"
+            title: "System tray"
+        }
+        PartRow {
+            part: "status"
+            icon: "wifi"
+            title: "Status icons"
+            subtitle: "Keyboard layout, network, Bluetooth, volume"
+        }
+        PartRow {
+            part: "clock"
+            icon: "schedule"
+            title: "Date and time"
         }
         SettingRow {
             icon: "shadow"
             title: "Floating text"
-            subtitle: "How floating icons and text stay readable: a soft shadow, or a thin outline (lightest)"
-            enabled: Config.island.pillStyle === "floating"
+            subtitle: "How floating parts stay readable: a soft shadow, or a thin outline (lightest)"
+            enabled: ["workspaces", "title", "tray", "status", "clock"].some(k => Config.pills[k] === "floating")
             Choice {
                 model: [{ value: "shadow", label: "Shadow" }, { value: "outline", label: "Outline" }]
                 value: Config.pills.halo
                 onPicked: v => Config.pills.halo = v
             }
+        }
+    }
+
+    component PartRow: SettingRow {
+        id: partRow
+        required property string part
+        Choice {
+            model: [{ value: "glass", label: "Glass" }, { value: "floating", label: "Floating" }]
+            value: Config.pills[partRow.part] ?? "glass"
+            onPicked: v => Config.pills[partRow.part] = v
         }
     }
 

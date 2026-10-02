@@ -401,7 +401,8 @@ Root causes found:
 **9b+. Pill parts and halo** (added 2026-10-03, on request)
 - [x] Floating text and icons: halo choice, soft shadow or outline
   - Settings → Island → Floating text (`pills.halo`, default shadow). Shadow: one MultiEffect drop shadow per floating pill (black 90 %, blur 0.35), only while floating. Outline: the glyph outline (no layer). Compared over a bright wallpaper (grim)
-- [ ] Glass or floating per part of the corner pills (workspaces, app title, system tray, status icons, clock); neighboring glass parts join into one pill
+- [x] Glass or floating per part of the corner pills (workspaces, app title, system tray, status icons, clock); neighboring glass parts join into one pill
+  - `corners/PillPart.qml` per part (`Config.pills.<part>`); `CornerWindow` lays the visible parts out, draws one Glass per run of glass parts with dividers inside, blurs only those runs (no region when every part floats) and springs positions. Replaces the single `island.pillStyle`. Settings → Island → Corner pills: a Glass/Floating row per part plus Floating text. Verified all-glass (same look as before), floating workspaces + glass title, glass status + floating clock (grim)
 
 **9c. Corner pills and workspaces**
 - [ ] Show only occupied workspaces plus the active one; they spring in and out

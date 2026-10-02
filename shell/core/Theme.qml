@@ -52,14 +52,6 @@ Singleton {
     readonly property color glassRim: Qt.rgba(1, 1, 1, Config.glass.rim ? 0.14 : 0.05)
     readonly property color glassHighlight: Qt.rgba(1, 1, 1, Config.glass.rim ? 0.07 : 0)
 
-    // Floating corner pills: no background, so text and icons get a dark halo
-    readonly property bool pillsFloating: Config.island.pillStyle === "floating"
-    readonly property color fgPill: pillsFloating ? "#ffffff" : fgSurface
-    readonly property color fgPillDim: pillsFloating ? Qt.rgba(1, 1, 1, 0.6) : outline
-    readonly property color pillHalo: Qt.rgba(0, 0, 0, 0.6)
-    // Halo: a soft drop shadow (one MultiEffect per floating pill) or a glyph outline (free)
-    readonly property bool pillShadow: pillsFloating && Config.pills.halo === "shadow"
-    readonly property int pillTextStyle: pillsFloating && !pillShadow ? Text.Outline : Text.Normal
 
     // Tokens
     readonly property QtObject radius: QtObject {
