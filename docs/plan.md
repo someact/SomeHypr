@@ -217,7 +217,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
   - GameMode bridge: `modes/gamemode.lua` emits socket2 `custom>>somehypr_gamemode,<0|1>`; the shell never polls
 - [x] Island window: notch shape, input mask, `BackgroundEffect` blur, focus grab (activated 50 ms after opening, same race ii works around)
 - [x] Ambient states: polkit, notification peek, OSD, recording/screenshare, media, game-mode dot, idle clock
-- [x] Super-tap search (apps, calculator, windows). A tap is Super alone, < 400 ms, with no workspace/window event in between
+- [x] Super-tap search (apps, calculator, windows). Hyprland only delivers the release of `SUPER + SUPER_L`, so the bare `superKey` press arms the tap; it counts if Super was alone, held < 500 ms, with no workspace/window event or other shell shortcut in between. Tested with `ydotool`: tap opens, tap closes, Super+V / Super+2 / unbound combos / long hold do not
 - [~] Commands view → `/` inside search, one file per command in `shell/commands/` (`/wallpaper /settings /power /lock /clip /emoji /project /game /dnd /shot /ocr /record /keys`), Tab completes, `/project` suggests folders
 - [x] Control view (toggles + volume/mic/brightness sliders)
 - [x] Media, Notifications, System, Power views

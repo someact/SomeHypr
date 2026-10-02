@@ -10,23 +10,34 @@ import qs.commands
 Scope {
     id: root
 
+    // Any other shell shortcut (Super+V, ...) cancels a pending Super tap.
+    // Instances add their own onPressed; both handlers run.
     component Shortcut: GlobalShortcut {
         appid: "somehypr"
+        onPressed: if (name !== "superKey") UiState.superMightTrigger = false
     }
 
-    // Super tap opens search. A tap is a press and release of Super alone,
-    // shorter than 400 ms, with no workspace/window change in between
-    // (Super+1, Super+arrows...).
+    // Super tap toggles the island (search). Hyprland only delivers the release
+    // half of the `SUPER + SUPER_L` bind, so the tap is armed by `superKey`
+    // (bare Super_L/R, fires on press) and decided on that release. It counts
+    // as a tap if Super was alone, held < 500 ms, and nothing happened in
+    // between (Super+1, Super+arrows, a Super shortcut...).
     property real superPressedAt: 0
     Shortcut {
-        name: "searchToggleRelease"
-        description: "Toggle search on Super release"
+        name: "superKey"
+        description: "Super key pressed/released"
         onPressed: {
+            UiState.superHeld = true;
             UiState.superMightTrigger = true;
             root.superPressedAt = Date.now();
         }
+        onReleased: UiState.superHeld = false
+    }
+    Shortcut {
+        name: "searchToggleRelease"
+        description: "Toggle search on Super tap"
         onReleased: {
-            const tap = UiState.superMightTrigger && Date.now() - root.superPressedAt < 400;
+            const tap = UiState.superMightTrigger && Date.now() - root.superPressedAt < 500;
             UiState.superMightTrigger = false;
             if (tap)
                 UiState.toggle("search");
@@ -41,17 +52,9 @@ Scope {
         target: Hyprland
         enabled: UiState.superMightTrigger
         function onRawEvent(event) {
-            if (["workspace", "workspacev2", "activewindow", "activewindowv2", "movewindow", "movewindowv2", "openwindow", "closewindow", "fullscreen", "changefloatingmode"].includes(event.name))
+            if (["workspace", "workspacev2", "activewindow", "activewindowv2", "movewindow", "movewindowv2", "openwindow", "closewindow", "fullscreen", "changefloatingmode", "activespecial"].includes(event.name))
                 UiState.superMightTrigger = false;
         }
-    }
-
-    // Super held: the left pill shows workspace numbers
-    Shortcut {
-        name: "superKey"
-        description: "Super key held"
-        onPressed: UiState.superHeld = true
-        onReleased: UiState.superHeld = false
     }
 
     Shortcut {

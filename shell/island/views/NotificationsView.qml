@@ -130,6 +130,7 @@ FocusScope {
                         Repeater {
                             model: card.modelData.actions
                             PressButton {
+                                id: actionButton
                                 required property NotificationAction modelData
                                 width: actionLabel.implicitWidth + 20
                                 height: 26
@@ -138,7 +139,7 @@ FocusScope {
                                 Label {
                                     id: actionLabel
                                     anchors.centerIn: parent
-                                    text: parent.modelData.text
+                                    text: actionButton.modelData.text
                                     font.pixelSize: Theme.font.small
                                 }
                             }
