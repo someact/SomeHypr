@@ -409,9 +409,12 @@ Root causes found:
   - `corners/PillPart.qml` per part (`Config.pills.<part>`); `CornerWindow` lays the visible parts out, draws one Glass per run of glass parts with dividers inside, blurs only those runs (no region when every part floats) and springs positions. Replaces the single `island.pillStyle`. Settings → Island → Corner pills: a Glass/Floating row per part plus Floating text. Verified all-glass (same look as before), floating workspaces + glass title, glass status + floating clock (grim)
 
 **9c. Corner pills and workspaces**
-- [ ] Show only occupied workspaces plus the active one; they spring in and out
+- [ ] Fix: the active workspace shape gets cut off (added 2026-10-03)
+- [ ] Show only occupied workspaces plus the active one; they spring in and out; setting "show empty workspaces" (default off)
+- [ ] Holding Super: every workspace of the group appears as a shape with its number (empty ones as outlines), redesigned from the plain numbers (added 2026-10-03)
 - [ ] Special-workspace chip (click toggles it)
-- [ ] Super-held numbers stay; setting "show empty workspaces" (default off)
+- [ ] Island style and pill placement split: the island is notch or floating, and pills can sit beside the island with either (satellites with a notch) (added 2026-10-03)
+- [ ] Pill layout: each part (workspaces, title, tray, status, clock) can go to the left or right corner or beside the island, be reordered, and be shown or hidden; editor in Settings → Island (added 2026-10-03)
 
 **9d. Island interaction**
 - [ ] Hover peek (~180 ms) with a top-edge hot strip; leaving closes it after ~300 ms; a click or Super opens the full view; no keyboard focus; off in game mode and fullscreen
