@@ -1,6 +1,6 @@
 -- Keybinds, ported 1:1 from the ii config (hyprland/keybinds.lua + custom/keybinds.lua).
 -- Changes vs. ii:
---   * shell binds go through shell_bind() (binds/shell.lua), so they follow `shell`
+--   * shell binds go through shell_bind() (binds/shell.lua): global shortcut + CLI fallback
 --   * SUPER+ALT+number also binds raw keycodes, so it works on the Thai layout
 --   * SUPER+ALT+Page_Down/Up use the canonical key names
 --   * removed: touchpad gestures (desktop, no touchpad), the edit-custom-keybinds
@@ -27,14 +27,10 @@ shell_bind("SUPER + J", "bar", { description = "Shell: Toggle bar" })
 shell_bind("CTRL + SUPER + T", "wallpaper", { description = "Shell: Change wallpaper" })
 shell_bind("CTRL + SUPER + ALT + T", "wallpaperRandom", { description = "Shell: Random wallpaper" })
 shell_bind("CTRL + SUPER + SHIFT + D", "lightDark", { description = "Shell: Toggle light/dark mode" })
-shell_bind("CTRL + SUPER + P", "panelFamily", { description = "Shell: Cycle panel family" })
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd(shell_command("restart")), { description = "Shell: Restart widgets" })
-if shell_command("welcome") then
-    hl.bind("SHIFT + SUPER + ALT + Slash", hl.dsp.exec_cmd(shell_command("welcome")))
-end
 hl.bind("CTRL + SUPER + ALT + Slash", hl.dsp.exec_cmd("xdg-open " .. HYPR_DIR .. "/binds/keybinds.lua"), { description = "Shell: Edit keybinds" })
 
-local qsIpcCall = "qs -c " .. shell .. " ipc call"
+local qsIpcCall = "qs -c somehypr ipc call"
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(qsIpcCall .. " brightness increment || brightnessctl s 5%+"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(qsIpcCall .. " brightness decrement || brightnessctl s 5%-"), { locked = true, repeating = true })
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ -l 1.5"), { locked = true, repeating = true })

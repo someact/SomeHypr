@@ -228,7 +228,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Global shortcuts under appid `somehypr`, IPC targets for every view (`qs -c somehypr ipc call island open <view>`)
 - [x] Switch `shell = "somehypr"` in `hypr/user.lua` (live; somehypr owns notifications and the polkit agent; 199 binds, since the panel-family and welcome binds are ii-only)
 - [x] Region tools and overlay fall back to CLI scripts for now (the `somehypr:region*` shortcuts run them)
-- [ ] Memory: glvnd is pinned to the NVIDIA EGL vendor in `shell.qml`, so Mesa + LLVM no longer load (fresh dev run: 485 → ~385 MB RSS). Live after opening views: ~480 MB RSS, PSS ~300 MB (~210 MB of it heap). Still above the 250 MB target; the Phase 8 audit owns this
+- [ ] Memory: glvnd is pinned to the NVIDIA EGL vendor in `shell.qml`, so Mesa + LLVM no longer load (fresh dev run: 485 → ~385 MB RSS). Live after opening views: ~480 MB RSS, PSS ~300 MB (~210 MB of it heap). Still above the 250 MB target; see the Phase 8 audit
 - [ ] Hands-on check by you: Super tap (and Super+1 not opening search), typing straight into search, ←/→ between views, glass blur behind the notch, tray menus
 
 ### Phase 3: Wallpaper and theming ✅
@@ -319,25 +319,45 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Settings: new Desktop page (widgets, lock screen options + preview, keyboard)
 - [ ] Hands-on check by you: Super+L and unlock with your password (also on TH layout and after suspend), idle lock after 5 min, widgets on an empty workspace + edit mode drag, OSK typing into a real app
 
-### Phase 8: Audit and retire ii
-- [ ] Measure against the Targets
-- [ ] Remove ii from autostart and the `hypr/hyprland/scripts` compat link
-- [ ] Optional cleanup for approval: ii venv, unused Plasma services, `illogical-impulse-*` meta packages
+### Phase 8: Audit and retire ii ✅
+- [~] Measure against the Targets (live `qs -c somehypr`, one monitor, image wallpaper)
+
+  | Target | Result |
+  |---|---|
+  | Idle RSS ≤ 250 MB | **Not met as written:** 414 MB fresh, 469 MB after 10 min with normal use (was 720 MB before this phase). The target is below the floor: an empty one-window Quickshell already shows ~250 MB RSS / ~55 MB anon / ~105 MB PSS on this NVIDIA stack (shared Qt + driver libraries). What the shell itself adds: ~170 MB anon fresh, ~210 MB after use (it settles there; no leak over a 3 min idle sample) |
+  | ~0% CPU idle, no timer < 1 s unless visible | **Met:** 0–0.15% over 60 s samples; every repeating timer is gated (SysStats/media/recorder/OSK repeat/display revert) |
+  | No Python, cava, nmcli polling, separate polkit agent | **Met:** none running; only child process is the gamemoded `gdbus monitor` |
+  | Interruptible springs at 100 fps | Springs retarget (Phase 2); frame times not measured with `debug:overlay` → hands-on check |
+  | Game mode → near-zero overhead | Done in Phases 1/3/6 (blur, shadows, animations off, mpvpaper paused, widgets unloaded, island dot) |
+
+  Fixes found by the audit:
+  - `components/Icon.qml` animated the Material Symbols `FILL` axis and used any size as `opsz`. Qt opens one face per distinct axis value (mmap of the 14 MB font + glyph cache), so a session reached 42 mappings (199 MB of RSS, ~10 MB PSS). FILL now snaps to 0/1 and opsz to 20/24/40/48: 4–5 mappings
+  - Wallpaper: a 3000×2000 JPEG decoded with `sourceSize` kept +39 MB anon vs +15 MB for a screen-sized file. The layer now shows a cached ImageMagick copy (`~/.cache/somehypr/wall-<WxH>-<md5>.jpg`, old ones pruned), frees the faded-out crossfade slot, and frees both while a video plays
+  - Measured and ruled out: surface size and window count (GPU memory, ~0 process cost), text render type, malloc arenas, QML JS heap (~1 MB)
+  - Bisect of the remaining anon (each part alone over the floor): wallpaper ~45 MB (before the fix), island ~30, dock ~28, pills ~20, everything lazy ~5. Going further needs a heap profiler (`heaptrack`, not installed)
+- [x] Remove ii from autostart and the `hypr/hyprland/scripts` compat link
+  - The `shell` switch is gone: `binds/shell.lua` maps each action to a `somehypr:` shortcut + CLI fallback; execs, env (`qsConfig`, ii venv), layer rules, window rules, `lock.sh` and `record.sh` (now reads `capture.recordDir`) are somehypr-only
+  - matugen no longer writes ii's outputs (`ii_*` templates, `kde/color.txt`, the kde-material-you wrapper removed); the shell's one-time ii wallpaper migration removed
+  - Binds: 201 (the wallpaper action lost ii's `switchwall.sh` fallback; panel-family/welcome were already unbound)
+  - `~/.config/quickshell/ii` and `~/.config/hypr.pre-somehypr` stay on disk, so `install.sh --rollback` still works
+- [ ] Optional cleanup for approval: ii venv (`~/.local/state/quickshell/.venv`, 331 MB), unused Plasma services (`kded6` 150 MB + `kactivitymanagerd` 89 MB RSS, both D-Bus/systemd activated), 13 `illogical-impulse-*` meta packages
 - [ ] Optional experiment: hyprglass refraction plugin
+- [ ] Note: mpvpaper with a 1080p video still uses ~760 MB RSS (Phase 3); not re-measured here
+- [ ] Hands-on check by you: island morph smoothness after the Icon change (fill no longer fades), wallpaper picker crossfade, Super+Shift+R with the shell killed (record.sh fallback)
 
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.
-  - `hyprctl binds -j | jq length` is 202 with `shell = "somehypr"` and with ii (191 plus 10 Thai keycode binds plus the record-submap escape; somehypr lacks ii's panel-family and welcome binds but adds CLI fallbacks for the two screen-record actions) when `keybinds.json` adds nothing.
+  - `hyprctl binds -j | jq length` is 201 when `keybinds.json` adds nothing (ii's 191, plus 10 Thai keycode binds and the record-submap escape, minus ii's panel-family and welcome binds, plus CLI fallbacks for the two screen-record actions; the wallpaper picker lost its ii `switchwall.sh` fallback in Phase 8).
   - Spot-check options with `hyprctl getoption`.
   - SUPER+ALT+N works with the TH layout active.
 - **Shell:**
   - `timeout 12 qs -c somehypr 2>&1 | grep -E "WARN|ERROR"` shows no new ReferenceError or TypeError.
   - Every view can be opened through `qs -c somehypr ipc call island open <view>`.
 - **Performance:**
-  - `ps -o rss,pcpu -C qs` after 10 min idle is ≤ 250 MB.
+  - `ps -o rss,pcpu -C qs` after 10 min idle, plus `Anonymous`/`Pss` from `/proc/<pid>/smaps_rollup` (RSS alone counts shared libraries and every font mapping; see Phase 8).
   - `pidstat -p $(pidof qs) 1 60` averages about 0%.
   - Hyprland `debug:overlay` shows frames under 10 ms during island morphs.
   - `QSG_RENDER_TIMING=1` for scene-graph cost.
 - **Game mode:** launch a Steam game and check that blur, shadows and animations are off, mpvpaper is paused and the island is a dot. After exiting, everything is restored.
-- **Rollback drill:** `install.sh --rollback && hyprctl reload` brings back the exact ii setup.
+- **Rollback drill:** `install.sh --rollback && hyprctl reload` brings back the exact ii setup (`~/.config/hypr.pre-somehypr` and `~/.config/quickshell/ii` are kept for this).

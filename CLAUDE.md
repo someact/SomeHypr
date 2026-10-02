@@ -5,16 +5,15 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
 
 ## Layout
 - `hypr/` is linked to `~/.config/hypr`. `hyprland.lua` loads files in a fixed order, and each setting lives in exactly one file:
-  - `user.lua` holds user choices: `shell`, apps, `glass`, `gameModeAuto`. The settings app overrides all but `shell` through `~/.config/somehypr/hypr.json` (`SETTINGS`, loaded by `lib/util.lua` with `lib/json.lua`); `core/settings.lua` loads last and applies its `hyprland` table (a partial `hl.config`). The file only holds changed values.
+  - `user.lua` holds user choices: apps, `glass`, `gameModeAuto`. The settings app overrides them through `~/.config/somehypr/hypr.json` (`SETTINGS`, loaded by `lib/util.lua` with `lib/json.lua`); `core/settings.lua` loads last and applies its `hyprland` table (a partial `hl.config`). The file only holds changed values.
   - `core/` covers env (NVIDIA), input and tablet, look, motion, misc, and execs.
   - `rules/` holds window rules (windows, media, art, gaming) and layer rules.
-  - `binds/keybinds.lua` holds every bind. Shell binds go through `shell_bind()` / `SHELL_ACTIONS` in `binds/shell.lua`, so switching `shell` retargets them.
+  - `binds/keybinds.lua` holds every bind. Shell binds go through `shell_bind()` / `SHELL_ACTIONS` in `binds/shell.lua`: a `somehypr:` global shortcut plus an optional CLI fallback that runs only while the shell is not answering.
   - `binds/user.lua` applies `~/.config/somehypr/keybinds.json` (settings app): it wraps `hl.bind` while keybinds.lua runs (remap/disable by normalized combo), then `UserBinds.finish()` adds custom binds and the `somehypr-record` submap. User changes never go into keybinds.lua.
   - `modes/gamemode.lua` turns blur, shadows and animations off while a game is the focused fullscreen window. Control it with `hyprctl eval 'GameMode.toggle()'` and `'GameMode.auto()'`.
   - `generated/` is machine-written (matugen) and gitignored. `monitors.lua` is written by the display settings page.
-  - `hyprland/scripts` is a symlink so that ii's hardcoded paths keep working. Remove it with ii in Phase 8.
 - `matugen/` is linked to `~/.config/matugen` and is the only color engine. `config.toml` lists every output (shell, Hyprland, terminals, GTK, KDE, fuzzel, Zen, Vesktop); `hooks/` reload apps. Run it without a terminal only with `--source-color-index 0`.
-- Wallpaper state is `~/.local/state/somehypr/wallpaper.json`; set it through the shell (`qs -c somehypr ipc call wallpaper set <path>`) so videos start mpvpaper and get a matugen frame.
+- Wallpaper state is `~/.local/state/somehypr/wallpaper.json`; set it through the shell (`qs -c somehypr ipc call wallpaper set <path>`) so videos start mpvpaper and get a matugen frame. Images are shown from a screen-sized copy (`~/.cache/somehypr/wall-<WxH>-<md5>.jpg`, ImageMagick), because Qt keeps a large original's full decode in memory.
 - `shell/` is linked to `~/.config/quickshell/somehypr` and runs with `qs -c somehypr`:
   - `core/` singletons (Config, Theme, Motion, Paths, UiState, GameMode), `components/`, `services/` (one singleton per system source).
   - `island/Island.qml` is the notch window; `island/views/*View.qml` are loaded only while open; `island/ambient/` holds the collapsed states.
@@ -30,23 +29,24 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `dock/` is the bottom dock (contents from `services/Taskbar.qml`, settings under `dock` in config.json). `overview/` is Super+Tab, created only while open.
   - Blur gotcha: an empty `BackgroundEffect.blurRegion` blurs the whole surface, so set it to `null` whenever the shape is off-surface.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
+  - Font gotcha: every distinct `font.variableAxes` value opens another face (mmap + glyph cache). `components/Icon.qml` snaps FILL to 0/1 and opsz to 20/24/40/48; never animate an axis.
 - `install.sh` links everything and reloads, rolling back automatically if there are config errors. `--check` only verifies; `--rollback` restores `~/.config/*.pre-somehypr`.
 
 ## Hyprland Lua API
 - The authoritative stub is `/usr/share/hypr/stubs/hl.meta.lua`: events, rule fields, config keys and dispatchers. Example config: `/usr/share/hypr/hyprland.lua`.
 - Window and layer rules take effects as flat fields, e.g. `hl.window_rule({ match = {...}, no_blur = true })`. Unknown fields are config errors.
 - Springs: `hl.curve(name, { type = "spring", mass, stiffness, dampening })`, used as `spring = name` in `hl.animation`.
-- Runtime: `hyprctl eval '<lua>'` runs code, and `hyprctl repl 'return <expr>'` reads Lua globals (e.g. `shell`, `GameMode.active`).
+- Runtime: `hyprctl eval '<lua>'` runs code, and `hyprctl repl 'return <expr>'` reads Lua globals (e.g. `GameMode.active`).
 
 ## Verify every change
 ```sh
 ./install.sh --check                 # Hyprland --verify-config on the repo config
 hyprctl reload && hyprctl configerrors   # live; must print nothing
-hyprctl binds -j | jq length         # 202 with either shell (with no keybinds.json)
+hyprctl binds -j | jq length         # 201 (with no keybinds.json)
 ```
 Shell changes:
 ```sh
-timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"   # dev copy; while ii runs, only its notification/polkit clashes may appear
+timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"   # dev copy; only notification/polkit clashes with the live shell may appear
 qs -c somehypr ipc call island open <view>                     # search control media notifications system power clipboard emoji keys
 qs -c somehypr ipc call island state
 qs -c somehypr ipc call overview toggle
@@ -56,7 +56,8 @@ qs -c somehypr ipc call lock preview · widgets edit · osk toggle
 timeout 8 qs -p shell/settings.qml 2>&1 | grep -E "WARN|ERROR"   # settings app
 ```
 - IPC function names must not clash with `qs ipc` subcommands (`show`, `call`, `prop`): `qs ipc call x show` is parsed as `qs ipc show`.
-Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are the rollback.
+Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are the rollback (`install.sh --rollback`).
+- Memory: compare against a fresh start and read `Anonymous`/`Pss` in `/proc/<pid>/smaps_rollup`, not only RSS. An empty one-window Quickshell already shows ~250 MB RSS / ~55 MB anon on this NVIDIA stack. Measure with `pgrep -x qs`; `pkill -f "qs -c somehypr"` also matches the shell running the command.
 
 ## Phase workflow
 - Work through `docs/plan.md` one phase at a time and tick its checkboxes (`[x]` done, `[~]` done differently, with a note) as tasks land.

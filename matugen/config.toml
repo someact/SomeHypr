@@ -62,16 +62,3 @@ output_path = '~/.config/zen/bbrxh38h.Default (release)/chrome/somehypr-colors.c
 [templates.vesktop]
 input_path = '~/.config/matugen/templates/vesktop/somehypr.theme.css'
 output_path = '~/.config/vesktop/themes/somehypr.theme.css'
-
-# --- ii compatibility (rollback shell); remove with ii in Phase 8 --------------
-[templates.ii_colors]
-input_path = '~/.config/matugen/templates/colors.json'
-output_path = '~/.local/state/quickshell/user/generated/colors.json'
-
-[templates.ii_kde_color]
-input_path = '~/.config/matugen/templates/kde/color.txt'
-output_path = '~/.local/state/quickshell/user/generated/color.txt'
-
-[templates.ii_wallpaper]
-input_path = '~/.config/matugen/templates/wallpaper.txt'
-output_path = '~/.local/state/quickshell/user/generated/wallpaper/path.txt'

@@ -230,21 +230,5 @@ Singleton {
             } catch (e) {}
             checkMpv.running = true;
         }
-        onLoadFailed: migrate.reload()
-    }
-
-    // First run: take over the wallpaper ii last set
-    FileView {
-        id: migrate
-        path: Paths.stateHome + "/quickshell/user/generated/wallpaper/path.txt"
-        blockLoading: false
-        printErrors: false
-        onLoaded: {
-            const p = text().trim();
-            if (p !== "") {
-                root.path = p;
-                root.save();
-            }
-        }
     }
 }

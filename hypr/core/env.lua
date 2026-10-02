@@ -19,10 +19,3 @@ hl.env("XDG_DATA_DIRS", HOME .. "/.local/share/flatpak/exports/share:/var/lib/fl
 -- XDG_MENU_PREFIX lets Dolphin find "Open with" entries.
 hl.env("QT_QPA_PLATFORMTHEME", "kde")
 hl.env("XDG_MENU_PREFIX", "plasma-")
-
--- Shell selection, visible to scripts as $qsConfig
-hl.env("qsConfig", shell)
-
--- ii compatibility: its wallpaper/color scripts run inside this venv.
--- Remove together with ii in Phase 8.
-hl.env("ILLOGICAL_IMPULSE_VIRTUAL_ENV", HOME .. "/.local/state/quickshell/.venv")

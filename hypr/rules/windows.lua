@@ -23,15 +23,8 @@ for _, class in ipairs({ "^(blueberry\\.py)$", ".*plasmawindowed.*", "kcm_.*", "
     hl.window_rule({ match = { class = class }, float = true })
 end
 
--- Shell windows (ii settings/welcome, new shell settings)
-for _, title in ipairs({ ".*Welcome", "^(illogical-impulse Settings)$", ".*Shell conflicts.*", "^(SomeHypr Settings)$" }) do
-    hl.window_rule({ match = { title = title }, float = true })
-end
-
-hl.window_rule({ match = { title = "^(SomeHypr Settings)$" }, center = true, size = { 1080, 740 } })
-
--- kde-material-you-colors flashes a window when switching dark/light: hide it off-screen
-hl.window_rule({ match = { class = "^(plasma-changeicons)$" }, float = true, no_initial_focus = true, move = { 999999, 999999 } })
+-- Shell settings window
+hl.window_rule({ match = { title = "^(SomeHypr Settings)$" }, float = true, center = true, size = { 1080, 740 } })
 
 -- Dolphin's copy progress window
 hl.window_rule({ match = { title = "^(Copying — Dolphin)$" }, move = { 40, 80 } })

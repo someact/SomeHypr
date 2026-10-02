@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-CONFIG_FILE="$HOME/.config/illogical-impulse/config.json"
-JSON_PATH=".screenRecord.savePath"
+# Fallback for when the shell is not running (services/Recorder.qml owns
+# recording otherwise). Same folder setting as the shell: capture.recordDir.
+CONFIG_FILE="$HOME/.config/somehypr/config.json"
+JSON_PATH=".capture.recordDir // empty"
 
 CUSTOM_PATH=$(jq -r "$JSON_PATH" "$CONFIG_FILE" 2>/dev/null)
 
 RECORDING_DIR=""
 
-if [[ -n "$CUSTOM_PATH" && "$CUSTOM_PATH" != "null" ]]; then
+if [[ -n "$CUSTOM_PATH" ]]; then
     RECORDING_DIR="$CUSTOM_PATH"
 else
     RECORDING_DIR="$HOME/Videos" # Use default path
