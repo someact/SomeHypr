@@ -16,6 +16,15 @@ Page {
             icon: "view_week"
             title: "Workspaces"
         }
+        SettingRow {
+            icon: "cookie"
+            title: "Active workspace shape"
+            Choice {
+                model: [{ value: "cookie7Sided", label: "Cookie" }, { value: "clover4Leaf", label: "Clover" }, { value: "sunny", label: "Sunny" }, { value: "pill", label: "Pill" }, { value: "circle", label: "Circle" }]
+                value: Config.pills.workspaceShape
+                onPicked: v => Config.pills.workspaceShape = v
+            }
+        }
         PartRow {
             part: "title"
             icon: "web_asset"

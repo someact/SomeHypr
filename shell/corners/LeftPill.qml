@@ -28,23 +28,33 @@ CornerWindow {
                     return HyprData.occupied(wsId);
                 }
                 width: UiState.superHeld ? 16 : isActive ? 22 : 10
-                height: 18
+                height: 20
                 Behavior on width {
                     Spring { preset: "snappy" }
                 }
 
-                Rectangle {
+                // Expressive: the active workspace morphs from a dot into a
+                // Material shape (Config.pills.workspaceShape) holding its number
+                MaterialShape {
                     anchors.centerIn: parent
                     visible: !UiState.superHeld
-                    width: ws.isActive ? 18 : 6
-                    height: 6
-                    radius: 3
+                    width: ws.isActive ? 20 : ws.isOccupied ? 7 : 5
+                    height: width
+                    shape: ws.isActive ? Config.pills.workspaceShape : "circle"
                     color: ws.isActive ? Theme.primary : ws.isOccupied ? wsPart.fg : wsPart.floating ? wsPart.fgDim : Theme.outlineVariant
-                    border.width: wsPart.outline ? 1 : 0
-                    border.color: wsPart.halo
+                    borderWidth: wsPart.outline ? 1 : 0
+                    borderColor: wsPart.halo
                     Behavior on width {
                         Spring { preset: "snappy" }
                     }
+                }
+                Label {
+                    anchors.centerIn: parent
+                    visible: ws.isActive && !UiState.superHeld
+                    text: (ws.wsId - 1) % 10 + 1
+                    font.pixelSize: 10
+                    font.weight: Theme.font.weightTitle
+                    color: Theme.fgPrimary
                 }
                 Label {
                     anchors.centerIn: parent

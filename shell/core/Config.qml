@@ -68,6 +68,7 @@ Singleton {
                 property string status: "glass"
                 property string clock: "glass"
                 property string halo: "shadow"        // floating text and icons: shadow (soft) | outline
+                property string workspaceShape: "cookie7Sided"   // the active workspace (components/MaterialShape.qml names)
             }
             property JsonObject motion: JsonObject {
                 property real speed: 1.0              // scales every spring

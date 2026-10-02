@@ -401,6 +401,9 @@ Root causes found:
 **9b+. Pill parts and halo** (added 2026-10-03, on request)
 - [x] Floating text and icons: halo choice, soft shadow or outline
   - Settings → Island → Floating text (`pills.halo`, default shadow). Shadow: one MultiEffect drop shadow per floating pill (black 90 %, blur 0.35), only while floating. Outline: the glyph outline (no layer). Compared over a bright wallpaper (grim)
+- [x] Workspaces drawn with the Material shapes: the active one morphs into an expressive shape with its number (added on request)
+  - Each workspace is a `MaterialShape`: empty 5 px dot, occupied 7 px, active 20 px `pills.workspaceShape` (Cookie, Clover, Sunny, Pill, Circle in Settings → Island) with its number; switching morphs and resizes on springs. Verified mid-switch frames (grim)
+- [ ] Password characters on the lock screen as Material shapes; only the typed or deleted one animates (covers 9g's lock dots item)
 - [x] Glass or floating per part of the corner pills (workspaces, app title, system tray, status icons, clock); neighboring glass parts join into one pill
   - `corners/PillPart.qml` per part (`Config.pills.<part>`); `CornerWindow` lays the visible parts out, draws one Glass per run of glass parts with dividers inside, blurs only those runs (no region when every part floats) and springs positions. Replaces the single `island.pillStyle`. Settings → Island → Corner pills: a Glass/Floating row per part plus Floating text. Verified all-glass (same look as before), floating workspaces + glass title, glass status + floating clock (grim)
 
