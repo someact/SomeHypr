@@ -411,7 +411,8 @@ Root causes found:
 **9c. Corner pills and workspaces**
 - [x] Fix: the active workspace shape gets cut off (added 2026-10-03)
   - Cause: a floating part's shadow layer renders only its row's exact bounds, which flattened the 20 px shape's bumps and its spring overshoot. The row now has 3 px padding inside the layer (content not moved). Verified frames mid-switch (grim)
-- [ ] Show only occupied workspaces plus the active one; they spring in and out; setting "show empty workspaces" (default off)
+- [x] Show only occupied workspaces plus the active one; they spring in and out; setting "show empty workspaces" (default off)
+  - The 10 group slots stay (no rebuild); a hidden slot springs to zero width and fades/scales out. Settings → Island → Show empty workspaces (`pills.showEmpty`). Holding Super shows all. Verified switching to an empty workspace and back (grim)
 - [ ] Holding Super: every workspace of the group appears as a shape with its number (empty ones as outlines), redesigned from the plain numbers (added 2026-10-03)
 - [ ] Special-workspace chip (click toggles it)
 - [ ] Island style and pill placement split: the island is notch or floating, and pills can sit beside the island with either (satellites with a notch) (added 2026-10-03)

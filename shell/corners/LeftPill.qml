@@ -14,7 +14,7 @@ CornerWindow {
     PillPart {
         id: wsPart
         style: Config.pills.workspaces
-        spacing: 2
+        spacing: 0
 
         Repeater {
             model: HyprData.groupSize
@@ -27,10 +27,22 @@ CornerWindow {
                     Hyprland.workspaces.values; // re-evaluate on workspace list changes
                     return HyprData.occupied(wsId);
                 }
-                width: UiState.superHeld ? 16 : isActive ? 22 : 10
+                // Only workspaces with windows and the active one (unless "show empty"
+                // is on, or Super is held). The 10 slots stay; a hidden one springs
+                // to zero width, so nothing is rebuilt and they slide in and out.
+                readonly property bool shown: isActive || isOccupied || Config.pills.showEmpty || UiState.superHeld
+                width: !shown ? 0 : (UiState.superHeld ? 16 : isActive ? 22 : 10) + 2
                 height: 20
+                opacity: shown ? 1 : 0
+                scale: shown ? 1 : 0.4
                 Behavior on width {
                     Spring { preset: "snappy" }
+                }
+                Behavior on scale {
+                    Spring { preset: "snappy" }
+                }
+                Behavior on opacity {
+                    NumberAnimation { duration: Motion.fast }
                 }
 
                 // Expressive: the active workspace morphs from a dot into a
@@ -68,6 +80,7 @@ CornerWindow {
                 }
                 MouseArea {
                     anchors.fill: parent
+                    enabled: ws.shown
                     cursorShape: Qt.PointingHandCursor
                     onClicked: HyprData.focusWorkspace(ws.wsId)
                 }

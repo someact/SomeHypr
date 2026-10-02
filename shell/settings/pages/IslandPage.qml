@@ -25,6 +25,15 @@ Page {
                 onPicked: v => Config.pills.workspaceShape = v
             }
         }
+        SettingRow {
+            icon: "check_box_outline_blank"
+            title: "Show empty workspaces"
+            subtitle: "Off shows only workspaces with windows and the one you are on (holding Super shows them all)"
+            Switch {
+                checked: Config.pills.showEmpty
+                onToggled: on => Config.pills.showEmpty = on
+            }
+        }
         PartRow {
             part: "title"
             icon: "web_asset"
