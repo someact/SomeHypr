@@ -151,6 +151,12 @@ Scope {
     }
 
     Shortcut {
+        name: "oskToggle"
+        description: "On-screen keyboard"
+        onPressed: UiState.osk = !UiState.osk
+    }
+
+    Shortcut {
         name: "toggleLightDark"
         description: "Toggle light/dark colors"
         onPressed: Wallpaper.toggleLightDark()

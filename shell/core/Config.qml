@@ -21,6 +21,9 @@ Singleton {
     readonly property alias capture: adapter.capture
     readonly property alias overlay: adapter.overlay
     readonly property alias streamer: adapter.streamer
+    readonly property alias lock: adapter.lock
+    readonly property alias widgets: adapter.widgets
+    readonly property alias osk: adapter.osk
     property bool ready: false
 
     FileView {
@@ -102,6 +105,22 @@ Singleton {
                 property bool enabled: false
                 property bool auto: true              // on while the screen is shared (OBS, Discord, browser)
                 property bool silence: true           // do not disturb while on (critical still peeks)
+            }
+            property JsonObject lock: JsonObject {
+                property bool useHyprlock: false      // hand locking to hyprlock instead of the shell
+                property bool blur: true              // blurred wallpaper behind the clock
+                property bool showMedia: true         // now playing + controls
+                property bool showNotifications: true // count of unread notifications (never their text)
+            }
+            property JsonObject widgets: JsonObject {
+                // Desktop widgets on the bottom layer, in this order; hidden in game mode
+                property list<string> enabled: ["clock", "media"]
+                property var positions: ({})          // widget id -> { x, y }
+                property bool glass: true             // frosted card behind each widget
+            }
+            property JsonObject osk: JsonObject {
+                property bool pinned: false           // reserve space so windows sit above it
+                property real scale: 1.0              // key size
             }
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)

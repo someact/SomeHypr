@@ -39,6 +39,8 @@ Singleton {
             Recorder.stop();
             return;
         }
+        if (Lock.locked)
+            return;
         if (selecting) {
             mode = m;
             return;

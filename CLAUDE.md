@@ -24,6 +24,9 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `capture/RegionSelector.qml` is the region picker over a grim-frozen frame; `services/Capture.qml` runs the tools and `services/Recorder.qml` owns wf-recorder (the island shows the timer).
   - `overlay/` is the Super+G game overlay (one card file per widget). It has no blur on purpose: layer blur uses `xray` and would hide the game.
   - `services/Streamer.qml` is streamer mode; peeks then go to `island/PrivatePeek.qml` on the `somehypr:private` layer (`no_screen_share`). `services/GameClients.qml` feeds gamemoded PIDs to `GameMode.set_clients()`.
+  - `lock/` is the lock screen (`WlSessionLock`, surfaces only while locked); state and PAM live in `services/Lock.qml`. `hypr/scripts/lock.sh` calls `ipc call lock lock` and runs hyprlock when the shell does not answer. There is no unlock IPC; test with `ipc call lock preview` (no PAM, Esc closes).
+  - `widgets/` holds the desktop widgets (bottom layer, one window per screen, hidden in game mode); `services/Widgets.qml` lists them, `config.json` `widgets` stores which are on and where. Edit mode: `ipc call widgets edit`.
+  - `osk/` is the Super+K keyboard; `services/VirtualKeys.qml` types through ydotoold (`YDOTOOL_SOCKET` is passed per call, the shell's env lacks it).
   - `dock/` is the bottom dock (contents from `services/Taskbar.qml`, settings under `dock` in config.json). `overview/` is Super+Tab, created only while open.
   - Blur gotcha: an empty `BackgroundEffect.blurRegion` blurs the whole surface, so set it to `null` whenever the shape is off-surface.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
@@ -49,6 +52,7 @@ qs -c somehypr ipc call island state
 qs -c somehypr ipc call overview toggle
 qs -c somehypr ipc call capture region <mode>                   # shot ocr lens translate record recordSound
 qs -c somehypr ipc call overlay toggle · streamer toggle
+qs -c somehypr ipc call lock preview · widgets edit · osk toggle
 timeout 8 qs -p shell/settings.qml 2>&1 | grep -E "WARN|ERROR"   # settings app
 ```
 - IPC function names must not clash with `qs ipc` subcommands (`show`, `call`, `prop`): `qs ipc call x show` is parsed as `qs ipc show`.

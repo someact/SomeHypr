@@ -42,7 +42,7 @@ end
 if shell == "somehypr" then
     -- The shell animates its own surfaces (springs), and blurs exactly the
     -- notch/pill shapes itself through ext-background-effect, so no layer blur here.
-    for _, ns in ipairs({ "somehypr:island", "somehypr:pill", "somehypr:wallpaper", "somehypr:dock", "somehypr:overview", "somehypr:capture", "somehypr:overlay" }) do
+    for _, ns in ipairs({ "somehypr:island", "somehypr:pill", "somehypr:wallpaper", "somehypr:dock", "somehypr:overview", "somehypr:capture", "somehypr:overlay", "somehypr:widgets", "somehypr:osk", "somehypr:lockpreview" }) do
         hl.layer_rule({ match = { namespace = ns }, no_anim = true })
     end
     -- Streamer mode: notification peeks live here and never reach a screen share or recording

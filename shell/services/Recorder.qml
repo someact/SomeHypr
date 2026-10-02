@@ -55,10 +55,11 @@ Singleton {
             proc.signal(2);   // SIGINT: wf-recorder writes the trailer and exits
     }
 
+    // The record keys work while locked (to stop), but never start one there
     function toggleScreen(withSound) {
         if (active)
             stop();
-        else
+        else if (!Lock.locked)
             start("", withSound);
     }
 

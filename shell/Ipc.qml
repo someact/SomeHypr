@@ -59,6 +59,46 @@ Scope {
         }
     }
 
+    // scripts/lock.sh calls `lock lock`; there is deliberately no unlock
+    IpcHandler {
+        target: "lock"
+        function lock(): void {
+            Lock.lock();
+        }
+        function focus(): void {
+            Lock.refocus();
+        }
+        function preview(): void {
+            Lock.showPreview();
+        }
+        function locked(): bool {
+            return Lock.locked;
+        }
+    }
+
+    IpcHandler {
+        target: "widgets"
+        function edit(): void {
+            UiState.widgetEdit = !UiState.widgetEdit;
+        }
+        function toggle(id: string): void {
+            Widgets.toggle(id);
+        }
+    }
+
+    IpcHandler {
+        target: "osk"
+        function toggle(): void {
+            UiState.osk = !UiState.osk;
+        }
+        function open(): void {
+            UiState.osk = true;
+        }
+        function close(): void {
+            UiState.osk = false;
+        }
+    }
+
     IpcHandler {
         target: "overlay"
         function toggle(): void {

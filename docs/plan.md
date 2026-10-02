@@ -97,7 +97,7 @@ hypr/             → ~/.config/hypr
 shell/            → ~/.config/quickshell/somehypr   (qs -c somehypr)
   shell.qml  core/ (Config Theme Motion Paths UiState)  services/  components/
   island/ (Island NotchShape IslandController views/)  corners/
-  overview/ dock/ wallpaper/ capture/ overlay/ widgets/ lock/ osk/ settings/   (later phases)
+  overview/ dock/ wallpaper/ capture/ overlay/ widgets/ lock/ osk/ settings/
 matugen/          config.toml + templates
 apps/             kitty, zen userChrome additions
 ```
@@ -290,15 +290,34 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Game mode polish
   - gamemoded over D-Bus: `services/GameClients.qml` runs one `gdbus monitor` (GameRegistered/GameUnregistered carry the PID, no polling) and sends the PID list to `GameMode.set_clients()`. A focused window owned by a client is a game even windowed; any fullscreen window counts while a client exists (Proton PIDs can differ). Tested with `gamemoderun kitty`: on while focused, off after exit
   - mpvpaper pause: done in Phase 3; dock hidden and island dot already in place
-  - [~] Hide widgets: there are no desktop widgets until Phase 7; they will read `GameMode.active`. Overlay cards stay (they are meant for games)
+  - [x] Hide widgets: desktop widgets (Phase 7) unload while `GameMode.active`. Overlay cards stay (they are meant for games)
 - [x] Streamer mode (`services/Streamer.qml`, `/stream`, Control view, Modes page): DND (critical still peeks), notification text and images masked in the island, peeks moved to the `somehypr:private` layer with `no_screen_share` (verified: grim sees a black box). Turns on by itself while the screen is shared over Pipewire (`streamer.auto`); turning it off by hand holds until the share ends
 - [x] Settings: new Capture page (window snapping, save shots + folder, translate target, encoder, recordings folder); Modes page gained Game overlay and Streamer sections
 - [ ] Hands-on check by you: region tools by mouse (window click, right-drag edit, Lens), Super+G over a real game with a pinned card and the crosshair, a gamemoderun Steam game, streamer mode during an OBS/Discord share
 
-### Phase 7: Lock, widgets, OSK
-- [ ] Quickshell lock screen, hyprlock as automatic fallback
-- [ ] Desktop widgets (clock, media, system, notes) with drag edit mode
-- [ ] On-screen keyboard (Super+K)
+### Phase 7: Lock, widgets, OSK ✅
+- [x] Quickshell lock screen, hyprlock as automatic fallback
+  - `lock/LockScreen.qml` (`WlSessionLock`, a surface per screen only while locked) + `lock/LockSurface.qml`, state and PAM in `services/Lock.qml` (`login` stack, so faillock messages show under the field)
+  - Big clock and date, avatar (`~/.face` or initial), dot field with shake on failure, Caps Lock hint (inferred from typed letters vs Shift), clickable US/TH chip (a Thai password on the US layout is the classic failure), notification *count* only, now playing with controls, suspend + restart/shut down (second click)
+  - Wallpaper blurred once by ImageMagick (downscale → blur → upscale) into `~/.cache/somehypr/lock-blur.jpg`, remade only when the wallpaper or video frame changes, warmed 4 s after a change; no live blur
+  - `session_lock_xray` keeps the desktop drawn underneath, so entry and unlock fade to/from the real desktop
+  - `scripts/lock.sh`: `qs -c somehypr ipc call lock lock`; if no instance answers (not running, crashed) → `hyprlock`. Config `lock.useHyprlock` hands every lock to hyprlock. No unlock IPC on purpose
+  - Preview (`ipc call lock preview`, Desktop page) shows the same screen in an overlay window without locking or PAM
+  - Locked binds can stop a recording but never open the region picker or start one
+  - [~] Tested: preview (typing, Caps Lock, layout chip, Esc), PAM conversation (asks `Password:`, aborted unanswered so faillock stays clean). A real lock/unlock needs your password → hands-on check
+- [x] Desktop widgets (clock, media, system, notes) with drag edit mode
+  - `widgets/DesktopWidgets.qml`: one bottom-layer window per screen, loaded only while a widget is on and game mode is off; input mask = the widgets; frosted cards via `BackgroundEffect` (never an empty region)
+  - Edit mode (right-click a widget, `/widgets`, Desktop page, `ipc call widgets edit`): window moves to the top layer, dims the desktop, drag snaps to 8 px and stays on screen, ✕ removes, the bar adds widgets / toggles frost / resets; Esc or Done ends it. Positions in `config.json` `widgets.positions`
+  - System polls (SysStats) and media progress ticks only while the monitor's workspace has no windows (or in edit mode); verified `nvidia-smi` stops when covered
+  - Notes share `notes.md` with the overlay card (file watched; not reloaded while typing)
+- [x] On-screen keyboard (Super+K)
+  - `osk/Osk.qml` overlay layer with no keyboard focus, so keys reach the focused window; `services/VirtualKeys.qml` types through ydotoold — one `ydotool key` call per tap (modifiers down, key, modifiers up), so nothing can stay stuck
+  - Sticky Shift/Ctrl/Alt/Super: tap latches for one key, double tap locks; backspace, space, Del and arrows repeat while held
+  - Labels follow the active layout: US, or Thai Kedmanee from xkb `symbols/th` (combining marks drawn on ◌); layout button switches US/TH
+  - Pin reserves space (exclusive zone); key size setting; `/osk`, `ipc call osk toggle`
+  - Tested with real clicks into a test window: `Hi` (latched Shift), `OK` (locked Shift), Enter, and `กด` on TH
+- [x] Settings: new Desktop page (widgets, lock screen options + preview, keyboard)
+- [ ] Hands-on check by you: Super+L and unlock with your password (also on TH layout and after suspend), idle lock after 5 min, widgets on an empty workspace + edit mode drag, OSK typing into a real app
 
 ### Phase 8: Audit and retire ii
 - [ ] Measure against the Targets

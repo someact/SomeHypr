@@ -7,7 +7,8 @@
 // SomeHypr shell. Run with `qs -c somehypr`.
 // One island, two corner pills and a dock per monitor, a wallpaper layer,
 // global shortcuts and IPC. Every panel inside the island, the overview, the
-// region selector, the game overlay and the private peek are loaded on demand.
+// region selector, the game overlay, the private peek, desktop widgets, the
+// on-screen keyboard and the lock screen are loaded on demand.
 
 import QtQuick
 import Quickshell
@@ -19,11 +20,18 @@ import "dock"
 import "overview"
 import "capture"
 import "overlay"
+import "lock"
+import "widgets"
+import "osk"
 
 ShellRoot {
     Variants {
         model: Quickshell.screens
         WallpaperLayer {}
+    }
+    Variants {
+        model: Quickshell.screens
+        DesktopWidgets {}
     }
     Variants {
         model: Quickshell.screens
@@ -46,6 +54,8 @@ ShellRoot {
     RegionSelector {}
     GameOverlay {}
     PrivatePeek {}
+    Osk {}
+    LockScreen {}
 
     Shortcuts {}
     Ipc {}

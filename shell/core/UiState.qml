@@ -21,6 +21,8 @@ Singleton {
     property real islandWidth: 160       // live island width (satellite pills sit beside it)
     property bool overview: false        // Super+Tab workspace overview (never open together with the island)
     property bool overlay: false         // Super+G game overlay
+    property bool osk: false             // Super+K on-screen keyboard
+    property bool widgetEdit: false      // desktop widgets: drag to move, add/remove
 
     // Super tap: press arms it, any other key while held disarms it
     property bool superMightTrigger: false

@@ -24,6 +24,7 @@ ShellRoot {
         { id: "island", name: "Island", icon: "toast" },
         { id: "dock", name: "Dock", icon: "dock_to_bottom" },
         { id: "wallpaper", name: "Wallpaper", icon: "wallpaper" },
+        { id: "desktop", name: "Desktop", icon: "widgets" },
         { id: "keybinds", name: "Keybinds", icon: "keyboard" },
         { id: "hyprland", name: "Hyprland", icon: "tune" },
         { id: "displays", name: "Displays", icon: "desktop_windows" },
