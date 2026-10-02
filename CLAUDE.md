@@ -29,6 +29,7 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `osk/` is the Super+K keyboard; `services/VirtualKeys.qml` types through ydotoold (`YDOTOOL_SOCKET` is passed per call, the shell's env lacks it).
   - `dock/` is the bottom dock (contents from `services/Taskbar.qml`, settings under `dock` in config.json). `overview/` is Super+Tab, created only while open.
   - Glass: `components/Glass.qml` (tint + rim + highlight, tokens `Theme.glass*`, `Config.glass`) with its blur from `GlassRegion` (direct window children) or `Region { item: g.frost; radius: g.frostRadius }`. The region stays 1 px inside because Wayland regions have whole-pixel stepped corners. Gate blur on `Theme.blur` (glass on and not game mode).
+  - Expressive style: `components/MaterialShape.qml` (35 Material 3 shapes from `lib/shapes/`, drawn with QtQuick.Shapes, never Canvas), `ShapeIcon.qml` (floating icon, shape when active); `PressButton` `radius`/`activeRadius` morph on a spring. Text weights come from `Theme.font.weight`/`weightTitle` through `font.weight`, not `variableAxes`.
   - Blur gotcha: an empty `BackgroundEffect.blurRegion` blurs the whole surface, so set it to `null` whenever the shape is off-surface.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
   - Font gotcha: every distinct `font.variableAxes` value opens another face (mmap + glyph cache). `components/Icon.qml` snaps FILL to 0/1 and opsz to 20/24/40/48; never animate an axis.

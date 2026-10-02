@@ -51,7 +51,7 @@ CornerWindow {
         visible: Tray.items.length > 0
         width: 1
         height: 14
-        color: Theme.outlineVariant
+        color: Theme.pillsFloating ? Theme.fgPillDim : Theme.outlineVariant
     }
 
     Label {
@@ -60,7 +60,9 @@ CornerWindow {
         visible: text !== ""
         font.pixelSize: Theme.font.small
         font.weight: Theme.font.weightTitle
-        color: Theme.fgSurface
+        color: Theme.fgPill
+        style: Theme.pillTextStyle
+        styleColor: Theme.pillHalo
         MouseArea {
             anchors.fill: parent
             anchors.margins: -4
@@ -89,7 +91,9 @@ CornerWindow {
         text: UiState.ambient === "clock" ? Qt.formatDateTime(clock.date, Config.clock.dateFormat) : Qt.formatDateTime(clock.date, Config.clock.dateFormat + "  " + Config.clock.format)
         font.pixelSize: Theme.font.small
         font.weight: Theme.font.weightTitle
-        color: Theme.fgSurface
+        color: Theme.fgPill
+        style: Theme.pillTextStyle
+        styleColor: Theme.pillHalo
         MouseArea {
             anchors.fill: parent
             anchors.margins: -4
@@ -105,7 +109,9 @@ CornerWindow {
         signal middle
         anchors.verticalCenter: parent.verticalCenter
         size: 16
-        color: dim ? Theme.outline : Theme.fgSurface
+        color: dim ? Theme.fgPillDim : Theme.fgPill
+        style: Theme.pillTextStyle
+        styleColor: Theme.pillHalo
         MouseArea {
             anchors.fill: parent
             anchors.margins: -3

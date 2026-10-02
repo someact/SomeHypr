@@ -51,6 +51,7 @@ Singleton {
                 property int peekMs: 4000             // notification peek
                 property int osdMs: 1500              // volume / brightness / layout
                 property bool showMedia: true
+                property string pillStyle: "glass"    // glass: frosted pills · floating: icons only, like a phone status bar
             }
             property JsonObject glass: JsonObject {
                 property real tint: 0.4               // surface tint over the frost (pills, dock, cards)

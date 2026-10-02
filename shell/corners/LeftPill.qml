@@ -39,7 +39,9 @@ CornerWindow {
                     width: ws.isActive ? 18 : 6
                     height: 6
                     radius: 3
-                    color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgSurface : Theme.outlineVariant
+                    color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgPill : Theme.pillsFloating ? Theme.fgPillDim : Theme.outlineVariant
+                    border.width: Theme.pillsFloating ? 1 : 0
+                    border.color: Theme.pillHalo
                     Behavior on width {
                         Spring { preset: "snappy" }
                     }
@@ -50,7 +52,9 @@ CornerWindow {
                     text: (ws.wsId - 1) % 10 + 1
                     mono: true
                     font.pixelSize: Theme.font.small
-                    color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgSurface : Theme.outline
+                    color: ws.isActive ? Theme.primary : ws.isOccupied ? Theme.fgPill : Theme.fgPillDim
+                    style: Theme.pillTextStyle
+                    styleColor: Theme.pillHalo
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -66,7 +70,7 @@ CornerWindow {
         visible: HyprData.activeTitle !== ""
         width: 1
         height: 14
-        color: Theme.outlineVariant
+        color: Theme.pillsFloating ? Theme.fgPillDim : Theme.outlineVariant
     }
 
     Row {
@@ -84,7 +88,9 @@ CornerWindow {
             anchors.verticalCenter: parent.verticalCenter
             width: Math.min(implicitWidth, 300)
             text: HyprData.activeTitle
-            color: Theme.fgSurface
+            color: Theme.fgPill
+            style: Theme.pillTextStyle
+            styleColor: Theme.pillHalo
             font.pixelSize: Theme.font.small
         }
     }

@@ -6,6 +6,8 @@ import qs.components
 
 // A floating pill in a top corner. The window is fixed-size so content changes
 // never resize the surface; only the pill takes input and gets blurred.
+// Floating style (Config.island.pillStyle): no background or blur, the content
+// alone, readable through Theme.fgPill / pillHalo.
 PanelWindow {
     id: win
 
@@ -35,10 +37,13 @@ PanelWindow {
         target: pill
     }
     // Not while slid off the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.blur && pill.y + pill.height > 1 ? blurArea : null
+    BackgroundEffect.blurRegion: Theme.blur && !Theme.pillsFloating && pill.y + pill.height > 1 ? blurArea : null
 
     Glass {
         id: pill
+        tint: Theme.pillsFloating ? "transparent" : Theme.pill
+        border.width: Theme.pillsFloating ? 0 : 1
+        highlight: !Theme.pillsFloating && Config.glass.rim
         x: win.satellite ? (win.left ? win.width - UiState.islandWidth / 2 - 6 - width : UiState.islandWidth / 2 + 6) : (win.left ? 6 : win.width - width - 6)
         y: UiState.hidden ? -height - 4 : 3
         height: Theme.barHeight - 6

@@ -395,7 +395,8 @@ Root causes found:
   - `Theme.font.weight` 450 (body, every Label) and `weightTitle` 550 (was DemiBold 600 in 41 places), set with `font.weight` (the variable font's wght axis), not `variableAxes`. Label digits are always tabular
   - Fresh shell after opening every main view: Google Sans Flex 1 mapping, Material Symbols 5, anon 152 MB (Phase 8 fresh: ~170 MB)
   - Found: both fonts load from ii's `ii-sddm-theme-fonts` package; README warns to copy them before removing ii packages
-- [ ] Pill icon style setting: `floating` (phone status bar) / `glass`
+- [x] Pill icon style setting: `floating` (phone status bar) / `glass`
+  - Settings → Island → Corner pills (`island.pillStyle`). Floating: no background or blur; text, icons and workspace dots are white with a 60 % dark glyph halo (`Theme.fgPill`, `pillHalo`). On a very bright wallpaper white text stays a little weak (no per-wallpaper adaptive color yet)
 
 **9c. Corner pills and workspaces**
 - [ ] Show only occupied workspaces plus the active one; they spring in and out

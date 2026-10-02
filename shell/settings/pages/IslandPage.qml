@@ -9,6 +9,20 @@ Page {
     subtitle: "What the island shows while collapsed, and for how long."
 
     Section {
+        title: "Corner pills"
+        SettingRow {
+            icon: "toolbar"
+            title: "Style"
+            subtitle: "Glass is a frosted pill. Floating shows only the icons and text, like a phone's status bar."
+            Choice {
+                model: [{ value: "glass", label: "Glass" }, { value: "floating", label: "Floating" }]
+                value: Config.island.pillStyle
+                onPicked: v => Config.island.pillStyle = v
+            }
+        }
+    }
+
+    Section {
         title: "Collapsed"
         SettingRow {
             icon: "music_note"
