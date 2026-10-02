@@ -210,22 +210,25 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [ ] Hands-on check by you: Super+Alt+number on the TH layout, tablet feel in CSP, a fullscreen game turns game mode on
 
 ### Phase 2: Shell foundation and island MVP ← first daily driver
-- [ ] `shell/core/`: Config (JsonAdapter → `~/.config/somehypr/config.json`), Theme (matugen colors + tokens), Motion (spring presets), Paths, UiState
-- [ ] `shell/components/`: Icon, Label, PressButton, Slider, Toggle, GlassSurface, KeyNavList
-- [ ] Services: Audio, Media (Mpris), Notifications, HyprData (`Quickshell.Hyprland`), Apps (fuzzy + frecency), Clipboard, Tray, Network, Bluetooth, Brightness (ddcutil), KbLayout, Privacy, GameMode bridge
-- [ ] Island window: notch shape, input mask, `BackgroundEffect` blur, focus grab
-- [ ] Ambient states: polkit, notification peek, OSD, recording/screenshare, media, game-mode dot, idle clock
-- [ ] Super-tap search (apps, calculator, windows)
-- [ ] Commands view (`/wallpaper /settings /power /lock /clip /emoji /project /game /dnd /shot /ocr /record /keys`)
-- [ ] Control view (toggles + volume/mic/brightness sliders)
-- [ ] Media, Notifications, System, Power views
-- [ ] Clipboard and Emoji views
-- [ ] Corner pills: workspaces + active app (left), tray/layout/net/BT/volume/clock (right)
-- [ ] Plain wallpaper background layer
-- [ ] Native Polkit agent
-- [ ] Global shortcuts under appid `somehypr`, IPC targets for every view
+- [x] `shell/core/`: Config (JsonAdapter → `~/.config/somehypr/config.json`), Theme (matugen colors + tokens), Motion (spring presets), Paths, UiState, plus GameMode (in core so Motion can read it without a core↔services import cycle)
+- [x] `shell/components/`: Icon, Label, PressButton, Slider, Toggle, GlassSurface, KeyNavList, plus IconButton, Cover (`ClippingRectangle`, no offscreen layer) and Spring (preset-driven `SpringAnimation`)
+- [x] Services: Audio, Media (Mpris), Notifications, HyprData (`Quickshell.Hyprland`), Apps (fuzzy + frecency), Clipboard, Tray, Network, Bluetooth, Brightness (ddcutil), KbLayout, Privacy, GameMode bridge, plus Osd, Calc (qalc), Emojis, SysStats, NightLight, Session, Wallpaper, Keybinds
+  - [~] Notifications stay in memory (newest 50) instead of a history file, so there is nothing to rewrite per event
+  - GameMode bridge: `modes/gamemode.lua` emits socket2 `custom>>somehypr_gamemode,<0|1>`; the shell never polls
+- [x] Island window: notch shape, input mask, `BackgroundEffect` blur, focus grab (activated 50 ms after opening, same race ii works around)
+- [x] Ambient states: polkit, notification peek, OSD, recording/screenshare, media, game-mode dot, idle clock
+- [x] Super-tap search (apps, calculator, windows). A tap is Super alone, < 400 ms, with no workspace/window event in between
+- [~] Commands view → `/` inside search, one file per command in `shell/commands/` (`/wallpaper /settings /power /lock /clip /emoji /project /game /dnd /shot /ocr /record /keys`), Tab completes, `/project` suggests folders
+- [x] Control view (toggles + volume/mic/brightness sliders)
+- [x] Media, Notifications, System, Power views
+- [x] Clipboard and Emoji views (plus a Keys view for `/keys`)
+- [x] Corner pills: workspaces + active app (left), tray/layout/net/BT/volume/clock (right)
+- [x] Plain wallpaper background layer (steps aside for video wallpapers until Phase 3)
+- [x] Native Polkit agent
+- [x] Global shortcuts under appid `somehypr`, IPC targets for every view (`qs -c somehypr ipc call island open <view>`)
 - [ ] Switch `shell = "somehypr"` in `hypr/user.lua`
-- [ ] Region tools and overlay fall back to CLI scripts for now
+- [x] Region tools and overlay fall back to CLI scripts for now (the `somehypr:region*` shortcuts run them)
+- [x] Memory: glvnd pinned to the NVIDIA EGL vendor in `shell.qml` (Mesa + LLVM no longer load): 485 → ~385 MB RSS, PSS ~210 MB. Still above the 250 MB target; Phase 8 audits the rest
 
 ### Phase 3: Wallpaper and theming
 - [ ] `/wallpaper` picker with cached thumbnails

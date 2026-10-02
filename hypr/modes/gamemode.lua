@@ -6,6 +6,7 @@
 --   hyprctl eval 'GameMode.toggle()'   force on/off
 --   hyprctl eval 'GameMode.auto()'     back to automatic
 --   hyprctl repl 'return GameMode.active'
+-- The shell follows changes through a socket2 `custom` event, see apply().
 
 GameMode = { active = false, forced = nil }
 
@@ -20,6 +21,8 @@ end
 local function apply(on)
     if on == GameMode.active then return end
     GameMode.active = on
+    -- Tell the shell (socket2 `custom>>somehypr_gamemode,1`) so it never has to poll
+    hl.dispatch(hl.dsp.event("somehypr_gamemode," .. (on and "1" or "0")))
     if on then
         hl.config({
             decoration = { blur = { enabled = false }, shadow = { enabled = false } },

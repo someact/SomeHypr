@@ -13,7 +13,12 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `generated/` is machine-written (matugen) and gitignored. `monitors.lua` is written by the display settings page.
   - `hyprland/scripts` is a symlink so that ii's hardcoded paths keep working. Remove it with ii in Phase 8.
 - `matugen/` is linked to `~/.config/matugen` and is the only color engine.
-- `shell/` (Phase 2) will be linked to `~/.config/quickshell/somehypr` and run with `qs -c somehypr`.
+- `shell/` is linked to `~/.config/quickshell/somehypr` and runs with `qs -c somehypr`:
+  - `core/` singletons (Config, Theme, Motion, Paths, UiState, GameMode), `components/`, `services/` (one singleton per system source).
+  - `island/Island.qml` is the notch window; `island/views/*View.qml` are loaded only while open; `island/ambient/` holds the collapsed states.
+  - `commands/` holds one file per `/command`, registered in `commands/Commands.qml`.
+  - `Shortcuts.qml` (global shortcuts) and `Ipc.qml` (IPC targets) sit at the root; `corners/` holds the pills and `wallpaper/` the background layer.
+  - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
 - `install.sh` links everything and reloads, rolling back automatically if there are config errors. `--check` only verifies; `--rollback` restores `~/.config/*.pre-somehypr`.
 
 ## Hyprland Lua API
@@ -28,7 +33,17 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
 hyprctl reload && hyprctl configerrors   # live; must print nothing
 hyprctl binds -j | jq length         # 201 after Phase 1 (ii had 191, +10 Thai keycode binds)
 ```
+Shell changes:
+```sh
+timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"   # dev copy; while ii runs, only its notification/polkit clashes may appear
+qs -c somehypr ipc call island open <view>                     # search control media notifications system power clipboard emoji keys
+qs -c somehypr ipc call island state
+```
 Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are the rollback.
+
+## Phase workflow
+- Work through `docs/plan.md` one phase at a time and tick its checkboxes (`[x]` done, `[~]` done differently, with a note) as tasks land.
+- After a phase is done and verified, commit and push to GitHub (`git push origin main`, remote `someact/SomeHypr`, private). Mark the phase ✅ in the plan in the same push.
 
 ## Rules for the shell (Phase 2 onward)
 - Lazy-load every panel.
