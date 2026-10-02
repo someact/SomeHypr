@@ -6,8 +6,8 @@
 
 // SomeHypr shell. Run with `qs -c somehypr`.
 // One island, two corner pills and a dock per monitor, a wallpaper layer,
-// global shortcuts and IPC. Every panel inside the island, and the overview,
-// is loaded on demand.
+// global shortcuts and IPC. Every panel inside the island, the overview, the
+// region selector, the game overlay and the private peek are loaded on demand.
 
 import QtQuick
 import Quickshell
@@ -17,6 +17,8 @@ import "corners"
 import "wallpaper"
 import "dock"
 import "overview"
+import "capture"
+import "overlay"
 
 ShellRoot {
     Variants {
@@ -41,10 +43,16 @@ ShellRoot {
     }
 
     Overview {}
+    RegionSelector {}
+    GameOverlay {}
+    PrivatePeek {}
 
     Shortcuts {}
     Ipc {}
 
     // Services that act on their own (not only when a panel reads them)
-    Component.onCompleted: DayNight.check()
+    Component.onCompleted: {
+        DayNight.check();
+        GameClients.pids;
+    }
 }

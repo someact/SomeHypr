@@ -38,6 +38,8 @@ SHELL_ACTIONS = {
     regionOcr        = { ii = "regionOcr",                somehypr = "regionOcr", fallback = "pidof slurp || " .. ocr },
     screenTranslate  = { ii = "screenTranslate",          somehypr = "screenTranslate" },
     regionRecord     = { ii = "regionRecord",             somehypr = "regionRecord", fallback = scripts .. "/record.sh" },
+    screenRecord     = { somehypr = "screenRecord",           fallback = scripts .. "/record.sh --fullscreen" },
+    screenRecordSound = { somehypr = "screenRecordSound",     fallback = scripts .. "/record.sh --fullscreen --sound" },
 }
 
 -- Shell-specific commands that are not global shortcuts

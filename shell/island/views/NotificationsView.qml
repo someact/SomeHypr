@@ -111,13 +111,13 @@ FocusScope {
                     spacing: 2
                     Label {
                         width: parent.width
-                        text: card.modelData.summary || card.modelData.appName
+                        text: Notifs.title(card.modelData)
                         font.weight: Font.DemiBold
                     }
                     Label {
                         width: parent.width
                         visible: text !== ""
-                        text: card.modelData.body
+                        text: Notifs.text(card.modelData)
                         color: Theme.fgIslandDim
                         font.pixelSize: Theme.font.small
                         wrapMode: Text.Wrap

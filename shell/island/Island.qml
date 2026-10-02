@@ -25,14 +25,17 @@ PanelWindow {
     readonly property bool isFocusedScreen: (Hyprland.focusedMonitor?.name ?? modelData.name) === modelData.name
     readonly property bool open: UiState.expanded && isFocusedScreen
 
-    // Ambient priority: polkit → notification → OSD → privacy → media → game dot → clock
+    // Ambient priority: polkit → notification → OSD → recording → privacy → game dot → media → clock
+    // (in streamer mode notification peeks go to the private layer, see PrivatePeek.qml)
     readonly property string ambient: {
         if (Polkit.active)
             return "polkit";
-        if (Notifs.peeked)
+        if (Notifs.peeked && !Streamer.active)
             return "notif";
         if (Osd.visible)
             return "osd";
+        if (Recorder.active)
+            return "record";
         if (Privacy.active)
             return "privacy";
         if (GameMode.active)
@@ -207,6 +210,9 @@ PanelWindow {
                 case "media":
                     UiState.open("media");
                     break;
+                case "record":
+                    Recorder.stop();
+                    break;
                 case "osd":
                 case "privacy":
                     UiState.open("control");
@@ -235,6 +241,8 @@ PanelWindow {
                     return osdAmbient;
                 case "privacy":
                     return privacyAmbient;
+                case "record":
+                    return recordAmbient;
                 case "dot":
                     return dotAmbient;
                 case "media":
@@ -314,6 +322,8 @@ PanelWindow {
                         return polkitView;
                     case "wallpaper":
                         return wallpaperView;
+                    case "translate":
+                        return translateView;
                     }
                     return searchView;
                 }
@@ -398,6 +408,10 @@ PanelWindow {
         AmbientPrivacy {}
     }
     Component {
+        id: recordAmbient
+        AmbientRecord {}
+    }
+    Component {
         id: dotAmbient
         AmbientDot {}
     }
@@ -468,5 +482,9 @@ PanelWindow {
     Component {
         id: wallpaperView
         WallpaperView {}
+    }
+    Component {
+        id: translateView
+        TranslateView {}
     }
 }

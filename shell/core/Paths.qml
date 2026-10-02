@@ -22,6 +22,16 @@ Singleton {
     readonly property string wallpaperState: stateDir + "/wallpaper.json"   // { path, phase }
     readonly property string videoFrame: stateDir + "/video-frame.jpg"     // matugen input for video wallpapers
 
+    readonly property string notes: stateDir + "/notes.md"                 // overlay notes (desktop widget too, Phase 7)
+
+    // Capture scratch files (tmpfs)
+    readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || "/tmp"
+    readonly property string freeze: runtime + "/somehypr-freeze.png"       // frozen screen while selecting
+    readonly property string crop: runtime + "/somehypr-crop.png"
+    readonly property string screenshots: home + "/Pictures/Screenshots"
+    readonly property string videos: home + "/Videos"
+    readonly property string mangohud: configHome + "/MangoHud/MangoHud.conf"
+
     // matugen outputs (matugen/config.toml)
     readonly property string colors: stateDir + "/colors.json"
 

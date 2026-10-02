@@ -276,12 +276,24 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Island `/keys` cheatsheet built from bind descriptions: grouped with key caps, includes custom shortcuts; Enter opens the Keybinds page
 - [ ] Hands-on check by you: record a few shortcuts (incl. on the TH layout), try floating/satellites, Displays apply + revert
 
-### Phase 6: Capture and gaming tools
-- [ ] Region tools UI: screenshot, OCR, Lens, translate (Super+Shift+S/X/A/T)
-- [ ] Record with an island indicator
-- [ ] Game overlay (Super+G): crosshair, fps limit, notes, resources, mixer
-- [ ] Game mode polish (gamemoded D-Bus, pause mpvpaper, hide widgets)
-- [ ] Streamer mode (DND, masked notifications, `no_screen_share`)
+### Phase 6: Capture and gaming tools ✅
+- [x] Region tools UI: screenshot, OCR, Lens, translate (Super+Shift+S/X/A/T), `capture/RegionSelector.qml` + `services/Capture.qml`
+  - grim freezes the focused monitor; the selector shows that frame (window only exists while selecting). Drag selects, click takes the window under the cursor (Hyprland window rects, topmost first; no OpenCV), Enter takes the whole monitor, right-drag a screenshot to annotate in swappy, Tab / 1–6 switch the tool, Esc cancels
+  - magick crops the frozen frame. Screenshot → clipboard (optional save folder), OCR → clipboard (all installed tesseract languages), Lens → uguu.se + Google Lens (as before), translate → tesseract + translate-shell into an island `translate` view (Enter copies, Tab cycles ไทย/English/日本語; `/translate <text>` works without a region)
+  - Feedback goes through the island OSD ("Screenshot copied", "Copied N characters")
+  - [ ] Note: tesseract only has `eng` installed; Thai OCR needs `tesseract-data-tha`
+- [x] Record with an island indicator: `services/Recorder.qml` owns wf-recorder (NVENC by default, `capture.encoder`), stops with SIGINT so the file is finalized. The island shows a red dot, the timer and a stop button (click stops); "Recording saved" notification. Super+Shift+R / Super+Alt+R region, Ctrl+Alt+R screen, Super+Shift+Alt+R screen + sound (now shell actions with `record.sh` as fallback, 202 binds). `/record [screen] [sound]`, Control view toggle
+- [x] Game overlay (Super+G): crosshair, FPS limit, notes, resources, mixer (`overlay/`)
+  - Overlay-layer window loaded only while open or while something is pinned; draggable cards (positions in `config.json` `overlay.positions`), pin keeps a card on screen click-through after closing (empty input mask), 1–5 toggle cards, Esc closes, quick screen record (+sound) in the toolbar
+  - No compositor blur here: layer blur uses `xray`, which would paint the wallpaper over the game
+  - Crosshair is plain rectangles (length, gap, thickness, dot, outline, color); FPS limit writes MangoHud's `fps_limit` (MangoHud reloads it); resources use SysStats only while visible; mixer = per-app Pipewire streams; notes save to `~/.local/state/somehypr/notes.md`
+- [x] Game mode polish
+  - gamemoded over D-Bus: `services/GameClients.qml` runs one `gdbus monitor` (GameRegistered/GameUnregistered carry the PID, no polling) and sends the PID list to `GameMode.set_clients()`. A focused window owned by a client is a game even windowed; any fullscreen window counts while a client exists (Proton PIDs can differ). Tested with `gamemoderun kitty`: on while focused, off after exit
+  - mpvpaper pause: done in Phase 3; dock hidden and island dot already in place
+  - [~] Hide widgets: there are no desktop widgets until Phase 7; they will read `GameMode.active`. Overlay cards stay (they are meant for games)
+- [x] Streamer mode (`services/Streamer.qml`, `/stream`, Control view, Modes page): DND (critical still peeks), notification text and images masked in the island, peeks moved to the `somehypr:private` layer with `no_screen_share` (verified: grim sees a black box). Turns on by itself while the screen is shared over Pipewire (`streamer.auto`); turning it off by hand holds until the share ends
+- [x] Settings: new Capture page (window snapping, save shots + folder, translate target, encoder, recordings folder); Modes page gained Game overlay and Streamer sections
+- [ ] Hands-on check by you: region tools by mouse (window click, right-drag edit, Lens), Super+G over a real game with a pinned card and the crosshair, a gamemoderun Steam game, streamer mode during an OBS/Discord share
 
 ### Phase 7: Lock, widgets, OSK
 - [ ] Quickshell lock screen, hyprlock as automatic fallback
@@ -297,7 +309,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.
-  - `hyprctl binds -j | jq length` is 200 with `shell = "somehypr"` (202 with ii: 191 plus 10 Thai keycode binds plus the record-submap escape) when `keybinds.json` adds nothing.
+  - `hyprctl binds -j | jq length` is 202 with `shell = "somehypr"` and with ii (191 plus 10 Thai keycode binds plus the record-submap escape; somehypr lacks ii's panel-family and welcome binds but adds CLI fallbacks for the two screen-record actions) when `keybinds.json` adds nothing.
   - Spot-check options with `hyprctl getoption`.
   - SUPER+ALT+N works with the TH layout active.
 - **Shell:**

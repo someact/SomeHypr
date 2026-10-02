@@ -6,11 +6,11 @@ import qs.settings.ui
 
 Page {
     title: "Modes"
-    subtitle: "Game mode and quiet time."
+    subtitle: "Game mode, the game overlay, streaming and quiet time."
 
     Section {
         title: "Game mode"
-        note: "While on: no blur, shadows or animations, the video wallpaper pauses and the island shrinks to a dot. Games keep tearing and VRR."
+        note: "While on: no blur, shadows or animations, the video wallpaper pauses, the dock hides and the island shrinks to a dot. Games keep tearing and VRR. Games started with gamemoderun count too, windowed or not."
         SettingRow {
             icon: "sports_esports"
             title: "Turn on for fullscreen games"
@@ -38,6 +38,63 @@ Page {
                     text: GameMode.active ? "Turn off" : "Turn on"
                     onClicked: GameMode.toggle()
                 }
+            }
+        }
+    }
+
+    Section {
+        title: "Game overlay"
+        note: "Super+G. Widgets drag by their title; pinned ones stay on screen (click-through) after the overlay closes."
+        SettingRow {
+            icon: "point_scan"
+            title: "Crosshair"
+            subtitle: "Screen-center crosshair over everything; style it in the overlay"
+            Switch {
+                checked: Config.overlay.crosshair.enabled
+                onToggled: on => Config.overlay.crosshair.enabled = on
+            }
+        }
+        SettingRow {
+            icon: "keep_off"
+            title: "Pinned widgets"
+            subtitle: Config.overlay.pinned.length > 0 ? Array.from(Config.overlay.pinned).join(", ") : "None"
+            SButton {
+                kind: "text"
+                text: "Unpin all"
+                enabled: Config.overlay.pinned.length > 0
+                onClicked: Config.overlay.pinned = []
+            }
+        }
+    }
+
+    Section {
+        title: "Streamer mode"
+        note: "Notification text is hidden in the island, and peeks show on a layer that screen shares and recordings leave out."
+        SettingRow {
+            icon: "cast"
+            title: "Streamer mode"
+            subtitle: "Also /stream or the Control view"
+            Switch {
+                checked: Config.streamer.enabled
+                onToggled: on => Config.streamer.enabled = on
+            }
+        }
+        SettingRow {
+            icon: "screen_share"
+            title: "Turn on while sharing the screen"
+            subtitle: "OBS, Discord and browser screen shares (Pipewire)"
+            Switch {
+                checked: Config.streamer.auto
+                onToggled: on => Config.streamer.auto = on
+            }
+        }
+        SettingRow {
+            icon: "notifications_off"
+            title: "Do not disturb while streaming"
+            subtitle: "Only critical notifications peek"
+            Switch {
+                checked: Config.streamer.silence
+                onToggled: on => Config.streamer.silence = on
             }
         }
     }

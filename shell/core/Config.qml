@@ -18,6 +18,9 @@ Singleton {
     readonly property alias theme: adapter.theme
     readonly property alias dock: adapter.dock
     readonly property alias overview: adapter.overview
+    readonly property alias capture: adapter.capture
+    readonly property alias overlay: adapter.overlay
+    readonly property alias streamer: adapter.streamer
     property bool ready: false
 
     FileView {
@@ -72,6 +75,33 @@ Singleton {
                 property int columns: 5
                 property real scale: 0.17             // workspace tile size relative to the screen
                 property bool showSpecial: true
+            }
+            property JsonObject capture: JsonObject {
+                property bool saveShots: false        // also save region shots (always copied)
+                property string shotDir: ""           // empty: ~/Pictures/Screenshots
+                property string recordDir: ""         // empty: ~/Videos
+                property string encoder: "h264_nvenc" // wf-recorder -c (libx264 for CPU encoding)
+                property string translateTo: "th"     // translate-shell target language
+                property bool snapWindows: true       // click a window to select it
+            }
+            property JsonObject overlay: JsonObject {
+                property list<string> open: ["resources", "mixer"]   // widgets shown while the overlay is up
+                property list<string> pinned: []      // also shown (click-through) while it is closed
+                property var positions: ({})          // widget id -> { x, y }
+                property JsonObject crosshair: JsonObject {
+                    property bool enabled: false
+                    property string color: "#00ff88"
+                    property int size: 10             // arm length
+                    property int gap: 4
+                    property int thickness: 2
+                    property bool dot: true
+                    property bool outline: true
+                }
+            }
+            property JsonObject streamer: JsonObject {
+                property bool enabled: false
+                property bool auto: true              // on while the screen is shared (OBS, Discord, browser)
+                property bool silence: true           // do not disturb while on (critical still peeks)
             }
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)

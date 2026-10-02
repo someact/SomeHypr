@@ -13,7 +13,9 @@ Singleton {
     readonly property list<Notification> list: server.trackedNotifications.values.slice().reverse()
     readonly property int count: list.length
     property Notification peeked: null
-    readonly property bool dnd: Config.notifications.dnd
+    readonly property bool dnd: Config.notifications.dnd || (Streamer.active && Config.streamer.silence)
+    // Streamer mode: text shown in the island (which screen shares capture) is masked
+    readonly property bool masked: Streamer.active
 
     function toggleDnd() {
         Config.notifications.dnd = !Config.notifications.dnd;
@@ -26,11 +28,24 @@ Singleton {
             n.dismiss();
         peeked = null;
     }
-    // Image for a notification: its own image, else the app icon
-    function icon(n) {
+    function title(n) {
         if (!n)
             return "";
-        if (n.image)
+        return masked ? (n.appName || "Notification") : (n.summary || n.appName);
+    }
+    function text(n) {
+        if (!n)
+            return "";
+        return masked ? (n.body !== "" ? "Hidden while streaming" : "") : n.body;
+    }
+
+    // Image for a notification: its own image, else the app icon. Masked: the
+    // app icon only (images are often screenshots or avatars).
+    // `unmasked` is for surfaces left out of screen shares.
+    function icon(n, unmasked) {
+        if (!n)
+            return "";
+        if (n.image && (!masked || unmasked))
             return n.image;
         const a = n.appIcon;
         if (a.startsWith("/"))

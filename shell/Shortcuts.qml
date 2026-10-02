@@ -107,26 +107,47 @@ Scope {
         description: "Random wallpaper"
         onPressed: Wallpaper.random()
     }
-    // Region tools run the CLI tools until the Phase 6 UI exists
+    // Region tools (capture/RegionSelector.qml)
     Shortcut {
         name: "regionScreenshot"
         description: "Screenshot a region"
-        onPressed: Commands.run("shot")
+        onPressed: Capture.start("shot")
     }
     Shortcut {
         name: "regionOcr"
         description: "Copy text from a region"
-        onPressed: Commands.run("ocr")
-    }
-    Shortcut {
-        name: "regionRecord"
-        description: "Record a region"
-        onPressed: Commands.run("record")
+        onPressed: Capture.start("ocr")
     }
     Shortcut {
         name: "regionSearch"
         description: "Search a region with Google Lens"
-        onPressed: Quickshell.execDetached(["sh", "-c", "pidof slurp || " + Paths.scripts + "/snip_to_search.sh"])
+        onPressed: Capture.start("lens")
+    }
+    Shortcut {
+        name: "screenTranslate"
+        description: "Translate text in a region"
+        onPressed: Capture.start("translate")
+    }
+    // Pressed again while recording: stop
+    Shortcut {
+        name: "regionRecord"
+        description: "Record a region"
+        onPressed: Capture.start("record")
+    }
+    Shortcut {
+        name: "screenRecord"
+        description: "Record the screen"
+        onPressed: Recorder.toggleScreen(false)
+    }
+    Shortcut {
+        name: "screenRecordSound"
+        description: "Record the screen with sound"
+        onPressed: Recorder.toggleScreen(true)
+    }
+    Shortcut {
+        name: "overlayToggle"
+        description: "Game overlay"
+        onPressed: UiState.overlay = !UiState.overlay
     }
 
     Shortcut {

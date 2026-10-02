@@ -10,7 +10,7 @@ Singleton {
     // Views reachable with ←/→ while the island is open, in order
     readonly property list<string> mainViews: ["search", "control", "media", "notifications", "system", "power"]
     // Views opened by commands/shortcuts only
-    readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit", "wallpaper"]
+    readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit", "wallpaper", "translate"]
 
     property bool expanded: false
     property string view: "search"
@@ -20,6 +20,7 @@ Singleton {
     property string ambient: "clock"     // what the collapsed island shows (set by Island)
     property real islandWidth: 160       // live island width (satellite pills sit beside it)
     property bool overview: false        // Super+Tab workspace overview (never open together with the island)
+    property bool overlay: false         // Super+G game overlay
 
     // Super tap: press arms it, any other key while held disarms it
     property bool superMightTrigger: false

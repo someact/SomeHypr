@@ -20,7 +20,9 @@ FocusScope {
         { icon: "nightlight", title: "Night light", subtitle: NightLight.active ? NightLight.temperature + " K" : "Off", active: NightLight.active, run: () => NightLight.toggle() },
         { icon: "coffee", title: "Keep awake", subtitle: UiState.caffeine ? "On" : "Off", active: UiState.caffeine, run: () => UiState.caffeine = !UiState.caffeine },
         { icon: Audio.micIcon, title: "Microphone", subtitle: Audio.micMuted ? "Muted" : "On", active: !Audio.micMuted, run: () => Audio.toggleMicMute() },
-        { icon: Config.theme.mode === "dark" ? "dark_mode" : "light_mode", title: "Dark mode", subtitle: Config.theme.mode === "dark" ? "On" : "Off", active: Config.theme.mode === "dark", run: () => Wallpaper.toggleLightDark() }
+        { icon: Config.theme.mode === "dark" ? "dark_mode" : "light_mode", title: "Dark mode", subtitle: Config.theme.mode === "dark" ? "On" : "Off", active: Config.theme.mode === "dark", run: () => Wallpaper.toggleLightDark() },
+        { icon: "cast", title: "Streamer mode", subtitle: Streamer.active ? (Streamer.auto && !Config.streamer.enabled ? "On · sharing" : "On") : "Off", active: Streamer.active, run: () => Streamer.toggle() },
+        { icon: Recorder.active ? "stop_circle" : "screen_record", title: "Record", subtitle: Recorder.active ? Recorder.elapsedText : "Region", active: Recorder.active, run: () => Capture.start("record") }
     ]
     readonly property int sliderCount: Brightness.available ? 3 : 2
     readonly property int total: toggles.length + sliderCount

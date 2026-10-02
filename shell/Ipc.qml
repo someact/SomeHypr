@@ -42,6 +42,43 @@ Scope {
         }
     }
 
+    // mode: shot | ocr | lens | translate | record | recordSound
+    IpcHandler {
+        target: "capture"
+        function region(mode: string): void {
+            Capture.start(mode || "shot");
+        }
+        function screen(sound: bool): void {
+            Recorder.toggleScreen(sound);
+        }
+        function stop(): void {
+            Recorder.stop();
+        }
+        function recording(): bool {
+            return Recorder.active;
+        }
+    }
+
+    IpcHandler {
+        target: "overlay"
+        function toggle(): void {
+            UiState.overlay = !UiState.overlay;
+        }
+        function close(): void {
+            UiState.overlay = false;
+        }
+    }
+
+    IpcHandler {
+        target: "streamer"
+        function toggle(): void {
+            Streamer.toggle();
+        }
+        function active(): bool {
+            return Streamer.active;
+        }
+    }
+
     IpcHandler {
         target: "dock"
         function pin(appId: string): void {

@@ -2,18 +2,25 @@
 -- shadows and animations so the compositor does as little work as possible.
 -- Everything is restored as soon as focus leaves the game or it exits fullscreen.
 --
+-- gamemoded clients also count: the shell watches gamemoded's D-Bus signals
+-- (no polling) and hands over the registered PIDs with GameMode.set_clients().
+-- A focused window owned by one of them is a game even when windowed, and any
+-- fullscreen window is while a client is registered (Proton PIDs may differ).
+--
 -- Runs inside Hyprland (no extra process). Manual control from anywhere:
 --   hyprctl eval 'GameMode.toggle()'   force on/off
 --   hyprctl eval 'GameMode.auto()'     back to automatic
 --   hyprctl repl 'return GameMode.active'
 -- The shell follows changes through a socket2 `custom` event, see apply().
 
-GameMode = { active = false, forced = nil }
+GameMode = { active = false, forced = nil, clients = {} }
 
 local function is_game(w)
-    if w == nil or (w.fullscreen or 0) < 2 then return false end
-    if matches_any(w.class, NOT_GAME_CLASS_PATTERNS) then return false end
-    return w.content_type == "game"
+    if w == nil or matches_any(w.class, NOT_GAME_CLASS_PATTERNS) then return false end
+    if GameMode.clients[w.pid] then return true end
+    if (w.fullscreen or 0) < 2 then return false end
+    return next(GameMode.clients) ~= nil
+        or w.content_type == "game"
         or matches_any(w.class, GAME_CLASS_PATTERNS)
         or matches_any(w.title, GAME_TITLE_PATTERNS)
 end
@@ -46,6 +53,14 @@ end
 
 function GameMode.toggle()
     GameMode.forced = not GameMode.active
+    evaluate()
+    return GameMode.active
+end
+
+-- pids: list of gamemoded client PIDs (the shell sends the full list on every change)
+function GameMode.set_clients(pids)
+    GameMode.clients = {}
+    for _, pid in ipairs(pids or {}) do GameMode.clients[pid] = true end
     evaluate()
     return GameMode.active
 end

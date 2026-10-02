@@ -28,6 +28,7 @@ ShellRoot {
         { id: "hyprland", name: "Hyprland", icon: "tune" },
         { id: "displays", name: "Displays", icon: "desktop_windows" },
         { id: "apps", name: "Apps & Autostart", icon: "apps" },
+        { id: "capture", name: "Capture", icon: "screenshot_region" },
         { id: "modes", name: "Modes", icon: "sports_esports" }
     ]
     property string page: pageOrDefault(Quickshell.env("SOMEHYPR_SETTINGS_PAGE"))

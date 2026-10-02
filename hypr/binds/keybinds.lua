@@ -50,11 +50,10 @@ shell_bind("SUPER + SHIFT + T", "screenTranslate", { description = "Utilities: T
 hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a"), { description = "Utilities: Pick color #RRGGBB >> clipboard" })
 
 --# Recording
-local record = HYPR_DIR .. "/scripts/record.sh"
 shell_bind("SUPER + SHIFT + R", "regionRecord", { locked = true, description = "Utilities: Record region (no sound)" })
 shell_bind("SUPER + ALT + R", "regionRecord", { locked = true })
-hl.bind("CTRL + ALT + R", hl.dsp.exec_cmd(record .. " --fullscreen"), { locked = true })
-hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd(record .. " --fullscreen --sound"), { locked = true, description = "Utilities: Record screen (with sound)" })
+shell_bind("CTRL + ALT + R", "screenRecord", { locked = true })
+shell_bind("SUPER + SHIFT + ALT + R", "screenRecordSound", { locked = true, description = "Utilities: Record screen (with sound)" })
 
 --# Fullscreen screenshot
 local grimMonitor = "grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\""

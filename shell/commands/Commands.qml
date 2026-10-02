@@ -7,7 +7,8 @@ import Quickshell
 Singleton {
     readonly property list<QtObject> all: [
         WallpaperCommand {}, SettingsCommand {}, PowerCommand {}, LockCommand {}, ClipCommand {}, EmojiCommand {}, ProjectCommand {},
-        GameCommand {}, DndCommand {}, ShotCommand {}, OcrCommand {}, RecordCommand {}, KeysCommand {}
+        GameCommand {}, OverlayCommand {}, DndCommand {}, StreamCommand {}, ShotCommand {}, OcrCommand {}, LensCommand {}, TranslateCommand {},
+        RecordCommand {}, KeysCommand {}
     ]
 
     // Changes when any command's suggestions change (search rebuilds on it)

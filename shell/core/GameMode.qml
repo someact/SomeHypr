@@ -7,6 +7,7 @@ import Quickshell.Hyprland
 
 // Bridge to hypr/modes/gamemode.lua. Hyprland emits `custom>>somehypr_gamemode,<0|1>`
 // whenever game mode flips, so this never polls; the state is read once at start.
+// gamemoded clients reach Hyprland through services/GameClients.qml.
 Singleton {
     id: root
 
