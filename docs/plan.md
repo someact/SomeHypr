@@ -385,7 +385,8 @@ Root causes found:
 - [x] Workflow: commit and push per task, with new requests tracked in the plan first (CLAUDE.md → Phase workflow)
 
 **9b. Expressive icon and type style**
-- [ ] Port ii's `MaterialShape` + `shapes/` to `components/Shape*.qml`
+- [~] Port ii's `MaterialShape` + `shapes/` to `components/Shape*.qml`
+  - Shape math vendored unchanged in `shell/lib/shapes/` (Apache-2.0, attribution README); `components/MaterialShape.qml` draws it with QtQuick.Shapes (CurveRenderer) instead of ii's Canvas, so no offscreen texture per shape. `shape` changes morph with a spring; the path is rebuilt only during the morph. Verified all 35 names render and morph (grim)
 - [ ] `components/ShapeIcon.qml`: floating icon with no background and an outline or soft shadow; tinted shape only when active
 - [ ] Toggles, IconButton and PressButton morph their corner radius (pill ↔ squircle) when active
 - [ ] Type: titles at wght 550, tabular numbers; Material Symbols face count stays ≤ 5
