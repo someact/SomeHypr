@@ -10,7 +10,7 @@ Singleton {
     // Views reachable with ←/→ while the island is open, in order
     readonly property list<string> mainViews: ["search", "control", "media", "notifications", "system", "power"]
     // Views opened by commands/shortcuts only
-    readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit"]
+    readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit", "wallpaper"]
 
     property bool expanded: false
     property string view: "search"

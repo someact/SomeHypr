@@ -69,7 +69,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     anchors.top: true
     exclusiveZone: UiState.hidden ? 0 : Theme.barHeight
-    implicitWidth: 800
+    implicitWidth: 1000
     implicitHeight: 720
     color: "transparent"
 
@@ -296,6 +296,8 @@ PanelWindow {
                         return keysView;
                     case "polkit":
                         return polkitView;
+                    case "wallpaper":
+                        return wallpaperView;
                     }
                     return searchView;
                 }
@@ -446,5 +448,9 @@ PanelWindow {
     Component {
         id: polkitView
         PolkitView {}
+    }
+    Component {
+        id: wallpaperView
+        WallpaperView {}
     }
 }

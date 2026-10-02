@@ -17,11 +17,15 @@ Singleton {
     readonly property string stateDir: stateHome + "/somehypr"
     readonly property string frecency: stateDir + "/frecency.json"
     readonly property string notifications: stateDir + "/notifications.json"
+    readonly property string wallpaperState: stateDir + "/wallpaper.json"   // { path, phase }
+    readonly property string videoFrame: stateDir + "/video-frame.jpg"     // matugen input for video wallpapers
 
-    // matugen outputs (shared with ii until Phase 3 moves them)
-    readonly property string generated: stateHome + "/quickshell/user/generated"
-    readonly property string colors: generated + "/colors.json"
-    readonly property string wallpaperPath: generated + "/wallpaper/path.txt"
+    // matugen outputs (matugen/config.toml)
+    readonly property string colors: stateDir + "/colors.json"
+
+    readonly property string cacheHome: Quickshell.env("XDG_CACHE_HOME") || home + "/.cache"
+    readonly property string thumbs: cacheHome + "/somehypr/thumbs"
+    readonly property string mpvSocket: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/somehypr-mpvpaper.sock"
 
     readonly property string hyprDir: configHome + "/hypr"
     readonly property string scripts: hyprDir + "/scripts"

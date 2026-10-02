@@ -12,7 +12,8 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - `modes/gamemode.lua` turns blur, shadows and animations off while a game is the focused fullscreen window. Control it with `hyprctl eval 'GameMode.toggle()'` and `'GameMode.auto()'`.
   - `generated/` is machine-written (matugen) and gitignored. `monitors.lua` is written by the display settings page.
   - `hyprland/scripts` is a symlink so that ii's hardcoded paths keep working. Remove it with ii in Phase 8.
-- `matugen/` is linked to `~/.config/matugen` and is the only color engine.
+- `matugen/` is linked to `~/.config/matugen` and is the only color engine. `config.toml` lists every output (shell, Hyprland, terminals, GTK, KDE, fuzzel, Zen, Vesktop); `hooks/` reload apps. Run it without a terminal only with `--source-color-index 0`.
+- Wallpaper state is `~/.local/state/somehypr/wallpaper.json`; set it through the shell (`qs -c somehypr ipc call wallpaper set <path>`) so videos start mpvpaper and get a matugen frame.
 - `shell/` is linked to `~/.config/quickshell/somehypr` and runs with `qs -c somehypr`:
   - `core/` singletons (Config, Theme, Motion, Paths, UiState, GameMode), `components/`, `services/` (one singleton per system source).
   - `island/Island.qml` is the notch window; `island/views/*View.qml` are loaded only while open; `island/ambient/` holds the collapsed states.

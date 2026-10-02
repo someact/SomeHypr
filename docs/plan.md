@@ -231,13 +231,21 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [ ] Memory: glvnd is pinned to the NVIDIA EGL vendor in `shell.qml`, so Mesa + LLVM no longer load (fresh dev run: 485 → ~385 MB RSS). Live after opening views: ~480 MB RSS, PSS ~300 MB (~210 MB of it heap). Still above the 250 MB target; the Phase 8 audit owns this
 - [ ] Hands-on check by you: Super tap (and Super+1 not opening search), typing straight into search, ←/→ between views, glass blur behind the notch, tray menus
 
-### Phase 3: Wallpaper and theming
-- [ ] `/wallpaper` picker with cached thumbnails
-- [ ] mpvpaper video wallpapers (`hwdec=nvdec`), paused during games, fullscreen and lock
-- [ ] Extract a video frame for matugen
-- [ ] Day/night schedule (wallpaper set, matugen mode, hyprsunset)
-- [ ] matugen-only terminal colors (replace ii's Python + `applycolor.sh`)
-- [ ] App templates: GTK, Qt/KDE color scheme, kitty, Zen glass, vesktop
+### Phase 3: Wallpaper and theming ✅
+- [x] `/wallpaper` picker with cached thumbnails (island view, Ctrl+Super+T; ffmpeg thumbnails in `~/.cache/somehypr/thumbs`, made on demand one at a time; arrows/Enter, R random, D dark/light, O file dialog). Image wallpapers crossfade
+- [x] mpvpaper video wallpapers (`hwdec=nvdec`, verified active), paused during games, fullscreen and lock (`-p -a FULL` pauses when hidden or a window is fullscreen; game mode also pauses over mpv's IPC socket, verified)
+- [x] Extract a video frame for matugen (ffmpeg, 1 s in → `~/.local/state/somehypr/video-frame.jpg`)
+- [x] Day/night schedule (wallpaper set, matugen mode, hyprsunset): `theme.schedule` in config.json, off by default; checked on the minute clock only while enabled, applied once per phase
+- [x] matugen-only terminal colors (replace ii's Python + `applycolor.sh`): `custom_colors` blend a fixed ANSI palette toward the wallpaper; kitty reloads on SIGUSR1, other terminals get OSC sequences (`matugen/hooks/term-sequences.sh`)
+- [x] App templates: GTK, Qt/KDE color scheme, kitty, Zen glass, vesktop
+  - GTK 3/4 plus `gsettings color-scheme prefer-<mode>`
+  - KDE `SomeHypr.colors`, applied by `matugen/hooks/kde-colors.sh` (alternates SomeHyprA/B because Plasma ignores re-applying the same name); no more kde-material-you-colors venv
+  - Zen: `chrome/somehypr-colors.css` imported by `userChrome.css` (+ `user.js` pref); applies on Zen's next start
+  - Vesktop: `themes/somehypr.theme.css`, enabled in its settings
+  - Edited user files were backed up as `*.pre-somehypr` (kitty.conf, vesktop settings.json)
+- [x] Colors now live in `~/.local/state/somehypr/`; ii's old outputs are still written for rollback (`ii_*` templates, remove in Phase 8)
+- [x] matugen 4 needs `--source-color-index 0` without a terminal (it failed silently from the shell before)
+- [ ] Note for Phase 8: mpvpaper with a 1080p video uses ~760 MB RSS
 
 ### Phase 4: Dock and Overview
 - [ ] Bottom dock: pinned + running apps

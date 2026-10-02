@@ -10,6 +10,7 @@
 
 import QtQuick
 import Quickshell
+import qs.services
 import "island"
 import "corners"
 import "wallpaper"
@@ -34,4 +35,7 @@ ShellRoot {
 
     Shortcuts {}
     Ipc {}
+
+    // Services that act on their own (not only when a panel reads them)
+    Component.onCompleted: DayNight.check()
 }

@@ -4,9 +4,11 @@ import Quickshell.Wayland
 import qs.core
 import qs.services
 
-// Plain image wallpaper on the background layer. Video wallpapers (mpvpaper)
-// arrive in Phase 3; until then this layer steps aside for them.
+// Image wallpaper on the background layer, crossfading between changes.
+// Video wallpapers are played by mpvpaper (services/Wallpaper.qml); this layer
+// hides while one is active.
 PanelWindow {
+    id: win
     required property ShellScreen modelData
     screen: modelData
 
@@ -22,13 +24,38 @@ PanelWindow {
     }
     color: Theme.surface
 
-    Image {
+    readonly property string source: Wallpaper.path !== "" && !Wallpaper.isVideo ? Paths.url(Wallpaper.path) : ""
+    property bool frontIsA: true
+
+    // Load the new image into the hidden slot; fade it in once decoded
+    onSourceChanged: {
+        const back = frontIsA ? b : a;
+        back.source = source;
+    }
+    Component.onCompleted: a.source = source
+
+    component Slot: Image {
         anchors.fill: parent
-        source: Wallpaper.path !== "" ? Paths.url(Wallpaper.path) : ""
-        sourceSize: Qt.size(parent.width, parent.height)
+        sourceSize: Qt.size(win.width, win.height)
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
-        retainWhileLoading: true
         cache: false
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Motion.reduced ? 0 : 450
+                easing.type: Easing.InOutQuad
+            }
+        }
+    }
+
+    Slot {
+        id: a
+        opacity: win.frontIsA ? 1 : 0
+        onStatusChanged: if (status === Image.Ready && !win.frontIsA) win.frontIsA = true
+    }
+    Slot {
+        id: b
+        opacity: win.frontIsA ? 0 : 1
+        onStatusChanged: if (status === Image.Ready && win.frontIsA) win.frontIsA = false
     }
 }

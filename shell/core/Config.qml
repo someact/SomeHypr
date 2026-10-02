@@ -60,6 +60,18 @@ Singleton {
             }
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)
+                property string scheme: "scheme-tonal-spot"   // matugen -t
+                // Day/night: switch wallpaper folder, mode and night light on a schedule
+                property JsonObject schedule: JsonObject {
+                    property bool enabled: false
+                    property string dayStart: "07:00"
+                    property string nightStart: "19:00"
+                    property string dayFolder: ""     // empty: keep the current wallpaper
+                    property string nightFolder: ""
+                    property string dayMode: "light"
+                    property string nightMode: "dark"
+                    property bool nightLight: true
+                }
             }
         }
     }

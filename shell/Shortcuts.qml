@@ -95,7 +95,7 @@ Scope {
     Shortcut {
         name: "wallpaperToggle"
         description: "Change wallpaper"
-        onPressed: UiState.open("search", "/wallpaper ")
+        onPressed: UiState.toggle("wallpaper")
     }
     Shortcut {
         name: "wallpaperRandom"
