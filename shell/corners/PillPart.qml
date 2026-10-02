@@ -26,17 +26,22 @@ Item {
     readonly property color halo: Qt.rgba(0, 0, 0, 0.6)
 
     visible: shown
-    implicitWidth: row.implicitWidth
+    implicitWidth: row.implicitWidth - row.leftPadding - row.rightPadding
     height: parent ? parent.height : Theme.barHeight - 6
     x: parent?.xOf ? parent.xOf(root) : 0
     Behavior on x {
         Spring { preset: "snappy" }
     }
 
+    // The padding is room around the content that the shadow layer also renders:
+    // a layer is cut at its item's bounds, which flattened shapes that reach the
+    // edge (the active workspace) or overshoot it while springing
     Row {
         id: row
+        x: -leftPadding
         anchors.verticalCenter: parent.verticalCenter
         spacing: 8
+        padding: 3
 
         layer.enabled: root.floating && Config.pills.halo === "shadow"
         layer.effect: MultiEffect {

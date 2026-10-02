@@ -409,7 +409,8 @@ Root causes found:
   - `corners/PillPart.qml` per part (`Config.pills.<part>`); `CornerWindow` lays the visible parts out, draws one Glass per run of glass parts with dividers inside, blurs only those runs (no region when every part floats) and springs positions. Replaces the single `island.pillStyle`. Settings → Island → Corner pills: a Glass/Floating row per part plus Floating text. Verified all-glass (same look as before), floating workspaces + glass title, glass status + floating clock (grim)
 
 **9c. Corner pills and workspaces**
-- [ ] Fix: the active workspace shape gets cut off (added 2026-10-03)
+- [x] Fix: the active workspace shape gets cut off (added 2026-10-03)
+  - Cause: a floating part's shadow layer renders only its row's exact bounds, which flattened the 20 px shape's bumps and its spring overshoot. The row now has 3 px padding inside the layer (content not moved). Verified frames mid-switch (grim)
 - [ ] Show only occupied workspaces plus the active one; they spring in and out; setting "show empty workspaces" (default off)
 - [ ] Holding Super: every workspace of the group appears as a shape with its number (empty ones as outlines), redesigned from the plain numbers (added 2026-10-03)
 - [ ] Special-workspace chip (click toggles it)
