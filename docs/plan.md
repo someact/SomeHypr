@@ -346,6 +346,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [ ] Hands-on check by you: island morph smoothness after the Icon change (fill no longer fades), wallpaper picker crossfade, Super+Shift+R with the shell killed (record.sh fallback)
 
 ### Phase 9: Refine ⏳ (glass, expressive icons, island UX)
+Workflow from Phase 9 on: commit and push after each task (see CLAUDE.md → Phase workflow). 9a and 9a+ landed together in one commit before this rule.
 From `Improvement idea.md` (2026-10-03). Style: ii's Material 3 Expressive icons (Android/ChromeOS) + Apple-style glass and motion.
 Decisions: "dock" = island + top pills (bottom dock gets only the new icon/glass style); hover shows a peek and a click or Super opens the full view; real blur of the windows behind (no `xray` on shell layers); the translator is a pinned live area.
 
@@ -378,6 +379,10 @@ Root causes found:
 - [x] Settings → Appearance → Liquid glass: Build button (runs the script) when the plugin is missing, then the on/off switch, Look (Pomme/Clear/Subtle/Glass), On windows too
 - [x] Island glass on/off: off keeps only the island solid black (no frost, no rim); pills, dock and cards stay glass (`config.json` `glass.island`, `Theme.islandBlur`)
 - [ ] Hands-on check by you: Liquid glass look over real windows, which preset you like, and that the island tint (0.55) does not hide the effect too much
+
+**9a++. README and workflow** (added 2026-10-03, on request)
+- [x] `README.md`: how it works (repo layout, Hyprland load order, the shell's parts, settings files), install, update, liquid glass, checks
+- [x] Workflow: commit and push per task, with new requests tracked in the plan first (CLAUDE.md → Phase workflow)
 
 **9b. Expressive icon and type style**
 - [ ] Port ii's `MaterialShape` + `shapes/` to `components/Shape*.qml`

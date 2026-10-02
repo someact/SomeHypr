@@ -63,7 +63,10 @@ Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are 
 
 ## Phase workflow
 - Work through `docs/plan.md` one phase at a time and tick its checkboxes (`[x]` done, `[~]` done differently, with a note) as tasks land.
-- After a phase is done and verified, commit and push to GitHub (`git push origin main`, remote `someact/SomeHypr`, private). Mark the phase ✅ in the plan in the same push.
+- Commit and push after **each task** (one checklist item, or one small sub-phase), once it is verified: tick it in `docs/plan.md` in the same commit, then `git push origin main` (remote `someact/SomeHypr`, private). Message: `Phase <n><sub>: <task>` (e.g. `Phase 9c: show only occupied workspaces`). Unrelated changes go in their own commit.
+- When the last task of a phase is done and the phase-level checks pass, mark the phase ✅ in the plan in that final commit.
+- New tasks the user asks for mid-phase go into the plan first (as a `9a+`-style section, dated), so every change is tracked.
+- `README.md` explains how the setup works, installs and updates. Update it in the same commit when a change affects any of those (new dependency, script, option, or install step).
 
 ## Rules for the shell (Phase 2 onward)
 - Lazy-load every panel.

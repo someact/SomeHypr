@@ -1,0 +1,115 @@
+# SomeHypr
+
+A personal Hyprland desktop for one PC: CachyOS, Hyprland 0.56 (Lua config), NVIDIA RTX 3060, one 1920×1080 @ 100 Hz monitor, US/TH keyboard and a pen tablet.
+
+It has a dynamic island instead of a bar, glass surfaces, spring motion, and colors taken from the wallpaper. Everything is written to stay light: no Python, no polling, and panels load only while open.
+
+- Goals: [`idea.md`](idea.md)
+- Plan, phases and progress: [`docs/plan.md`](docs/plan.md)
+- Notes for agents working on the repo: [`CLAUDE.md`](CLAUDE.md)
+
+## How it works
+
+The repo has three parts. `install.sh` links each one into `~/.config`, so editing the repo edits the live desktop.
+
+| Repo | Linked to | What it is |
+|---|---|---|
+| `hypr/` | `~/.config/hypr` | Hyprland config in Lua |
+| `shell/` | `~/.config/quickshell/somehypr` | The desktop shell (Quickshell, QML) |
+| `matugen/` | `~/.config/matugen` | Wallpaper → color scheme for the shell, Hyprland, terminals, GTK, KDE, Zen, Vesktop |
+
+### Hyprland (`hypr/`)
+`hyprland.lua` loads files in a fixed order, and every setting lives in exactly one file:
+
+| File | Holds |
+|---|---|
+| `user.lua` | your choices (apps, `glass`, `liquidGlass`, `gameModeAuto`) |
+| `core/` | NVIDIA env, input and tablet, look, motion, misc, autostart, liquid glass |
+| `rules/` | window and layer rules |
+| `binds/` | every keybind |
+| `modes/gamemode.lua` | game mode: turns blur, shadows and animations off while a game is the focused fullscreen window |
+
+The settings app never edits these files. It writes its changes to `~/.config/somehypr/hypr.json` (Hyprland choices) and `~/.config/somehypr/keybinds.json` (keybinds). Those load on top of the repo defaults, so `git pull` never conflicts with your settings.
+
+### Shell (`shell/`)
+One Quickshell process, `qs -c somehypr`, started by Hyprland:
+
+| Part | What it does |
+|---|---|
+| **Island** | The notch at the top. Collapsed, it shows the clock, media, notifications, OSD and recording. Opened (tap Super), it holds search, quick controls, media, notifications, system and power. |
+| **Corner pills** | Workspaces and the focused app on the left; tray, keyboard layout, network and clock on the right. |
+| **Dock** | Bottom bar with pinned and running apps. |
+| **Super+Tab** | Workspace overview. |
+| **Super+G** | Game overlay with resources, mixer, crosshair, FPS limit and notes. |
+| **Super+K** | On-screen keyboard. |
+| **Capture** | Region tools: screenshot, OCR, Lens, translate, record. |
+| **Desktop** | Lock screen and desktop widgets. |
+| **Settings** | A separate window: `qs -c somehypr ipc call settings open`, or `/settings` in search. |
+
+- **Glass:** the compositor blurs exactly the shapes the shell draws (`ext-background-effect`). An optional plugin, *liquid glass*, adds refraction on top; see below.
+- **Colors:** set a wallpaper (`/wallpaper`, or the island's wallpaper view) and matugen recolors everything. Video wallpapers run through mpvpaper.
+- **Shell settings** live in `~/.config/somehypr/config.json`. The file reloads live, so you can edit it by hand too.
+
+## Install
+
+The setup targets this one machine, but these are the pieces it expects:
+
+```sh
+# Hyprland 0.56+ and the shell (paru also covers packages that are only in the AUR)
+paru -S hyprland quickshell matugen hypridle hyprlock
+# tools the shell calls
+paru -S grim slurp wl-clipboard cliphist imagemagick jq wf-recorder \
+        tesseract tesseract-data-eng translate-shell mpvpaper ydotool swappy
+# fonts
+paru -S ttf-material-symbols-variable-git ttf-jetbrains-mono-nerd
+# plus Google Sans Flex (from Google Fonts) in ~/.local/share/fonts
+```
+
+Then link everything:
+
+```sh
+git clone https://github.com/someact/SomeHypr && cd SomeHypr
+./install.sh            # links hypr/, shell/, matugen/ into ~/.config and reloads Hyprland
+```
+
+`install.sh` moves any existing directory it replaces to `<name>.pre-somehypr`. If the new config has errors after the reload, it rolls back by itself.
+
+```sh
+./install.sh --check     # only verify the Hyprland config, change nothing
+./install.sh --rollback  # remove the links and restore the .pre-somehypr directories
+```
+
+## Update
+
+```sh
+git pull
+./install.sh --check && hyprctl reload   # Hyprland part
+```
+
+- **Shell:** files under `shell/` reload the running shell as soon as they change, so a pull is live at once. If something looks stuck, restart it with `pkill -x qs; qs -c somehypr &`.
+- **After a Hyprland update:** rebuild the liquid glass plugin if you use it (see below). Until you rebuild it, it simply isn't loaded.
+- **After a Quickshell update:** restart the shell.
+
+## Liquid glass (optional)
+
+[hyprglass](https://github.com/hyprnux/hyprglass) adds refraction and an edge light to the island, pills, dock and keyboard. It is off by default. It is built from source, because a plugin only works with the exact Hyprland build it was compiled for:
+
+```sh
+~/.config/hypr/scripts/hyprglass.sh             # build for the running Hyprland
+~/.config/hypr/scripts/hyprglass.sh --rebuild   # after a Hyprland update
+```
+
+The script checks out upstream's `hyprland-<x.y>` branch and applies `hypr/plugins/hyprglass-fit-shape.patch`, which makes the glass follow the shell's rounded shapes. It installs `~/.local/share/somehypr/plugins/hyprglass-<version>.so`.
+
+To turn it on, use Settings → Appearance → Liquid glass, which also has a Build button, or set `liquidGlass = true` in `hypr/user.lua`. On the RTX 3060 it showed no measurable GPU or CPU cost and used about 40 MB more VRAM.
+
+## Checks
+
+```sh
+./install.sh --check                            # config verifies
+hyprctl reload && hyprctl configerrors          # must print nothing
+hyprctl binds -j | jq length                    # 201 with no custom keybinds
+timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"
+```
+
+`CLAUDE.md` has the full list, including the IPC calls that open each part of the shell.
