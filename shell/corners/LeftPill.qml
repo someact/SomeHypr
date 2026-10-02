@@ -31,7 +31,7 @@ CornerWindow {
                 // is on, or Super is held). The 10 slots stay; a hidden one springs
                 // to zero width, so nothing is rebuilt and they slide in and out.
                 readonly property bool shown: isActive || isOccupied || Config.pills.showEmpty || UiState.superHeld
-                width: !shown ? 0 : (UiState.superHeld ? 16 : isActive ? 22 : 10) + 2
+                width: !shown ? 0 : (UiState.superHeld ? 21 : isActive ? 22 : 10) + 2
                 height: 20
                 opacity: shown ? 1 : 0
                 scale: shown ? 1 : 0.4
@@ -45,38 +45,39 @@ CornerWindow {
                     NumberAnimation { duration: Motion.fast }
                 }
 
-                // Expressive: the active workspace morphs from a dot into a
-                // Material shape (Config.pills.workspaceShape) holding its number
+                // Expressive: the active workspace morphs from a dot into a Material
+                // shape (Config.pills.workspaceShape) holding its number. Holding Super
+                // turns every slot into that shape with its number: filled when it
+                // has windows, an outline when empty.
+                readonly property bool held: UiState.superHeld
                 MaterialShape {
                     anchors.centerIn: parent
-                    visible: !UiState.superHeld
-                    width: ws.isActive ? 20 : ws.isOccupied ? 7 : 5
+                    width: ws.isActive ? 20 : ws.held ? 18 : ws.isOccupied ? 7 : 5
                     height: width
-                    shape: ws.isActive ? Config.pills.workspaceShape : "circle"
-                    color: ws.isActive ? Theme.primary : ws.isOccupied ? wsPart.fg : wsPart.floating ? wsPart.fgDim : Theme.outlineVariant
-                    borderWidth: wsPart.outline ? 1 : 0
-                    borderColor: wsPart.halo
+                    shape: ws.isActive || ws.held ? Config.pills.workspaceShape : "circle"
+                    color: ws.isActive ? Theme.primary : ws.held ? (ws.isOccupied ? wsPart.fg : "transparent") : ws.isOccupied ? wsPart.fg : wsPart.floating ? wsPart.fgDim : Theme.outlineVariant
+                    borderWidth: ws.held && !ws.isActive && !ws.isOccupied ? 1.5 : wsPart.outline ? 1 : 0
+                    borderColor: ws.held && !ws.isActive && !ws.isOccupied ? wsPart.fgDim : wsPart.halo
                     Behavior on width {
                         Spring { preset: "snappy" }
+                    }
+                    Behavior on color {
+                        ColorAnimation { duration: Motion.fast }
                     }
                 }
                 Label {
                     anchors.centerIn: parent
-                    visible: ws.isActive && !UiState.superHeld
+                    opacity: ws.isActive || ws.held ? 1 : 0
+                    visible: opacity > 0
                     text: (ws.wsId - 1) % 10 + 1
                     font.pixelSize: 10
                     font.weight: Theme.font.weightTitle
-                    color: Theme.fgPrimary
-                }
-                Label {
-                    anchors.centerIn: parent
-                    visible: UiState.superHeld
-                    text: (ws.wsId - 1) % 10 + 1
-                    mono: true
-                    font.pixelSize: Theme.font.small
-                    color: ws.isActive ? Theme.primary : ws.isOccupied ? wsPart.fg : wsPart.fgDim
-                    style: wsPart.textStyle
+                    color: ws.isActive ? Theme.fgPrimary : ws.isOccupied ? Theme.surface : wsPart.fgDim
+                    style: !ws.isActive && !ws.isOccupied ? wsPart.textStyle : Text.Normal
                     styleColor: wsPart.halo
+                    Behavior on opacity {
+                        NumberAnimation { duration: Motion.fast }
+                    }
                 }
                 MouseArea {
                     anchors.fill: parent

@@ -413,7 +413,8 @@ Root causes found:
   - Cause: a floating part's shadow layer renders only its row's exact bounds, which flattened the 20 px shape's bumps and its spring overshoot. The row now has 3 px padding inside the layer (content not moved). Verified frames mid-switch (grim)
 - [x] Show only occupied workspaces plus the active one; they spring in and out; setting "show empty workspaces" (default off)
   - The 10 group slots stay (no rebuild); a hidden slot springs to zero width and fades/scales out. Settings → Island → Show empty workspaces (`pills.showEmpty`). Holding Super shows all. Verified switching to an empty workspace and back (grim)
-- [ ] Holding Super: every workspace of the group appears as a shape with its number (empty ones as outlines), redesigned from the plain numbers (added 2026-10-03)
+- [x] Holding Super: every workspace of the group appears as a shape with its number (empty ones as outlines), redesigned from the plain numbers (added 2026-10-03)
+  - Held: every slot morphs into `pills.workspaceShape` (18 px; active 20 px in the accent), filled with a dark number when it has windows, an outline with a dim number when empty; release morphs back to dots. Verified with ydotool holding Super (grim); the island did not open
 - [ ] Special-workspace chip (click toggles it)
 - [ ] Island style and pill placement split: the island is notch or floating, and pills can sit beside the island with either (satellites with a notch) (added 2026-10-03)
 - [ ] Pill layout: each part (workspaces, title, tray, status, clock) can go to the left or right corner or beside the island, be reordered, and be shown or hidden; editor in Settings → Island (added 2026-10-03)
