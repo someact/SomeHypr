@@ -3,7 +3,7 @@
 -- Which Quickshell config draws the desktop: "ii" (end-4, current) or
 -- "somehypr" (the new shell, from Phase 2). Changing this switches every
 -- shell keybind, the autostart entry and the lock screen together.
-shell = "ii"
+shell = "somehypr"
 
 -- Apps
 local pick = HYPR_DIR .. "/scripts/launch_first_available.sh"

@@ -31,7 +31,7 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
 ```sh
 ./install.sh --check                 # Hyprland --verify-config on the repo config
 hyprctl reload && hyprctl configerrors   # live; must print nothing
-hyprctl binds -j | jq length         # 201 after Phase 1 (ii had 191, +10 Thai keycode binds)
+hyprctl binds -j | jq length         # 199 with shell = "somehypr" (201 with "ii": its panel-family and welcome binds)
 ```
 Shell changes:
 ```sh

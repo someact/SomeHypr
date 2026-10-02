@@ -209,7 +209,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Swap the symlink live and check `hyprctl configerrors` is empty
 - [ ] Hands-on check by you: Super+Alt+number on the TH layout, tablet feel in CSP, a fullscreen game turns game mode on
 
-### Phase 2: Shell foundation and island MVP ← first daily driver
+### Phase 2: Shell foundation and island MVP ✅ (first daily driver)
 - [x] `shell/core/`: Config (JsonAdapter → `~/.config/somehypr/config.json`), Theme (matugen colors + tokens), Motion (spring presets), Paths, UiState, plus GameMode (in core so Motion can read it without a core↔services import cycle)
 - [x] `shell/components/`: Icon, Label, PressButton, Slider, Toggle, GlassSurface, KeyNavList, plus IconButton, Cover (`ClippingRectangle`, no offscreen layer) and Spring (preset-driven `SpringAnimation`)
 - [x] Services: Audio, Media (Mpris), Notifications, HyprData (`Quickshell.Hyprland`), Apps (fuzzy + frecency), Clipboard, Tray, Network, Bluetooth, Brightness (ddcutil), KbLayout, Privacy, GameMode bridge, plus Osd, Calc (qalc), Emojis, SysStats, NightLight, Session, Wallpaper, Keybinds
@@ -226,9 +226,10 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [x] Plain wallpaper background layer (steps aside for video wallpapers until Phase 3)
 - [x] Native Polkit agent
 - [x] Global shortcuts under appid `somehypr`, IPC targets for every view (`qs -c somehypr ipc call island open <view>`)
-- [ ] Switch `shell = "somehypr"` in `hypr/user.lua`
+- [x] Switch `shell = "somehypr"` in `hypr/user.lua` (live; somehypr owns notifications and the polkit agent; 199 binds, since the panel-family and welcome binds are ii-only)
 - [x] Region tools and overlay fall back to CLI scripts for now (the `somehypr:region*` shortcuts run them)
-- [x] Memory: glvnd pinned to the NVIDIA EGL vendor in `shell.qml` (Mesa + LLVM no longer load): 485 → ~385 MB RSS, PSS ~210 MB. Still above the 250 MB target; Phase 8 audits the rest
+- [ ] Memory: glvnd is pinned to the NVIDIA EGL vendor in `shell.qml`, so Mesa + LLVM no longer load (fresh dev run: 485 → ~385 MB RSS). Live after opening views: ~480 MB RSS, PSS ~300 MB (~210 MB of it heap). Still above the 250 MB target; the Phase 8 audit owns this
+- [ ] Hands-on check by you: Super tap (and Super+1 not opening search), typing straight into search, ←/→ between views, glass blur behind the notch, tray menus
 
 ### Phase 3: Wallpaper and theming
 - [ ] `/wallpaper` picker with cached thumbnails
@@ -272,7 +273,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.
-  - `hyprctl binds -j | jq length` is 201 (ii's 191 plus 10 Thai keycode binds).
+  - `hyprctl binds -j | jq length` is 199 with `shell = "somehypr"` (201 with ii: 191 plus 10 Thai keycode binds).
   - Spot-check options with `hyprctl getoption`.
   - SUPER+ALT+N works with the TH layout active.
 - **Shell:**
