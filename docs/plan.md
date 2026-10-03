@@ -620,7 +620,12 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
   - `lib/shapes/morph-cache.js`: one Morph per (from, to) shape pair and one resting outline per shape, shared by every `MaterialShape`. A shape at rest draws the cached outline and builds no Morph (before: one per shape at creation, a new one on every change)
   - Measured: 5 hovers of the workspaces pill (all 10 shapes morph in and out) cost 304 CPU ticks before, ~245 after (−20 %). Shapes look the same (grim at rest and peeked)
   - Where the rest goes (measured): building a morph takes ~0.5 ms, and 400 path frames ~67 ms of JS. The curve renderer is not it either (the plain renderer gave the same 236 ticks), nor the floating shadow layer (~15 ticks). Qt's render timing shows ~77 ms of rendering per hover, so most of the ~470 ms per hover is the 10 slot springs re-evaluating the pill layout, input mask and blur regions every frame. Cutting that means changing how the slots animate; left as is (it only runs during a peek)
-- [ ] 11a-5. Small shell items: no toplevel refresh on focus change, text weights from Theme (fewer faces, no DejaVu fallback), one shared clock for the pill zones, `osk/layout.js` as a library
+- [~] 11a-5. Small shell items: checked one by one, none worth a change
+  - Toplevel refresh on focus change (`HyprData.geometryEvents`): kept. Hyprland sends no event when a floating window is dragged or resized with the mouse, so the focus event is what lets dock intellihide notice it. It is one debounced socket request, not a process
+  - Text weights: Google Sans Flex has 2 mappings in a fresh shell with 400/450/500/550 in use, so unifying them saves nothing; the clock and lock stay Medium
+  - Emoji font: naming Noto Color Emoji in `ResultRow` looked the same but DejaVu still loads once (Qt pulls it in elsewhere), so it was reverted
+  - One clock per pill zone (Minutes precision) and `osk/layout.js` (already `.pragma library`): nothing to gain
+  - Fresh shell font mappings after opening the emoji view: Material Symbols 4, Google Sans 1, JetBrains Mono 1, DejaVu 1, Noto Color Emoji 1
 - [ ] 11a-6. Hyprland side: shell keybind fallbacks check the island layer in Lua (no process per press); one dbus activation call; wallpaper colors applied with `hyprctl eval` instead of a full config reload; measure `render.cm_enabled`
 - [ ] 11a-7. "Fast glass" setting (off by default): window blur xray, cheaper GPU for glass windows; a floating glass window over another window shows the wallpaper behind it
 - [ ] 11a-8. Polish pass: the open hands-on checks of Phases 7–10 and the rough edges you report
