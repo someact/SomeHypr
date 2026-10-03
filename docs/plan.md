@@ -431,6 +431,8 @@ Root causes found:
   - Found (not new): a ydotool click outside does not clear the island's focus grab, with or without this change
 - [x] Workspaces peek with the mouse too: hovering the workspaces part shows every workspace as its shape, like holding Super; setting to turn it off (added 2026-10-03)
   - A `HoverHandler` on the workspaces part (150 ms in, 300 ms grace out, so the part growing under the cursor does not flicker) drives `wsPart.peek` = Super held or hover, which replaced `UiState.superHeld` in the slots. Settings → Island → Show all workspaces on hover (`pills.hoverPeek`, default on). Verified rest → hover → 200 ms after leaving → closed (grim)
+- [x] Fix: a glass pill's blur stayed behind when the pill slid at a fixed width (the title after the workspaces peek collapsed) (added 2026-10-03)
+  - Cause: `Region { item: run.frost }` updates only when the frost item's own geometry changes, not when an ancestor moves. `CornerWindow` now binds each run's region to window coordinates (`RunRegion`, `bar.x + run.x`, inset 1 px). Verified mid-collapse and settled frames after a hover peek (grim)
 - [ ] Quick options: a stable tile model (`services/QuickTiles.qml`) that fixes the frame skip; icon or full tiles; edit mode (add, hide, reorder) stored in `control.tiles`
 - [ ] Right-click detail pages: Wi-Fi list, Bluetooth devices, night light temperature, audio devices; other tiles open their settings page
 - [ ] Mixer: right-click volume → `MixerView` (per-app streams, output and input pickers); shared `Audio.streams`

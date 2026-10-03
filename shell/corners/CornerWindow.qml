@@ -80,8 +80,8 @@ PanelWindow {
     }
     Region {
         id: blurArea
-        Region { item: run0.visible ? run0.frost : null; radius: run0.frostRadius }
-        Region { item: run1.visible ? run1.frost : null; radius: run1.frostRadius }
+        RunRegion { glass: run0 }
+        RunRegion { glass: run1 }
     }
     // Only with a glass run on the surface: an empty region blurs the whole window
     BackgroundEffect.blurRegion: Theme.blur && win.geo.runs.length > 0 && bar.y + bar.height > 1 ? blurArea : null
@@ -151,6 +151,20 @@ PanelWindow {
                 }
             }
         }
+    }
+
+    // A run's frost in window coordinates, inset 1 px like Glass.frost. Bound to
+    // the run's own x: a Region following `item` updates only when that item's
+    // geometry changes, so a run sliding at a fixed width (the title, when the
+    // workspaces before it shrink) left its blur behind.
+    component RunRegion: Region {
+        required property RunGlass glass
+        readonly property int inset: 1
+        x: Math.ceil(bar.x + glass.x) + inset
+        y: Math.ceil(bar.y + glass.y) + inset
+        width: glass.visible ? Math.max(0, Math.floor(glass.width) - inset * 2) : 0
+        height: glass.visible ? Math.max(0, Math.floor(glass.height) - inset * 2) : 0
+        radius: glass.frostRadius
     }
 
     component RunGlass: Glass {
