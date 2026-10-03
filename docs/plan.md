@@ -555,9 +555,16 @@ Starting points found while planning:
 - [ ] Verify: step through every slot over IPC, check that the dynamic re-pick happens and stops at the slot edge, and compare memory with the rotation running
 
 **10c. Quick options: per-tile style and movable sliders**
-- [ ] Style per tile: full (icon + text) or icon only. The global `tileStyle` becomes the default, and edit mode changes one tile. The grid packs mixed sizes, and the stable delegates still spring to their slots
-- [ ] Volume, mic and brightness sliders join the same layout (`control.tiles` entries like `slider:volume`): they can be dragged to reorder and hidden or shown in edit mode, and ↑/↓/←/→ follow the new order
-- [ ] Verify with real clicks (grim): mixed sizes, a slider dragged above the tiles, a hidden slider, no recreated delegates while recording
+- [x] Style per tile: full (icon + text) or icon only. The global `tileStyle` becomes the default, and edit mode changes one tile. The grid packs mixed sizes, and the stable delegates still spring to their slots
+  - `control.sizes` (id → full/icon) over `control.tileStyle`; `QuickTiles.size/setSize`. Edit mode: a size badge in each tile's lower-left corner. The grid button sets every tile to one size and clears the per-tile ones (`setAllSizes`)
+  - `TileGrid` flows items on 8 units per row (icon 1, full 4, slider 8); an item that does not fit starts the next row, rows take their tallest item. Width, x and y spring as before, still one delegate per id (now a Loader: Toggle or Slider)
+- [x] Volume, mic and brightness sliders join the same layout (`control.tiles` entries like `slider:volume`): they can be dragged to reorder and hidden or shown in edit mode, and ↑/↓/←/→ follow the new order
+  - [~] Stored in a new `control.layout` instead of `control.tiles`: while it is empty, the layout is `tiles` + the three sliders, so saved setups keep their look with no migration write. `QuickTiles` has `SliderItem`s (icon, value, set, icon click, right-click: volume → mixer, mic → sound devices); brightness is unavailable without a DDC monitor. Saves keep unavailable items in place
+  - Drag targets come from the packed slots (the item under the pointer), so mixed sizes reorder correctly. The fixed sliders are gone from `ControlView`; keys go through `TileGrid.isSlider/run/adjust`. Edit badges are now solid, so they read over a slider's light fill
+- [x] Verify with real clicks (grim): mixed sizes, a slider dragged above the tiles, a hidden slider, no recreated delegates while recording
+  - Verified by clicks and ydotool drags: DND → icon (Game mode slid beside it), volume dragged to the top (others slid live, saved on release, volume unchanged), the mic slider hidden (mic level unchanged), grid button → all icons, ↓ + ←/→ on the top slider changed the volume 1.00 → 0.95 → 1.00, ↓ + Enter on Network opened its page. Your layout was restored afterwards
+  - The recording check was not repeated: tiles still have one delegate per id bound to their own properties (unchanged from 9d)
+  - Also fixed on the way (10a): the brightness slider showed 50 % because its read-back never ran
 
 - [ ] Verify Phase 10: the CLAUDE.md checks (201 binds, no WARN/ERROR), memory and CPU against Phase 9, game mode
 

@@ -3,45 +3,73 @@ import qs.core
 import qs.components
 import qs.services
 
-// The Control view's quick tiles (services/QuickTiles.qml). One delegate per
-// tile id for the life of the view; each sits at its slot with a spring, so a
-// tile shown, hidden or dragged slides instead of the grid being rebuilt.
+// The Control view's quick tiles and sliders (services/QuickTiles.qml). One
+// delegate per id for the life of the view; each sits at its slot with a
+// spring, so an item shown, hidden, resized or dragged slides instead of the
+// grid being rebuilt.
 //
-// Edit mode: shown tiles first, then a "Hidden" row; click shows or hides a
-// tile, drag a shown one to reorder (committed on release).
+// Items flow on 8 units per row: an icon tile takes 1, a full tile 4, a slider
+// the whole row; an item that does not fit starts the next row.
+//
+// Edit mode: shown items first, then a "Hidden" row; click shows or hides an
+// item, drag a shown one to reorder (committed on release), the corner badge
+// switches a tile between full and icon.
 Item {
     id: grid
 
     property bool edit: false
     property int selected: -1                    // keyboard selection, index into `order`
-    readonly property bool compact: Config.control.tileStyle === "icon"
 
-    // Shown tiles in order; a local copy while dragging
+    // Shown items in order; a local copy while dragging
     property var order: QuickTiles.shown
     readonly property var hiddenTiles: edit ? QuickTiles.hidden : []
 
     readonly property int spacing: 8
-    readonly property int columns: compact ? 8 : 2
-    readonly property real tileW: (width - (columns - 1) * spacing) / columns
-    readonly property real tileH: 52
-    readonly property real pitchX: tileW + spacing
-    readonly property real pitchY: tileH + spacing
-    readonly property int shownRows: Math.ceil(order.length / columns)
-    readonly property int hiddenRows: Math.ceil(hiddenTiles.length / columns)
+    readonly property int units: 8
+    readonly property real unitW: (width - (units - 1) * spacing) / units
     readonly property real labelH: 26
-    readonly property real hiddenTop: shownRows * pitchY + labelH
+    // Solid, so a badge reads over a slider's light fill too
+    readonly property color badgeColor: Qt.tint("black", Theme.islandRaisedHover)
+
+    function unitsOf(id) {
+        const s = QuickTiles.size(id);
+        return s === "icon" ? 1 : s === "full" ? 4 : units;
+    }
+    // { slots: id -> { x, y, w, h }, height }
+    function pack(list, top) {
+        const slots = {};
+        let col = 0, y = top, rowH = 0;
+        for (const id of list) {
+            const u = unitsOf(id);
+            const h = QuickTiles.isSlider(id) ? 40 : 52;
+            if (col > 0 && col + u > units) {
+                y += rowH + spacing;
+                col = 0;
+                rowH = 0;
+            }
+            slots[id] = { x: col * (unitW + spacing), y: y, w: u * unitW + (u - 1) * spacing, h: h };
+            col += u;
+            rowH = Math.max(rowH, h);
+        }
+        return { slots: slots, height: list.length > 0 ? y + rowH - top : 0 };
+    }
+    readonly property var shownPack: pack(order, 0)
+    readonly property real hiddenTop: shownPack.height + spacing + labelH
+    readonly property var hiddenPack: pack(hiddenTiles, hiddenTop)
 
     signal rightClicked(string id)
 
-    implicitHeight: {
-        const shownH = Math.max(0, shownRows * pitchY - spacing);
-        if (!edit)
-            return shownH;
-        return hiddenTop + Math.max(tileH, hiddenRows * pitchY - spacing);
-    }
+    implicitHeight: edit ? hiddenTop + Math.max(52, hiddenPack.height) : shownPack.height
 
+    function isSlider(i) {
+        return i >= 0 && i < order.length && QuickTiles.isSlider(order[i]);
+    }
     function run(i) {
         QuickTiles.tile(order[i])?.run();
+    }
+    function adjust(i, delta) {
+        const s = QuickTiles.tile(order[i]);
+        s?.set(Math.max(0, Math.min(1, s.value + delta)));
     }
     function toggleShown(id) {
         if (QuickTiles.shown.includes(id))
@@ -49,12 +77,20 @@ Item {
         else
             QuickTiles.show(id);
     }
+    // The item whose slot is under the pointer takes the dragged one's place
     function dragTo(id, px, py) {
-        const col = Math.max(0, Math.min(columns - 1, Math.floor(px / pitchX)));
-        const row = Math.max(0, Math.min(shownRows - 1, Math.floor(py / pitchY)));
-        const target = Math.min(row * columns + col, order.length - 1);
+        let target = -1;
+        for (let i = 0; i < order.length; i++) {
+            const s = shownPack.slots[order[i]];
+            if (px >= s.x && px < s.x + s.w + spacing && py >= s.y && py < s.y + s.h + spacing) {
+                target = i;
+                break;
+            }
+        }
+        if (target < 0 && py >= shownPack.height)
+            target = order.length - 1;
         const from = order.indexOf(id);
-        if (from < 0 || target === from)
+        if (from < 0 || target < 0 || target === from)
             return;
         const next = order.filter(t => t !== id);
         next.splice(target, 0, id);
@@ -67,8 +103,8 @@ Item {
 
     Label {
         visible: grid.edit
-        y: grid.shownRows * grid.pitchY + 4
-        text: grid.hiddenTiles.length > 0 ? "Hidden · click to add" : "Every tile is shown"
+        y: grid.shownPack.height + grid.spacing + 4
+        text: grid.hiddenTiles.length > 0 ? "Hidden · click to add" : "Everything is shown"
         color: Theme.fgIslandDim
         font.pixelSize: Theme.font.small
     }
@@ -79,16 +115,17 @@ Item {
         Item {
             id: cell
             required property string modelData
-            readonly property var tile: QuickTiles.tile(modelData)
+            readonly property var item: QuickTiles.tile(modelData)
+            readonly property bool slider: QuickTiles.isSlider(modelData)
+            readonly property bool iconOnly: QuickTiles.size(modelData) === "icon"
             readonly property int shownIdx: grid.order.indexOf(modelData)
-            readonly property int hiddenIdx: grid.hiddenTiles.indexOf(modelData)
             readonly property bool isShown: shownIdx >= 0
-            readonly property real slotX: ((isShown ? shownIdx : hiddenIdx) % grid.columns) * grid.pitchX
-            readonly property real slotY: isShown ? Math.floor(shownIdx / grid.columns) * grid.pitchY : grid.hiddenTop + Math.floor(hiddenIdx / grid.columns) * grid.pitchY
-            readonly property bool present: isShown || hiddenIdx >= 0
+            readonly property var slot: isShown ? grid.shownPack.slots[modelData] : grid.hiddenPack.slots[modelData]
+            readonly property bool present: slot !== undefined
+            readonly property bool selected: !grid.edit && grid.selected === shownIdx && isShown
 
-            // Dragging follows the pointer; springs only once the tile has a place,
-            // so a tile that appears starts at its slot instead of flying in
+            // Dragging follows the pointer; springs only once the item has a place,
+            // so an item that appears starts at its slot instead of flying in
             property bool dragging: false
             property real dragX: 0
             property real dragY: 0
@@ -102,10 +139,10 @@ Item {
 
             visible: present
             z: dragging ? 2 : 0
-            x: dragging ? dragX : slotX
-            y: dragging ? dragY : slotY
-            width: grid.tileW
-            height: grid.tileH
+            x: dragging ? dragX : (slot?.x ?? 0)
+            y: dragging ? dragY : (slot?.y ?? 0)
+            width: slot?.w ?? 0
+            height: slot?.h ?? 0
             Behavior on x {
                 enabled: cell.placed && !cell.dragging
                 Spring { preset: "snappy" }
@@ -119,37 +156,37 @@ Item {
                 Spring { preset: "snappy" }
             }
 
-            Toggle {
-                anchors.fill: parent
-                compact: grid.compact
-                icon: cell.tile.icon
-                title: cell.tile.title
-                subtitle: cell.tile.subtitle
-                active: cell.tile.active && !grid.edit
-                highlighted: !grid.edit && grid.selected === cell.shownIdx
-                opacity: grid.edit && !cell.isShown ? 0.45 : 1
-                onClicked: cell.tile.run()
-                onRightClicked: grid.rightClicked(cell.modelData)
-                Behavior on opacity {
-                    NumberAnimation { duration: Motion.fast }
-                }
+            opacity: grid.edit && !cell.isShown ? 0.45 : 1
+            Behavior on opacity {
+                NumberAnimation { duration: Motion.fast }
             }
 
-            // Edit badge: remove on shown tiles, add on hidden ones
-            Rectangle {
-                visible: grid.edit
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: -3
-                width: 18
-                height: 18
-                radius: 9
-                color: cell.isShown ? Theme.islandRaisedHover : Theme.primary
-                Icon {
-                    anchors.centerIn: parent
-                    name: cell.isShown ? "remove" : "add"
-                    size: 14
-                    color: cell.isShown ? Theme.fgIsland : Theme.fgPrimary
+            Loader {
+                anchors.fill: parent
+                sourceComponent: cell.slider ? sliderItem : toggleItem
+            }
+            Component {
+                id: toggleItem
+                Toggle {
+                    compact: cell.iconOnly
+                    icon: cell.item.icon
+                    title: cell.item.title
+                    subtitle: cell.item.subtitle
+                    active: cell.item.active && !grid.edit
+                    highlighted: cell.selected
+                    onClicked: cell.item.run()
+                    onRightClicked: grid.rightClicked(cell.modelData)
+                }
+            }
+            Component {
+                id: sliderItem
+                Slider {
+                    icon: cell.item.icon
+                    value: cell.item.value
+                    onMoved: v => cell.item.set(v)
+                    onIconClicked: cell.item.iconClick()
+                    onRightClicked: cell.item.rightClick()
+                    trackColor: cell.selected ? Theme.islandRaisedHover : Theme.islandRaised
                 }
             }
 
@@ -189,6 +226,49 @@ Item {
                     } else if (!moved) {
                         grid.toggleShown(cell.modelData);
                     }
+                }
+            }
+
+            // Edit badges: remove on shown items, add on hidden ones
+            Rectangle {
+                visible: grid.edit
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: -3
+                width: 18
+                height: 18
+                radius: 9
+                color: cell.isShown ? grid.badgeColor : Theme.primary
+                Icon {
+                    anchors.centerIn: parent
+                    name: cell.isShown ? "remove" : "add"
+                    size: 14
+                    color: cell.isShown ? Theme.fgIsland : Theme.fgPrimary
+                }
+            }
+            // Size: full ↔ icon (tiles only)
+            Rectangle {
+                visible: grid.edit && cell.isShown && !cell.slider && !cell.dragging
+                anchors.left: parent.left
+                anchors.bottom: parent.bottom
+                anchors.margins: -3
+                width: 18
+                height: 18
+                radius: 9
+                color: sizeArea.containsMouse ? Theme.primary : grid.badgeColor
+                Icon {
+                    anchors.centerIn: parent
+                    name: cell.iconOnly ? "open_in_full" : "close_fullscreen"
+                    size: 12
+                    color: sizeArea.containsMouse ? Theme.fgPrimary : Theme.fgIsland
+                }
+                MouseArea {
+                    id: sizeArea
+                    anchors.fill: parent
+                    anchors.margins: -3
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: QuickTiles.setSize(cell.modelData, cell.iconOnly ? "full" : "icon")
                 }
             }
         }

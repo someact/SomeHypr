@@ -3,8 +3,9 @@ import qs.core
 import qs.components
 import qs.services
 
-// Quick tiles and sliders. ↑/↓ select, Enter toggles, ←/→ adjust a selected slider.
-// The pencil edits the tiles (show, hide, reorder); the grid button switches icon/full tiles.
+// Quick tiles and sliders, one layout (TileGrid). ↑/↓ select, Enter toggles,
+// ←/→ adjust a selected slider. The pencil edits the layout (show, hide, reorder,
+// tile size); the grid button sets every tile to icon or full.
 // Right-click a tile: its detail page here (network, Bluetooth, night light,
 // audio devices; Esc or ← goes back) or its page in the settings app.
 FocusScope {
@@ -13,11 +14,9 @@ FocusScope {
     implicitWidth: 560
     implicitHeight: col.implicitHeight
 
-    // index into the shown tiles, then sliders
+    // index into the shown items (TileGrid.order)
     property int selected: -1
-    readonly property int tileCount: tiles.order.length
-    readonly property int sliderCount: Brightness.available ? 3 : 2
-    readonly property int total: tileCount + sliderCount
+    readonly property int total: tiles.order.length
 
     // The open detail page, "" for the tiles (in UiState so pills can open one)
     readonly property string detail: UiState.controlDetail
@@ -36,9 +35,6 @@ FocusScope {
         }
     }
 
-    function sliderAt(i) {
-        return [volume, mic, brightness][i];
-    }
     function handleKey(event) {
         const k = event.key;
         if (detail !== "") {
@@ -58,13 +54,12 @@ FocusScope {
             selected = selected < 0 ? 0 : (selected + (k === Qt.Key_Down ? 1 : -1) + total) % total;
             return true;
         }
-        if ((k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space) && selected >= 0 && selected < tileCount) {
+        if ((k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space) && selected >= 0 && selected < total && !tiles.isSlider(selected)) {
             tiles.run(selected);
             return true;
         }
-        if ((k === Qt.Key_Left || k === Qt.Key_Right) && selected >= tileCount) {
-            const s = sliderAt(selected - tileCount);
-            s.set(s.value + (k === Qt.Key_Right ? 0.05 : -0.05));
+        if ((k === Qt.Key_Left || k === Qt.Key_Right) && tiles.isSlider(selected)) {
+            tiles.adjust(selected, k === Qt.Key_Right ? 0.05 : -0.05);
             return true;
         }
         return UiState.navKey(event);
@@ -100,7 +95,7 @@ FocusScope {
             Label {
                 visible: root.detail === ""
                 anchors.verticalCenter: parent.verticalCenter
-                text: tiles.edit ? "Click to show or hide · drag to reorder" : ""
+                text: tiles.edit ? "Click to show or hide · drag to reorder · corner badge resizes" : ""
                 color: Theme.fgIslandDim
                 font.pixelSize: Theme.font.small
             }
@@ -114,7 +109,7 @@ FocusScope {
                     iconSize: 17
                     icon: Config.control.tileStyle === "icon" ? "view_agenda" : "grid_view"
                     iconColor: Theme.fgIslandDim
-                    onClicked: Config.control.tileStyle = Config.control.tileStyle === "icon" ? "full" : "icon"
+                    onClicked: QuickTiles.setAllSizes(Config.control.tileStyle === "icon" ? "full" : "icon")
                 }
                 IconButton {
                     width: 30
@@ -153,38 +148,6 @@ FocusScope {
             width: parent.width
             selected: root.selected
             onRightClicked: id => root.openTile(id)
-        }
-
-        Slider {
-            id: volume
-            visible: root.detail === ""
-            width: parent.width
-            icon: Audio.icon
-            value: Audio.volume
-            onMoved: v => Audio.setVolume(v)
-            onIconClicked: Audio.toggleMute()
-            onRightClicked: UiState.open("mixer")
-            trackColor: root.selected === root.tileCount ? Theme.islandRaisedHover : Theme.islandRaised
-        }
-        Slider {
-            id: mic
-            visible: root.detail === ""
-            width: parent.width
-            icon: Audio.micIcon
-            value: Audio.micVolume
-            onMoved: v => Audio.setMicVolume(v)
-            onIconClicked: Audio.toggleMicMute()
-            onRightClicked: UiState.controlDetail = "audio"
-            trackColor: root.selected === root.tileCount + 1 ? Theme.islandRaisedHover : Theme.islandRaised
-        }
-        Slider {
-            id: brightness
-            visible: Brightness.available && root.detail === ""
-            width: parent.width
-            icon: "light_mode"
-            value: Brightness.value
-            onMoved: v => Brightness.set(v)
-            trackColor: root.selected === root.tileCount + 2 ? Theme.islandRaisedHover : Theme.islandRaised
         }
     }
 

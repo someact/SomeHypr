@@ -9,29 +9,54 @@ import qs.core
 // Wi-Fi name) updates that one property; nothing is rebuilt. The view lists
 // tiles by id and looks the object up, so its delegates live as long as it does.
 //
-// Which tiles show, and in what order: Config.control.tiles (ids). Every other
-// tile is hidden and can be added back in the view's edit mode.
+// Which tiles and sliders show, and in what order: Config.control.layout (ids;
+// sliders are slider:<name>). Everything else is hidden and can be added back in
+// the view's edit mode. Each tile is full (icon, title, state) or icon only
+// (Config.control.sizes, else tileStyle); sliders always take a whole row.
 Singleton {
     id: root
 
-    // Every tile, in the order hidden ones are offered
-    readonly property list<string> ids: ["wifi", "bluetooth", "dnd", "game", "nightlight", "caffeine", "mic", "dark", "streamer", "record", "screenshot", "keyboard"]
-    // Tiles without hardware (no Bluetooth adapter) are left out of both lists
-    readonly property list<string> shown: Array.from(Config.control.tiles).filter(id => ids.includes(id) && byId[id].available)
+    // Every tile and slider, in the order hidden ones are offered
+    readonly property list<string> ids: ["wifi", "bluetooth", "dnd", "game", "nightlight", "caffeine", "mic", "dark", "streamer", "record", "screenshot", "keyboard", "slider:volume", "slider:mic", "slider:brightness"]
+    readonly property list<string> layout: Config.control.layout.length > 0 ? Array.from(Config.control.layout) : Array.from(Config.control.tiles).concat(["slider:volume", "slider:mic", "slider:brightness"])
+    // Items without hardware (no Bluetooth adapter, no DDC monitor) are left out of both lists
+    readonly property list<string> shown: layout.filter(id => ids.includes(id) && byId[id].available)
     readonly property list<string> hidden: ids.filter(id => !shown.includes(id) && byId[id].available)
 
     function tile(id) {
         return byId[id] ?? null;
     }
+    function isSlider(id) {
+        return id.startsWith("slider:");
+    }
+    function size(id) {
+        return isSlider(id) ? "slider" : (Config.control.sizes[id] ?? Config.control.tileStyle);
+    }
+    function setSize(id, s) {
+        const next = Object.assign({}, Config.control.sizes);
+        next[id] = s;
+        Config.control.sizes = next;
+    }
+    // The grid button: every tile to one size
+    function setAllSizes(s) {
+        Config.control.tileStyle = s;
+        Config.control.sizes = {};
+    }
+    // Writes keep unavailable items where they were, so a missing adapter
+    // does not drop its tile from the saved layout
+    function save(list) {
+        const kept = layout.filter(id => ids.includes(id) && !byId[id].available && !list.includes(id));
+        Config.control.layout = list.concat(kept);
+    }
     function show(id) {
         if (!shown.includes(id))
-            Config.control.tiles = shown.concat([id]);
+            save(shown.concat([id]));
     }
     function hide(id) {
-        Config.control.tiles = shown.filter(t => t !== id);
+        save(shown.filter(t => t !== id));
     }
     function setOrder(list) {
-        Config.control.tiles = list;
+        save(list);
     }
 
     // `detail`: the Control view's page for a right-click (wifi, bluetooth,
@@ -46,8 +71,18 @@ Singleton {
         property string settings
         property var run: () => {}
     }
+    // A slider row: `value` 0..1, `set(v)`, and what its icon and right-click do
+    component SliderItem: QtObject {
+        property string icon
+        property string title
+        property real value
+        property bool available: true
+        property var set: v => {}
+        property var iconClick: () => {}
+        property var rightClick: () => {}
+    }
 
-    readonly property var byId: ({ wifi: wifi, bluetooth: bluetooth, dnd: dnd, game: game, nightlight: nightlight, caffeine: caffeine, mic: mic, dark: dark, streamer: streamer, record: record, screenshot: screenshot, keyboard: keyboard })
+    readonly property var byId: ({ wifi: wifi, bluetooth: bluetooth, dnd: dnd, game: game, nightlight: nightlight, caffeine: caffeine, mic: mic, dark: dark, streamer: streamer, record: record, screenshot: screenshot, keyboard: keyboard, "slider:volume": volumeSlider, "slider:mic": micSlider, "slider:brightness": brightnessSlider })
 
     property Tile wifi: Tile {
         icon: Network.icon
@@ -144,5 +179,29 @@ Singleton {
         active: UiState.osk
         settings: "desktop"
         run: () => UiState.osk = !UiState.osk
+    }
+
+    property SliderItem volumeSlider: SliderItem {
+        icon: Audio.icon
+        title: "Volume"
+        value: Audio.volume
+        set: v => Audio.setVolume(v)
+        iconClick: () => Audio.toggleMute()
+        rightClick: () => UiState.open("mixer")
+    }
+    property SliderItem micSlider: SliderItem {
+        icon: Audio.micIcon
+        title: "Microphone level"
+        value: Audio.micVolume
+        set: v => Audio.setMicVolume(v)
+        iconClick: () => Audio.toggleMicMute()
+        rightClick: () => UiState.controlDetail = "audio"
+    }
+    property SliderItem brightnessSlider: SliderItem {
+        icon: "light_mode"
+        title: "Brightness"
+        value: Brightness.value
+        available: Brightness.available
+        set: v => Brightness.set(v)
     }
 }

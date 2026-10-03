@@ -98,7 +98,11 @@ Singleton {
                 // Quick tiles shown in the Control view, in order (services/QuickTiles.qml ids);
                 // the rest are hidden and can be added back in its edit mode
                 property list<string> tiles: ["wifi", "bluetooth", "dnd", "game", "nightlight", "caffeine", "mic", "dark", "streamer", "record"]
-                property string tileStyle: "full"     // full (icon, title, state) | icon (icons only, more per row)
+                // Tiles and sliders (slider:volume, slider:mic, slider:brightness) in order;
+                // empty: `tiles` followed by the three sliders (layouts saved before the sliders moved)
+                property list<string> layout: []
+                property string tileStyle: "full"     // default size: full (icon, title, state) | icon (icon only)
+                property var sizes: ({})              // tile id -> full | icon, overrides tileStyle
             }
             property JsonObject search: JsonObject {
                 property int maxResults: 8
