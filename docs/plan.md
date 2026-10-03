@@ -345,7 +345,7 @@ Each phase ends usable, and ii stays as the rollback until Phase 8.
 - [ ] Note: mpvpaper with a 1080p video still uses ~760 MB RSS (Phase 3); not re-measured here
 - [ ] Hands-on check by you: island morph smoothness after the Icon change (fill no longer fades), wallpaper picker crossfade, Super+Shift+R with the shell killed (record.sh fallback)
 
-### Phase 9: Refine ⏳ (glass, expressive icons, island UX)
+### Phase 9: Refine ✅ (glass, expressive icons, island UX)
 Workflow from Phase 9 on: commit and push after each task (see CLAUDE.md → Phase workflow). 9a and 9a+ landed together in one commit before this rule.
 From `Improvement idea.md` (2026-10-03). Style: ii's Material 3 Expressive icons (Android/ChromeOS) + Apple-style glass and motion.
 Decisions: "dock" = island + top pills (bottom dock gets only the new icon/glass style); hover shows a peek and a click or Super opens the full view; real blur of the windows behind (no `xray` on shell layers); the translator is a pinned live area.
@@ -512,7 +512,13 @@ Root causes found:
   - Options (Settings → Modes → Game overlay): Frosted glass (`overlay.blur`, default on: bar and cards blurred while open, solid when off) and Frost pinned widgets (`overlay.pinnedBlur`, default off: pinned cards keep their blur after closing). In game mode Hyprland's blur stays on while either needs it (`GameMode.overlayBlur` → `GameMode.overlay()`); the cost is the blur passes under the cards only
   - Verified with real drags (ydotool relative moves; a `cursor.move` warp sends no drag motion): frost stays under the lyrics card mid-drag and after; pinned + option on → frosted after closing and `GameMode.overlay_open` true, option off → translucent and false (grim)
 
-- [ ] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode
+- [x] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode
+  - Config: `install.sh --check` ok, no config errors, 201 binds; no WARN/ERROR from the shell or the settings app (only the known Hyprland IPC "openwindow … not previously tracked" line)
+  - Memory (live shell restarted for a clean read; it had been hot-reloaded dozens of times and sat at 342 MB anon): fresh 437 MB RSS / 294 MB PSS / 180 MB anon with music playing (Phase 8: 414 MB RSS, ~170 MB anon); after opening every island view, the overlay, the overview and widget edit mode: 493 MB RSS / 206 MB anon (Phase 8 after use: ~210 MB anon)
+  - CPU over 60 s: 0 % idle with media hidden in the island (same as Phase 8); 2 % while music plays, from the island's live peak bars (visible, so allowed by the targets). Only child process: the gamemoded `gdbus monitor`
+  - Game mode (forced on, then back to auto): blur, shadows and animations off, island → dot, dock and widgets unloaded, mpvpaper paused (mpv IPC `pause` true → false), the overlay turns blur on only while open; everything restored after
+  - grim: the open island over a white window has smooth corners, no stair steps or wallpaper at the edge; 12 frames of the Control view while recording (timer ticking) are identical in the tile grid; lock preview: 5 typed → 5 shapes, 2 backspaces → 3
+  - Seen once, not reproduced: the lock preview did not get the keyboard until clicked (3 later tries took it at once)
 - [ ] Hands-on check by you: feel of the hover peek, glass over real windows, lyrics, live translator in a game
 
 ## Verification
