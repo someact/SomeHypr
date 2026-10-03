@@ -19,6 +19,10 @@ Item {
     property bool active: false          // toggled-on look
     property bool highlighted: false     // keyboard selection
     property bool enabled: true
+    // Hold-to-confirm fill, 0..1, rising from the bottom inside the button's
+    // own shape (it follows the corner morph). The owner animates it.
+    property real progress: 0
+    property color progressColor: Qt.alpha(root.activeColor, 0.5)
     readonly property bool hovered: mouse.containsMouse
     readonly property bool pressed: mouse.pressed
 
@@ -56,6 +60,24 @@ Item {
         color: root.active ? root.activeColor : (root.hovered || root.highlighted) ? root.hoverColor : root.color
         Behavior on color {
             ColorAnimation { duration: Motion.fast }
+        }
+    }
+
+    // Clip window with a straight top edge over a full-size copy of the shape,
+    // so the fill reads as liquid in the button: rounded bottom, level surface
+    Item {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: parent.height * root.progress
+        visible: root.progress > 0
+        clip: true
+        Rectangle {
+            anchors.bottom: parent.bottom
+            width: root.width
+            height: root.height
+            radius: bg.radius
+            color: root.progressColor
         }
     }
 

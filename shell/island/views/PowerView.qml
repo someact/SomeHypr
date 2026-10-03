@@ -12,7 +12,9 @@ FocusScope {
 
     property int selected: 0
     property int armed: -1
+    property int firing: -1
     property bool holdDone: false
+    readonly property int holdTime: 650
     readonly property var actions: [
         { icon: "lock", title: "Lock", confirm: false, run: () => Session.lock() },
         { icon: "bedtime", title: "Suspend", confirm: false, run: () => Session.suspend() },
@@ -22,6 +24,8 @@ FocusScope {
     ]
 
     function trigger(i) {
+        if (firing >= 0)
+            return;
         const a = actions[i];
         if (a.confirm && armed !== i) {
             armed = i;
@@ -29,8 +33,14 @@ FocusScope {
             return;
         }
         armed = -1;
-        UiState.close();
-        a.run();
+        if (!a.confirm) {
+            UiState.close();
+            a.run();
+            return;
+        }
+        // Confirmed: a short beat on the solid button before the island closes
+        firing = i;
+        fire.restart();
     }
 
     function handleKey(event) {
@@ -59,6 +69,16 @@ FocusScope {
         onTriggered: root.armed = -1
     }
 
+    Timer {
+        id: fire
+        interval: 240
+        onTriggered: {
+            const a = root.actions[root.firing];
+            UiState.close();
+            a.run();
+        }
+    }
+
     Row {
         anchors.centerIn: parent
         spacing: 10
@@ -74,25 +94,42 @@ FocusScope {
                 color: Theme.islandRaised
                 highlighted: root.selected === index
                 activeColor: Theme.error
-                active: root.armed === index
+                active: root.armed === index || root.firing === index
+                progress: hold
 
-                // Hold to confirm: a fill grows while pressed
-                Rectangle {
-                    anchors.bottom: parent.bottom
-                    width: parent.width
-                    radius: btn.radius
-                    color: Qt.rgba(1, 0.27, 0.23, 0.35)
-                    height: btn.pressed && btn.modelData.confirm ? parent.height : 0
-                    Behavior on height {
-                        NumberAnimation {
-                            duration: btn.pressed ? 600 : 120
-                            onRunningChanged: if (!running && btn.pressed && btn.modelData.confirm) {
-                                root.armed = btn.index;
-                                root.trigger(btn.index);
-                                root.holdDone = true;
-                            }
-                        }
+                // Hold to confirm: the fill rises while pressed and drains on release
+                property real hold: 0
+                onPressedChanged: {
+                    if (!modelData.confirm || root.firing >= 0 || root.armed === index)
+                        return;
+                    if (pressed) {
+                        drain.stop();
+                        rise.duration = Math.max(1, (1 - hold) * root.holdTime);
+                        rise.restart();
+                    } else if (hold < 1) {
+                        rise.stop();
+                        drain.duration = Math.max(1, hold * 360);
+                        drain.restart();
                     }
+                }
+                NumberAnimation {
+                    id: rise
+                    target: btn
+                    property: "hold"
+                    to: 1
+                    easing.type: Easing.InOutSine
+                    onFinished: if (btn.pressed) {
+                        root.holdDone = true;
+                        root.armed = btn.index;
+                        root.trigger(btn.index);
+                    }
+                }
+                NumberAnimation {
+                    id: drain
+                    target: btn
+                    property: "hold"
+                    to: 0
+                    easing.type: Easing.OutCubic
                 }
 
                 Column {
@@ -102,12 +139,17 @@ FocusScope {
                         anchors.horizontalCenter: parent.horizontalCenter
                         name: btn.modelData.icon
                         size: 28
+                        // Swells with the fill, pops when the action fires
+                        scale: root.firing === btn.index ? 1.18 : 1 + 0.1 * btn.hold
+                        Behavior on scale {
+                            Spring { preset: "bouncy" }
+                        }
                         fill: btn.active ? 1 : 0
                         color: btn.active ? Theme.fgPrimary : Theme.fgIsland
                     }
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: btn.active ? "Again" : btn.modelData.title
+                        text: root.armed === btn.index ? "Again" : btn.modelData.title
                         font.pixelSize: Theme.font.small
                         color: btn.active ? Theme.fgPrimary : Theme.fgIsland
                     }

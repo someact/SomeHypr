@@ -511,6 +511,10 @@ Root causes found:
   - Cause of the trailing frost: `Region { item: card.frost }` only updates when the frost item's own geometry changes, not when its card is dragged (same as the pills in 9d). Each card's region is now built from the card's window x/y (`CardRegion` in `GameOverlay.qml`)
   - Options (Settings → Modes → Game overlay): Frosted glass (`overlay.blur`, default on: bar and cards blurred while open, solid when off) and Frost pinned widgets (`overlay.pinnedBlur`, default off: pinned cards keep their blur after closing). In game mode Hyprland's blur stays on while either needs it (`GameMode.overlayBlur` → `GameMode.overlay()`); the cost is the blur passes under the cards only
   - Verified with real drags (ydotool relative moves; a `cursor.move` warp sends no drag motion): frost stays under the lyrics card mid-drag and after; pinned + option on → frosted after closing and `GameMode.overlay_open` true, option off → translucent and false (grim)
+- [x] Hotfix: the hold-to-confirm animation on the island power buttons looked cheap (added 2026-10-03)
+  - Before: a separate rounded blob with a fixed red and its own radius grew linearly from the bottom, unclipped and not following the button's corner morph
+  - `PressButton.progress` / `progressColor`: a fill clipped to the button's own shape (straight level, rounded bottom, follows the squash), drawn under the content. PowerView rises it with InOutSine over 650 ms, drains it with OutCubic on early release, swells the icon with the fill; a confirmed action gets a 240 ms beat (solid button, icon pop) before the island closes
+  - Verified with grim: partial hold and drain on the live shell; full hold in a scratch copy with the session actions replaced by logs (fires once)
 
 - [x] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode
   - Config: `install.sh --check` ok, no config errors, 201 binds; no WARN/ERROR from the shell or the settings app (only the known Hyprland IPC "openwindow … not previously tracked" line)
