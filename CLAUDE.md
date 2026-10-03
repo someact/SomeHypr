@@ -6,7 +6,7 @@ Current work: Phase 11 (optimize, then make the repo public with an installer fo
 
 ## Layout
 - `hypr/` is linked to `~/.config/hypr`. `hyprland.lua` loads files in a fixed order, and each setting lives in exactly one file:
-  - `user.lua` holds user choices: apps, `glass`, `liquidGlass*`, `gameModeAuto`. The settings app overrides them through `~/.config/somehypr/hypr.json` (`SETTINGS`, loaded by `lib/util.lua` with `lib/json.lua`); `core/settings.lua` loads last and applies its `hyprland` table (a partial `hl.config`). The file only holds changed values.
+  - `user.lua` holds user choices: apps, `glass`, `fastGlass`, `liquidGlass*`, `gameModeAuto`. The settings app overrides them through `~/.config/somehypr/hypr.json` (`SETTINGS`, loaded by `lib/util.lua` with `lib/json.lua`); `core/settings.lua` loads last and applies its `hyprland` table (a partial `hl.config`). The file only holds changed values.
   - `core/` covers env (NVIDIA), input and tablet, look, motion, misc, and execs.
   - `rules/` holds window rules (windows, media, art, gaming) and layer rules.
   - `binds/keybinds.lua` holds every bind. Shell binds go through `shell_bind()` / `SHELL_ACTIONS` in `binds/shell.lua`: a `somehypr:` global shortcut plus an optional CLI fallback that runs only while the shell is not answering.

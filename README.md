@@ -23,7 +23,7 @@ The repo has three parts. `install.sh` links each one into `~/.config`, so editi
 
 | File | Holds |
 |---|---|
-| `user.lua` | your choices (apps, `glass`, `liquidGlass`, `gameModeAuto`) |
+| `user.lua` | your choices (apps, `glass`, `fastGlass`, `liquidGlass`, `gameModeAuto`) |
 | `core/` | NVIDIA env, input and tablet, look, motion, misc, autostart, liquid glass |
 | `rules/` | window and layer rules |
 | `binds/` | every keybind |
@@ -106,6 +106,8 @@ git pull
 The script checks out upstream's `hyprland-<x.y>` branch and applies `hypr/plugins/hyprglass-fit-shape.patch`, which makes the glass follow the shell's rounded shapes. It installs `~/.local/share/somehypr/plugins/hyprglass-<version>.so`.
 
 To turn it on, use Settings → Appearance → Liquid glass, which also has a Build button, or set `liquidGlass = true` in `hypr/user.lua`. On the RTX 3060 it showed no measurable GPU or CPU cost and used about 40 MB more VRAM.
+
+With glass windows on, Settings → Appearance → Fast glass (`fastGlass` in `hypr/user.lua`) makes window blur sample only the wallpaper, so Hyprland can cache it. Tiled windows look the same; a floating glass window over another window shows the wallpaper behind it instead of that window. On the RTX 3060 it made no measurable difference; it is meant for weaker GPUs.
 
 ## Checks
 

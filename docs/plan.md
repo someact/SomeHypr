@@ -631,7 +631,10 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
   - [~] Wallpaper change reload: confirmed it is a full reload (a Lua global set before `wallpaper set` is gone after). Measured: ~12 ms of Hyprland CPU per reload, and it is what applies the new border and hyprlock colors. Not worth replacing; a wallpaper change's real cost is matugen plus the apps repainting in the new colors, which is the feature
   - [~] The two dbus activation calls run once per login, with no measurable cost, and session start can only be tested by logging out. Left as they are
   - [~] `render.cm_enabled`: no difference under steady load (media island + test audio, two rounds: GPU 24.5 vs 23.3 % and 30.9 vs 31.0 %, the same CPU). Stays on
-- [ ] 11a-7. "Fast glass" setting (off by default): window blur xray, cheaper GPU for glass windows; a floating glass window over another window shows the wallpaper behind it
+- [x] 11a-7. "Fast glass" setting (off by default): window blur xray, cheaper GPU for glass windows; a floating glass window over another window shows the wallpaper behind it
+  - `fastGlass` in `user.lua` (hypr.json override) → `look.blur.xray` in the glass branch of `core/look.lua`. Shell layers keep their own xray from `rules/layers.lua`, so it only affects windows. Settings → Appearance → Fast glass, under Glass windows and enabled with it. README and CLAUDE.md updated
+  - Verified (grim, a floating glass kitty over a green test window): off shows the green window blurred, on shows the wallpaper; `decoration:blur:xray` follows the setting with no config errors
+  - Measured with a test window redrawing at ~100 Hz behind the glass (two rounds, 10 s each): off 26.8 / 33.1 % GPU, on 30.7 / 30.8 %, Hyprland 5.2 % either way. No measurable gain on the RTX 3060 at 1080p; kept as an option for weaker GPUs
 - [ ] 11a-8. Polish pass: the open hands-on checks of Phases 7–10 and the rough edges you report
 - [ ] Verify 11a: CLAUDE.md checks, bench fresh and `--cycle 3` against the numbers above, game mode, grim in light and dark to show the look did not change
 

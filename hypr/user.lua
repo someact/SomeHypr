@@ -18,6 +18,11 @@ workspaceGroupSize = 10
 -- Glass: translucent terminals, chat and editors with frosted blur.
 -- false = every window opaque, blur only on shell surfaces (your current look).
 glass = false
+-- Fast glass (with glass = true): window blur samples only the wallpaper, so it
+-- is cached instead of redone whenever something behind a window changes. Tiled
+-- windows look the same; a floating glass window over another window shows the
+-- wallpaper behind it instead of that window.
+fastGlass = false
 
 -- Liquid glass (hyprglass plugin, see core/liquidglass.lua): refraction and an
 -- edge light on the island, pills, dock and keyboard. Build it once with
@@ -31,6 +36,7 @@ gameModeAuto = true
 
 -- Settings app overrides (Appearance, Modes and Apps pages)
 glass = setting("glass", glass)
+fastGlass = setting("fastGlass", fastGlass)
 liquidGlass = setting("liquidGlass", liquidGlass)
 liquidGlassPreset = setting("liquidGlassPreset", liquidGlassPreset)
 liquidGlassWindows = setting("liquidGlassWindows", liquidGlassWindows)

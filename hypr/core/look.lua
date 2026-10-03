@@ -34,6 +34,8 @@ if glass then
     -- Stronger frost so translucent windows read as glass, not as see-through
     look.blur.size = 6
     look.blur.passes = 2
+    -- Shell layers set xray per layer (rules/layers.lua), so this only affects windows
+    look.blur.xray = fastGlass
 end
 
 hl.config({

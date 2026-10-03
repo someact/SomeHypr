@@ -173,6 +173,18 @@ Page {
                 onToggled: on => HyprSettings.set("glass", on)
             }
         }
+        SettingRow {
+            icon: "bolt"
+            title: "Fast glass"
+            subtitle: "Window blur shows only the wallpaper, so it is cached and costs less GPU. Tiled windows look the same; a floating glass window over another window shows the wallpaper behind it."
+            enabled: HyprSettings.get("glass", false)
+            changed: HyprSettings.isSet("fastGlass")
+            onReset: HyprSettings.unset("fastGlass")
+            Switch {
+                checked: HyprSettings.get("fastGlass", false)
+                onToggled: on => HyprSettings.set("fastGlass", on)
+            }
+        }
     }
 
     Section {
