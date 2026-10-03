@@ -120,10 +120,21 @@ hl.bind("CTRL + SUPER + Backslash", hl.dsp.window.resize({ x = 640, y = 480, "ex
 --# Send to workspace N of the current group (number row, raw keycodes for the Thai layout, keypad)
 local numberCodes = { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 }
 local keypadCodes = { 87, 88, 89, 83, 84, 85, 79, 80, 81, 90 }
-for i = 1, 10 do
-    local send = function()
-        hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(i), follow = false }))
+-- On the US layout the key-name bind and its code: bind both fire for one press;
+-- run the action once, or the second move takes the window that got focus next.
+local function once_per_press(fn)
+    local busy = false
+    return function()
+        if busy then return end
+        busy = true
+        hl.timer(function() busy = false end, { timeout = 50, type = "oneshot" })
+        fn()
     end
+end
+for i = 1, 10 do
+    local send = once_per_press(function()
+        hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(i), follow = false }))
+    end)
     hl.bind("SUPER + ALT + " .. (i % 10), send, { description = "Window: Send to workspace " .. i })
     hl.bind("SUPER + ALT + code:" .. numberCodes[i], send)
     hl.bind("SUPER + ALT + code:" .. keypadCodes[i], send)
@@ -145,9 +156,9 @@ hl.bind("SUPER + ALT + S", hl.dsp.window.move({ workspace = "special:special", f
 
 --##! Workspace
 for i = 1, 10 do
-    local go = function()
+    local go = once_per_press(function()
         hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(i) }))
-    end
+    end)
     hl.bind("SUPER + " .. (i % 10), go, { description = "Workspace: Focus " .. i })
     hl.bind("SUPER + code:" .. numberCodes[i], go)
     hl.bind("SUPER + code:" .. keypadCodes[i], go)

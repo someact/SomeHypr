@@ -535,13 +535,14 @@ Starting points found while planning:
 - Quick options: `services/QuickTiles.qml` + `island/views/TileGrid.qml` (`control.tiles`, one global `control.tileStyle`). The volume, mic and brightness sliders are fixed below the grid in `island/views/ControlView.qml`.
 
 **10a. Fixes**
-- [ ] Brightness in the island cannot be changed
-  - Run ddcutil detect/getvcp/setvcp by hand first. Check i2c permission and the `i2c-dev` module, the bus regex (several displays, "Invalid display"), slow writes, and errors swallowed by `Process`
-  - Fix the cause. Log a failure once (no retry loop) and read the value back after a write, so the slider shows the real level
-  - Verify: the Control slider, the XF86 brightness keys and the OSD on DP-1 all change the monitor
-- [ ] Super+Alt+N moves every window; it should move only the focused one
-  - Reproduce with 2+ windows on a workspace, find what the Lua `window.move` acts on without a target, and pass the focused window explicitly (or switch to the right dispatcher)
-  - Verify: number row, Thai keycodes and keypad each move only the focused window, `follow = false` still holds, 201 binds
+- [x] Brightness in the island cannot be changed
+  - Cause: `ddcutil detect --brief` lists an "Invalid display" first (i2c-1, the monitor's HDMI input, no DDC), and the regex took the first bus, so every setvcp went to i2c-1 and failed with EIO. Permissions and `i2c-dev` were fine
+  - `services/Brightness.qml` parses each detect block, skips invalid ones and keeps `{ bus, connector }`; the bus follows the focused monitor's connector (first valid display otherwise) and re-reads the level when it changes. A failed write logs once and re-reads the real level
+  - Verified: `ipc call brightness set 30/60/5` and `increment` → `getvcp` on i2c-2 reads the same value; the Control slider shows the monitor's level (grim). A set right after a shell reload, before detect finishes, only moves the slider until the read-back
+- [x] Super+Alt+N moves every window; it should move only the focused one
+  - Cause: on the US layout a digit press matches both the key-name bind (`SUPER + ALT + 1`) and the Thai-layout keycode bind (`code:10`), and Hyprland runs both. The first moved the focused window, focus passed to the next window, and the second moved that one too. Verified with two test binds on one key (both fired). The dispatcher alone moves only the focused window. `hyprctl binds` shows `keycode: 0` for `code:N` binds, but they do match
+  - `binds/keybinds.lua`: the send and focus actions are wrapped in `once_per_press()` (a guard cleared by a 50 ms one-shot `hl.timer`), so one press runs once. Binds, descriptions and remaps are unchanged
+  - Verified with two throwaway windows on workspace 18: Super+Alt+9 moved only the focused one to 19, keypad Super+Alt+7 → 17, Super+9 focuses 19; install --check ok, no config errors, 201 binds
 
 **10b. Wallpaper engine: time-of-day schedule**
 - [ ] Five slots: sunrise, noon, sunset, night, midnight. Each one can be on or off and has a start time, a source, a light/dark mode and night light on/off
