@@ -626,7 +626,11 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
   - Emoji font: naming Noto Color Emoji in `ResultRow` looked the same but DejaVu still loads once (Qt pulls it in elsewhere), so it was reverted
   - One clock per pill zone (Minutes precision) and `osk/layout.js` (already `.pragma library`): nothing to gain
   - Fresh shell font mappings after opening the emoji view: Material Symbols 4, Google Sans 1, JetBrains Mono 1, DejaVu 1, Noto Color Emoji 1
-- [ ] 11a-6. Hyprland side: shell keybind fallbacks check the island layer in Lua (no process per press); one dbus activation call; wallpaper colors applied with `hyprctl eval` instead of a full config reload; measure `render.cm_enabled`
+- [x] 11a-6. Hyprland side: shell keybind fallbacks check the island layer in Lua (no process per press); one dbus activation call; wallpaper colors applied with `hyprctl eval` instead of a full config reload; measure `render.cm_enabled`
+  - `binds/shell.lua`: the fallback bind is a Lua function that runs the CLI fallback only when `hl.get_layers({ namespace = "somehypr:island" })` is empty (exact match, one island per screen, also in game mode). Before, every press of those keys started `qs -c somehypr ipc call TEST_ALIVE`. Verified with Super+V: shell up → the island's clipboard view and no fuzzel; shell stopped → fuzzel. 201 binds, no config errors
+  - [~] Wallpaper change reload: confirmed it is a full reload (a Lua global set before `wallpaper set` is gone after). Measured: ~12 ms of Hyprland CPU per reload, and it is what applies the new border and hyprlock colors. Not worth replacing; a wallpaper change's real cost is matugen plus the apps repainting in the new colors, which is the feature
+  - [~] The two dbus activation calls run once per login, with no measurable cost, and session start can only be tested by logging out. Left as they are
+  - [~] `render.cm_enabled`: no difference under steady load (media island + test audio, two rounds: GPU 24.5 vs 23.3 % and 30.9 vs 31.0 %, the same CPU). Stays on
 - [ ] 11a-7. "Fast glass" setting (off by default): window blur xray, cheaper GPU for glass windows; a floating glass window over another window shows the wallpaper behind it
 - [ ] 11a-8. Polish pass: the open hands-on checks of Phases 7–10 and the rough edges you report
 - [ ] Verify 11a: CLAUDE.md checks, bench fresh and `--cycle 3` against the numbers above, game mode, grim in light and dark to show the look did not change

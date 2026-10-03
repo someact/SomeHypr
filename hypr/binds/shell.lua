@@ -41,7 +41,11 @@ SHELL_COMMANDS = {
     settings = "qs -c somehypr ipc call settings open",
 }
 
-local isAlive = "qs -c somehypr ipc call TEST_ALIVE"
+-- The shell is up while its island layer exists (one per screen, also in game
+-- mode). Checked in Lua, so a key press starts no process unless the shell is down.
+local function shell_alive()
+    return #hl.get_layers({ namespace = "somehypr:island" }) > 0
+end
 
 -- Bind `keys` to a shell action. `opts` are normal hl.bind options; the
 -- description is attached only to the first bind so cheatsheets list it once.
@@ -56,7 +60,10 @@ function shell_bind(keys, action, opts)
             for k, v in pairs(opts) do
                 if k ~= "description" then quiet[k] = v end
             end
-            hl.bind(keys, hl.dsp.exec_cmd(isAlive .. " || " .. a.fallback), quiet)
+            local fallback = a.fallback
+            hl.bind(keys, function()
+                if not shell_alive() then hl.dispatch(hl.dsp.exec_cmd(fallback)) end
+            end, quiet)
         end
     elseif a.fallback then
         hl.bind(keys, hl.dsp.exec_cmd(a.fallback), opts)
