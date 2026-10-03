@@ -138,16 +138,12 @@ FocusScope {
             sourceComponent: ({ wifi: networkPage, bluetooth: bluetoothPage, nightlight: nightPage, audio: audioPage })[root.detail] ?? null
             onLoaded: {
                 item.width = Qt.binding(() => page.width);
-                item.opacity = 0;
-                pageIn.restart();
+                pageIn.play();
             }
-            NumberAnimation {
+            Reveal {
                 id: pageIn
                 target: page.item
-                property: "opacity"
-                to: 1
-                duration: Motion.normal
-                easing.type: Easing.OutCubic
+                delay: 0
             }
         }
 

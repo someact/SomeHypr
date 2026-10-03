@@ -17,7 +17,9 @@ Singleton {
     readonly property var presets: ({
         smooth: { spring: 4.2, damping: 0.42, mass: 1.0 },
         snappy: { spring: 6.5, damping: 0.55, mass: 1.0 },
-        bouncy: { spring: 5.0, damping: 0.26, mass: 1.0 },
+        // ~4 % overshoot, like Hyprland's bouncy (damping ratio 0.70); 0.26 overshot 17 %
+        // and was still wobbling after half a second
+        bouncy: { spring: 5.0, damping: 0.36, mass: 1.0 },
         gentle: { spring: 2.6, damping: 0.45, mass: 1.0 },
         reduced: { spring: 30, damping: 1.0, mass: 1.0 }
     })

@@ -29,7 +29,15 @@ Item {
     implicitWidth: 36
     implicitHeight: 36
     opacity: enabled ? 1 : 0.4
-    scale: pressed ? 0.94 : 1
+    // A quick click still shows the squash: it holds for a moment after the
+    // press, and the spring retargets from wherever the scale is
+    readonly property bool squashed: pressed || squashHold.running
+    scale: squashed ? 0.94 : 1
+    Timer {
+        id: squashHold
+        interval: 90
+    }
+    onPressedChanged: if (pressed) squashHold.restart()
 
     Behavior on scale {
         Spring { preset: "bouncy" }
@@ -40,7 +48,7 @@ Item {
         anchors.fill: parent
         radius: {
             const r = root.active ? root.activeRadius : root.radius;
-            return root.pressed ? r * 0.8 : r;
+            return root.squashed ? r * 0.8 : r;
         }
         Behavior on radius {
             Spring { preset: "snappy" }

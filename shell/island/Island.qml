@@ -335,11 +335,11 @@ PanelWindow {
                 }
                 return clockAmbient;
             }
-            onLoaded: reveal.restart()
+            onLoaded: reveal.play()
             Behavior on opacity {
                 NumberAnimation { duration: Motion.fast }
             }
-            ContentReveal {
+            Reveal {
                 id: reveal
                 target: ambientLoader.item
             }
@@ -414,8 +414,8 @@ PanelWindow {
                     }
                     return searchView;
                 }
-                onLoaded: viewReveal.restart()
-                ContentReveal {
+                onLoaded: viewReveal.play()
+                Reveal {
                     id: viewReveal
                     target: viewLoader.item
                 }
@@ -430,38 +430,6 @@ PanelWindow {
             PointHandler {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                 onActiveChanged: if (active && win.peek) UiState.promote()
-            }
-        }
-    }
-
-    // Content fades and scales in slightly after the shape starts moving
-    component ContentReveal: SequentialAnimation {
-        id: anim
-        property Item target
-        ScriptAction {
-            script: if (anim.target) {
-                anim.target.opacity = 0;
-                anim.target.scale = 0.96;
-            }
-        }
-        PauseAnimation {
-            duration: Motion.reduced ? 0 : 60
-        }
-        ParallelAnimation {
-            NumberAnimation {
-                target: anim.target
-                property: "opacity"
-                to: 1
-                duration: Motion.normal
-                easing.type: Easing.OutCubic
-            }
-            NumberAnimation {
-                target: anim.target
-                property: "scale"
-                to: 1
-                duration: Motion.normal
-                easing.type: Easing.OutBack
-                easing.overshoot: 1.2
             }
         }
     }

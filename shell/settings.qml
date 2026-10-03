@@ -135,16 +135,12 @@ ShellRoot {
             anchors.top: parent.top
             anchors.bottom: errorBar.top
             source: app.fileFor(app.page)
-            onLoaded: {
-                item.opacity = 0;
-                fadeIn.restart();
-            }
-            NumberAnimation {
+            onLoaded: fadeIn.play()
+            Reveal {
                 id: fadeIn
                 target: pageLoader.item
-                property: "opacity"
-                to: 1
-                duration: Motion.normal
+                fromScale: 1
+                delay: 0
             }
         }
 

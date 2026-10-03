@@ -32,8 +32,10 @@ PressButton {
             size: 22
             fill: root.current ? 1 : 0
             color: root.current ? Theme.primary : Theme.fgIsland
-            opacity: root.busy ? 0.5 : 1
-            SequentialAnimation on opacity {
+            // The pulse drives its own value, so the icon is fully back once busy ends
+            property real pulse: 1
+            opacity: root.busy ? pulse : 1
+            SequentialAnimation on pulse {
                 running: root.busy
                 loops: Animation.Infinite
                 NumberAnimation { to: 0.3; duration: 500 }

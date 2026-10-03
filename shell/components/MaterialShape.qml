@@ -38,7 +38,21 @@ Shape {
     property var _from: null
     property var _morph: new Morph.Morph(polygon, polygon)
     property real _progress: 1
+    // A morph only runs between whole shapes, so a change mid-morph waits until
+    // the running one is almost done (instead of snapping back to its start)
+    property bool _pending: false
     onPolygonChanged: {
+        if (morph.enabled && _progress < 0.97) {
+            _pending = true;
+            return;
+        }
+        _startMorph();
+    }
+    on_ProgressChanged: if (_pending && _progress >= 0.97) _startMorph()
+    function _startMorph() {
+        _pending = false;
+        if (_from === polygon)
+            return;
         _morph = new Morph.Morph(_from ?? polygon, polygon);
         _from = polygon;
         morph.enabled = false;

@@ -441,7 +441,13 @@ Root causes found:
 - [x] Mixer: right-click volume → `MixerView` (per-app streams, output and input pickers); shared `Audio.streams`
   - `island/views/MixerView.qml` (island view `mixer`, `ipc call island open mixer`): output slider with the device name, one slider per app stream (app icon, name · media title, mute on the icon), mic slider, then the `AudioDevices` pickers; ↑/↓ select, ←/→ adjust, M mutes. Opened by right-clicking the Control volume slider or the volume pill icon. Also: right-click the network/Bluetooth pill icons → their Control pages (`UiState.openControl()`; the open page now lives in `UiState.controlDetail`), right-click the mic slider → sound devices. The overlay mixer card uses `Audio.streams` / `Audio.appName`
   - Verified with a silent `pw-play` stream: its row appears, ←/→ on it changes only the stream (90) while the output stays 100; pill right-clicks open the mixer and Network; the overlay card still loads (grim)
-- [ ] Motion pass: no restart-from-zero animations, retargeting press squash, tune `bouncy` damping, shared `components/Reveal.qml`
+- [x] Motion pass: no restart-from-zero animations, retargeting press squash, tune `bouncy` damping, shared `components/Reveal.qml`
+  - `components/Reveal.qml` replaces the island's `ContentReveal`, the Control page fade and the settings page fade: fade + spring scale, and only a new target starts hidden, so replaying on the same item carries on instead of jumping to 0
+  - `MaterialShape`: a shape change mid-morph waits until the running morph is 97 % done instead of restarting from its old start (the vendored morph only runs between whole shapes)
+  - `PressButton`: the squash (scale 0.94, corners 80 %) holds at least 90 ms, so a quick click still shows it; the spring retargets from wherever it is
+  - `bouncy` damping 0.26 → 0.36. Simulating Qt's SpringAnimation update rule: 17 % overshoot, still moving after ~540 ms → ~4 % and ~420 ms, close to Hyprland's `bouncy` curve (damping ratio 0.70). smooth/snappy/gentle already do not overshoot
+  - Also fixed: `DetailRow`'s busy pulse animated `opacity` directly, so it could freeze half-faded when busy ended; it now drives a separate value
+  - Verified: view switch frames (shape springs, content fades in behind it), fast workspace flicks 1 → 2 → 3 (grim); install --check ok, no config errors, 201 binds. The press squash was not caught on a frame → hands-on feel check
 
 **9e. Media and lyrics**
 - [ ] `services/Lyrics.qml`: LRCLIB via curl on track change, cached in `~/.cache/somehypr/lyrics/`, synced LRC, `media.lyrics` toggle
