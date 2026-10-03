@@ -32,6 +32,7 @@ Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan
   - Expressive style: `components/MaterialShape.qml` (35 Material 3 shapes from `lib/shapes/`, drawn with QtQuick.Shapes, never Canvas), `ShapeIcon.qml` (floating icon, shape when active); `PressButton` `radius`/`activeRadius` morph on a spring. Text weights come from `Theme.font.weight`/`weightTitle` through `font.weight`, not `variableAxes`.
   - Blur gotcha: an empty `BackgroundEffect.blurRegion` blurs the whole surface, so set it to `null` whenever the shape is off-surface.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
+  - Animation gotcha: `SpringAnimation` (and `Spring`) only in a `Behavior` or as `SpringAnimation on <prop>`. Inside a `Sequential`/`ParallelAnimation` Qt segfaults when it starts; use `NumberAnimation` there (`components/Reveal.qml`).
   - Font gotcha: every distinct `font.variableAxes` value opens another face (mmap + glyph cache). `components/Icon.qml` snaps FILL to 0/1 and opsz to 20/24/40/48; never animate an axis.
 - `install.sh` links everything and reloads, rolling back automatically if there are config errors. `--check` only verifies; `--rollback` restores `~/.config/*.pre-somehypr`.
 
