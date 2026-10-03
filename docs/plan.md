@@ -525,7 +525,7 @@ Root causes found:
   - Seen once, not reproduced: the lock preview did not get the keyboard until clicked (3 later tries took it at once)
 - [ ] Hands-on check by you: feel of the hover peek, glass over real windows, lyrics, live translator in a game
 
-### Phase 10: Fixes and improvements (brightness, binds, wallpaper schedule, quick options)
+### Phase 10: Fixes and improvements ✅ (brightness, binds, wallpaper schedule, quick options)
 From your request (2026-10-03). Commit and push per task, as in Phase 9.
 
 Starting points found while planning:
@@ -576,7 +576,12 @@ Starting points found while planning:
   - The recording check was not repeated: tiles still have one delegate per id bound to their own properties (unchanged from 9d)
   - Also fixed on the way (10a): the brightness slider showed 50 % because its read-back never ran
 
-- [ ] Verify Phase 10: the CLAUDE.md checks (201 binds, no WARN/ERROR), memory and CPU against Phase 9, game mode
+- [x] Verify Phase 10: the CLAUDE.md checks (201 binds, no WARN/ERROR), memory and CPU against Phase 9, game mode
+  - Config: `install.sh --check` ok, no config errors, 201 binds; no WARN/ERROR from the shell or the settings app (only the known "openwindow … not previously tracked" line)
+  - Memory, fresh shell: 442 MB RSS / 255 MB PSS / 179 MB anon (Phase 9 fresh: 437 / 294 / 180). After six wallpaper swaps through the shell (what a dynamic slot does): 464 / 273 / 193; a seventh swap added nothing, so it levels off instead of growing per swap
+  - CPU over 60 s idle: 0 % (Phase 9: 0 %). Only child process: the gamemoded `gdbus monitor`
+  - Game mode forced on: blur, shadows and animations off, island → dot, schedule rotation paused; auto restored all of them
+- [ ] Hands-on check by you: brightness slider and keys, Super+Alt+N with a few windows, editing the quick options by hand, a real day with the time-of-day schedule (and Follow the sun)
 
 ### Phase 11: Optimize, polish and public release
 From your request (2026-10-03). Runs after Phase 10.
