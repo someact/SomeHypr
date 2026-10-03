@@ -48,6 +48,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 
 - **Glass:** the compositor blurs exactly the shapes the shell draws (`ext-background-effect`). An optional plugin, *liquid glass*, adds refraction on top; see below.
 - **Colors:** set a wallpaper (`/wallpaper`, or the island's wallpaper view) and matugen recolors everything. Video wallpapers run through mpvpaper.
+- **Lyrics:** the playing track's lyrics come from [LRCLIB](https://lrclib.net), asked once per track with curl and cached in `~/.cache/somehypr/lyrics/` (misses too). Turn it off in Settings → Island → Lyrics (`media.lyrics`).
 - **Shell settings** live in `~/.config/somehypr/config.json`. The file reloads live, so you can edit it by hand too.
 
 ## Install
@@ -58,7 +59,7 @@ The setup targets this one machine, but these are the pieces it expects:
 # Hyprland 0.56+ and the shell (paru also covers packages that are only in the AUR)
 paru -S hyprland quickshell matugen hypridle hyprlock
 # tools the shell calls
-paru -S grim slurp wl-clipboard cliphist imagemagick jq wf-recorder \
+paru -S grim slurp wl-clipboard cliphist imagemagick jq curl wf-recorder \
         tesseract tesseract-data-eng translate-shell mpvpaper ydotool swappy
 # fonts
 paru -S ttf-material-symbols-variable-git ttf-jetbrains-mono-nerd

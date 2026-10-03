@@ -37,6 +37,7 @@ Singleton {
 
     readonly property string cacheHome: Quickshell.env("XDG_CACHE_HOME") || home + "/.cache"
     readonly property string thumbs: cacheHome + "/somehypr/thumbs"
+    readonly property string lyrics: cacheHome + "/somehypr/lyrics"         // LRCLIB answers, one file per track
     readonly property string lockBlur: cacheHome + "/somehypr/lock-blur.jpg"   // blurred wallpaper for the lock screen
     readonly property string mpvSocket: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/somehypr-mpvpaper.sock"
     readonly property string mpvPid: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/somehypr-mpvpaper.pid"

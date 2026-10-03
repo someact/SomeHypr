@@ -27,6 +27,7 @@ Singleton {
     readonly property alias lock: adapter.lock
     readonly property alias widgets: adapter.widgets
     readonly property alias osk: adapter.osk
+    readonly property alias media: adapter.media
     property bool ready: false
 
     FileView {
@@ -153,6 +154,9 @@ Singleton {
             property JsonObject osk: JsonObject {
                 property bool pinned: false           // reserve space so windows sit above it
                 property real scale: 1.0              // key size
+            }
+            property JsonObject media: JsonObject {
+                property bool lyrics: true            // fetch lyrics from LRCLIB (services/Lyrics.qml)
             }
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)

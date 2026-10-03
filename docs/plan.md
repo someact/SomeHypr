@@ -454,7 +454,11 @@ Root causes found:
 - [x] Fix: the hover peek never showed over a maximized window (added 2026-10-03)
   - Cause: Hyprland's `hasFullscreen` is also true for maximize (fullscreen mode 1). The island now blocks the peek only when a toplevel on the workspace is really fullscreen (`wayland.fullscreen`). Verified: peeks over maximized kitty, not over a fullscreen (mode 2) one
 **9e. Media and lyrics**
-- [ ] `services/Lyrics.qml`: LRCLIB via curl on track change, cached in `~/.cache/somehypr/lyrics/`, synced LRC, `media.lyrics` toggle
+- [x] `services/Lyrics.qml`: LRCLIB via curl on track change, cached in `~/.cache/somehypr/lyrics/`, synced LRC, `media.lyrics` toggle
+  - One `sh` + curl per new track (400 ms debounce): `/api/get` (title, artist, duration), then `/api/search`, best result = synced first, then the closest length. Any 200 is cached per track (an empty search `[]` is a cached miss); network errors are not cached. Browser titles are cleaned ("Artist - Title (Official Video)", "- Topic", VEVO)
+  - LRC parsed to `lines` (several stamps per line handled), `plain`, `status` (off/loading/synced/plain/none/error). The current `index` follows the playhead with one single-shot timer aimed at the next line, only while a view raises `Lyrics.watchers`; seeks resync through the player's position signal
+  - Settings → Island → Lyrics; `ipc call lyrics state` / `retry`
+  - Verified with a fake MPRIS player (`gi` test script, not shipped): Bohemian Rhapsody → synced 56 lines on the right line 65 s in; "Queen - Don't Stop Me Now (Official Video)" with no artist → found; an unknown track → `none`, cached as `[]`
 - [ ] MediaView: lyrics pane and per-player volume (MPRIS volume, or the PipeWire stream)
 - [ ] Ambient/peek lyric line (optional); MediaWidget lyrics and volume
 

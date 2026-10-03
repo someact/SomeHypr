@@ -189,6 +189,15 @@ Page {
             }
         }
         SettingRow {
+            icon: "lyrics"
+            title: "Lyrics"
+            subtitle: "Look up the playing track on lrclib.net (once per track, cached) for the media view and widget"
+            Switch {
+                checked: Config.media.lyrics
+                onToggled: on => Config.media.lyrics = on
+            }
+        }
+        SettingRow {
             icon: "notifications"
             title: "Notification peek"
             subtitle: "How long a new notification shows in the island"

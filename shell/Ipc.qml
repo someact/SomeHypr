@@ -120,6 +120,17 @@ Scope {
     }
 
     IpcHandler {
+        target: "lyrics"
+        // "<status> <index>/<lines> <current line>"
+        function state(): string {
+            return Lyrics.status + " " + Lyrics.index + "/" + Lyrics.lines.length + " " + Lyrics.line;
+        }
+        function retry(): void {
+            Lyrics.retry();
+        }
+    }
+
+    IpcHandler {
         target: "dock"
         function pin(appId: string): void {
             Taskbar.pin(appId.toLowerCase());
