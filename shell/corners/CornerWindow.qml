@@ -84,7 +84,7 @@ PanelWindow {
         RunRegion { glass: run1 }
     }
     // Only with a glass run on the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.blur && win.geo.runs.length > 0 && bar.y + bar.height > 1 ? blurArea : null
+    BackgroundEffect.blurRegion: Theme.blur && win.geo.runs.length > 0 && bar.y + bar.height > 4 ? blurArea : null
 
     Item {
         id: bar

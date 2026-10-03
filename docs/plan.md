@@ -476,7 +476,9 @@ Root causes found:
 - [x] Album art sometimes missing (browser players)
   - Cause: Brave shows up twice (its own MPRIS without art, and Plasma browser integration, which downloads the art to a temp file and sometimes leaves it out, e.g. on YouTube Music). `Media.art` now falls back to another player of the same process (`kde:pid` / `instance<pid>`), then to the YouTube thumbnail of `xesam:url` (`i.ytimg.com/…/mqdefault.jpg`, 16:9 without bars). `Cover` retries a failed load 3× (700 ms), for art files announced before they are written
   - Verified over IPC: the art-less Brave player resolves to its sibling's file, a fake player with only a music.youtube.com URL to the thumbnail; Qt loads the https thumbnail (offscreen test)
-- [ ] Dock: a half-screen flicker when it hides after a peek
+- [x] Dock: a half-screen flicker when it hides after a peek
+  - Cause: the blur gate (`bg.y < height - 1`) let the region through for ~1.5 px of the slide where the inset, rounded region (`ceil(y) + 1`) already lay below the surface; the compositor reads that as empty and blurs the whole 420 px dock surface for a frame (the Phase 4 gotcha). The gate now keeps a 4 px margin; the island, pills and OSK had the same edge and got the same margin
+  - [ ] Hands-on check by you: peek the dock over a window and let it hide (not reproduced here without taking over the pointer)
 - [ ] Clicking outside the island closes it
 
 **9f. Game overlay and live translator**

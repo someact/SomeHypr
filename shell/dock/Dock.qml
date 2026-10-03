@@ -93,8 +93,10 @@ PanelWindow {
             radius: menu.radius
         }
     }
-    // Only while the dock is on the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.blur && bg.y < win.height - 1 ? blurArea : null
+    // Only while the dock is on the surface: an empty region blurs the whole window.
+    // The region is the inset, rounded box (y = ceil(bg.y) + 1), so it leaves the surface
+    // ~2 px before bg does; the margin keeps it there (the tail of the slide flickered).
+    BackgroundEffect.blurRegion: Theme.blur && bg.y < win.height - 4 ? blurArea : null
 
     // Clicking anywhere else closes the menu
     HyprlandFocusGrab {

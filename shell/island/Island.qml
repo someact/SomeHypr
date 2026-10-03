@@ -115,7 +115,7 @@ PanelWindow {
         EarStrip { row: 2; left: false }
     }
     // Not while hidden off the surface: an empty region blurs the whole window
-    BackgroundEffect.blurRegion: Theme.islandBlur && body.y + body.height > 1 ? blurArea : null
+    BackgroundEffect.blurRegion: Theme.islandBlur && body.y + body.height > 4 ? blurArea : null
 
     // One 2 px band of an ear. The ear is filled outside a circle of radius e
     // centered at (0, e) (left ear, shape coordinates), so in a band ending at

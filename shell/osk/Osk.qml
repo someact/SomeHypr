@@ -59,7 +59,7 @@ Scope {
                 id: blurArea
                 target: board
             }
-            BackgroundEffect.blurRegion: Theme.blur && board.y < win.height - 1 ? blurArea : null
+            BackgroundEffect.blurRegion: Theme.blur && board.y < win.height - 4 ? blurArea : null
 
             Glass {
                 id: board
