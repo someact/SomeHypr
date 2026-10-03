@@ -470,6 +470,12 @@ Root causes found:
   - Fixed on the way: the swap used a `PropertyAction` whose value is read at `restart()`, so the island lagged one line behind; now a `ScriptAction`
   - Verified with the fake player (grim): the island line matches `ipc call lyrics state` line by line, toggling the option live adds/removes the watcher; the widget in edit mode shows the slider and lyrics; settings rows render; install --check ok, no config errors, 201 binds
 
+**9e+. Media and island fixes** (added 2026-10-03, on request)
+- [ ] Media view: the player chips overlap the title
+- [ ] Album art sometimes missing (browser players)
+- [ ] Dock: a half-screen flicker when it hides after a peek
+- [ ] Clicking outside the island closes it
+
 **9f. Game overlay and live translator**
 - [ ] Overlay style settings (glass/solid/minimal, opacity, accent, radius, compact) under `overlay.style`
 - [ ] Live area translator (`overlay/TranslateCard.qml` + `services/LiveTranslate.qml`): pick an area once; re-run OCR and `trans` only when the pixels change, with one chain at a time; stops on unpin
