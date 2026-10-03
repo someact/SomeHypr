@@ -1,13 +1,15 @@
 import QtQuick
 import qs.core
 
-// Phone-style quick toggle tile: icon, title and optional subtitle.
+// Phone-style quick toggle tile: icon, title and optional subtitle, or the
+// icon alone (`compact`).
 PressButton {
     id: root
 
     property string icon
     property string title
     property string subtitle
+    property bool compact: false
 
     implicitWidth: 170
     implicitHeight: 52
@@ -17,7 +19,17 @@ PressButton {
     color: Theme.islandRaised
     activeColor: Theme.primary
 
+    Icon {
+        visible: root.compact
+        anchors.centerIn: parent
+        name: root.icon
+        size: 22
+        fill: root.active ? 1 : 0
+        color: root.active ? Theme.fgPrimary : Theme.fgIsland
+    }
+
     Row {
+        visible: !root.compact
         anchors.fill: parent
         anchors.leftMargin: 14
         anchors.rightMargin: 10

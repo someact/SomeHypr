@@ -15,6 +15,7 @@ Singleton {
     readonly property alias pills: adapter.pills
     readonly property alias motion: adapter.motion
     readonly property alias clock: adapter.clock
+    readonly property alias control: adapter.control
     readonly property alias search: adapter.search
     readonly property alias notifications: adapter.notifications
     readonly property alias theme: adapter.theme
@@ -83,6 +84,12 @@ Singleton {
             property JsonObject clock: JsonObject {
                 property string format: "HH:mm"
                 property string dateFormat: "ddd d MMM"
+            }
+            property JsonObject control: JsonObject {
+                // Quick tiles shown in the Control view, in order (services/QuickTiles.qml ids);
+                // the rest are hidden and can be added back in its edit mode
+                property list<string> tiles: ["wifi", "bluetooth", "dnd", "game", "nightlight", "caffeine", "mic", "dark", "streamer", "record"]
+                property string tileStyle: "full"     // full (icon, title, state) | icon (icons only, more per row)
             }
             property JsonObject search: JsonObject {
                 property int maxResults: 8
