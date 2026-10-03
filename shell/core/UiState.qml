@@ -10,7 +10,7 @@ Singleton {
     // Views reachable with ←/→ while the island is open, in order
     readonly property list<string> mainViews: ["search", "control", "media", "notifications", "system", "power"]
     // Views opened by commands/shortcuts only
-    readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit", "wallpaper", "translate"]
+    readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit", "wallpaper", "translate", "mixer"]
 
     property bool expanded: false
     // Hover peek: the island shows a view on one screen without keyboard focus;
@@ -19,6 +19,7 @@ Singleton {
     property string peekScreen: ""
     property string view: "search"
     property string searchText: ""       // seed text for the search view, e.g. "/"
+    property string controlDetail: ""    // Control view page (wifi bluetooth nightlight audio), "" = tiles
     property bool hidden: false          // Super+J hides the island and pills
     property bool caffeine: false        // block idle (screen off / lock)
     property string ambient: "clock"     // what the collapsed island shows (set by Island)
@@ -46,11 +47,19 @@ Singleton {
         }
         overview = false;
         peeking = false;
+        controlDetail = "";
         expanded = true;
+    }
+
+    // Control view straight on a detail page (status pill right-click)
+    function openControl(detail) {
+        open("control");
+        controlDetail = detail ?? "";
     }
 
     function close() {
         peeking = false;
+        controlDetail = "";
         expanded = false;
     }
 

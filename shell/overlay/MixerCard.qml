@@ -12,7 +12,7 @@ OverlayCard {
     title: "Mixer"
     implicitWidth: 320
 
-    readonly property var streams: Pipewire.nodes.values.filter(n => n.isStream && n.isSink && n.audio)
+    readonly property var streams: Audio.streams
 
     PwObjectTracker {
         objects: root.streams
@@ -36,7 +36,7 @@ OverlayCard {
             Column {
                 id: stream
                 required property PwNode modelData
-                readonly property string app: modelData.properties["application.name"] || modelData.description || modelData.name
+                readonly property string app: Audio.appName(modelData)
                 width: parent.width
                 spacing: 4
                 Label {

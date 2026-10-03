@@ -55,7 +55,7 @@ Singleton {
         subtitle: Network.name
         active: Network.hasWifi ? Network.wifiEnabled : Network.connected
         detail: "wifi"
-        run: () => Network.hasWifi ? Network.toggleWifi() : root.openDetail("wifi")
+        run: () => Network.hasWifi ? Network.toggleWifi() : UiState.controlDetail = "wifi"
     }
     property Tile bluetooth: Tile {
         icon: BluetoothState.icon
@@ -145,7 +145,4 @@ Singleton {
         settings: "desktop"
         run: () => UiState.osk = !UiState.osk
     }
-
-    // The Control view shows a tile's detail page (set here so a run() can ask)
-    signal openDetail(string name)
 }

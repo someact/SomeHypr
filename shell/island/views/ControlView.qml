@@ -19,8 +19,8 @@ FocusScope {
     readonly property int sliderCount: Brightness.available ? 3 : 2
     readonly property int total: tileCount + sliderCount
 
-    // The open detail page, "" for the tiles
-    property string detail: ""
+    // The open detail page, "" for the tiles (in UiState so pills can open one)
+    readonly property string detail: UiState.controlDetail
     readonly property var detailTitles: ({ wifi: "Network", bluetooth: "Bluetooth", nightlight: "Night light", audio: "Sound devices" })
 
     function openTile(id) {
@@ -29,16 +29,10 @@ FocusScope {
             return;
         if (t.detail !== "") {
             tiles.edit = false;
-            detail = t.detail;
+            UiState.controlDetail = t.detail;
         } else if (t.settings !== "") {
             Session.openSettings(t.settings);
             UiState.close();
-        }
-    }
-    Connections {
-        target: QuickTiles
-        function onOpenDetail(name) {
-            root.detail = name;
         }
     }
 
@@ -51,7 +45,7 @@ FocusScope {
             if (page.item?.handleKey && page.item.handleKey(event))
                 return true;
             if (k === Qt.Key_Escape || k === Qt.Key_Backspace) {
-                detail = "";
+                UiState.controlDetail = "";
                 return true;
             }
             return UiState.navKey(event);
@@ -93,7 +87,7 @@ FocusScope {
                 height: 26
                 iconSize: 18
                 icon: "arrow_back"
-                onClicked: root.detail = ""
+                onClicked: UiState.controlDetail = ""
             }
             Label {
                 visible: root.detail !== ""
@@ -173,6 +167,7 @@ FocusScope {
             value: Audio.volume
             onMoved: v => Audio.setVolume(v)
             onIconClicked: Audio.toggleMute()
+            onRightClicked: UiState.open("mixer")
             trackColor: root.selected === root.tileCount ? Theme.islandRaisedHover : Theme.islandRaised
         }
         Slider {
@@ -183,6 +178,7 @@ FocusScope {
             value: Audio.micVolume
             onMoved: v => Audio.setMicVolume(v)
             onIconClicked: Audio.toggleMicMute()
+            onRightClicked: UiState.controlDetail = "audio"
             trackColor: root.selected === root.tileCount + 1 ? Theme.islandRaisedHover : Theme.islandRaised
         }
         Slider {

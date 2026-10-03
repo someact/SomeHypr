@@ -267,16 +267,19 @@ QtObject {
             StatusIcon {
                 part: statusPart
                 name: Network.icon
+                detail: "wifi"
             }
             StatusIcon {
                 part: statusPart
                 name: BluetoothState.icon
                 visible: BluetoothState.available
                 dim: !BluetoothState.enabled
+                detail: "bluetooth"
             }
             StatusIcon {
                 part: statusPart
                 name: Audio.icon
+                detail: "mixer"
                 onWheel: up => Audio.setVolume(Audio.volume + (up ? 0.02 : -0.02))
                 onMiddle: Audio.toggleMute()
             }
@@ -313,6 +316,7 @@ QtObject {
         property bool dim: false
         signal wheel(bool up)
         signal middle
+        property string detail                // right-click: this Control page ("mixer" opens the mixer)
         anchors.verticalCenter: parent.verticalCenter
         size: 16
         color: dim ? part.fgDim : part.fg
@@ -322,8 +326,17 @@ QtObject {
             anchors.fill: parent
             anchors.margins: -3
             cursorShape: Qt.PointingHandCursor
-            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-            onClicked: event => event.button === Qt.MiddleButton ? si.middle() : UiState.toggle("control")
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+            onClicked: event => {
+                if (event.button === Qt.MiddleButton)
+                    si.middle();
+                else if (event.button === Qt.RightButton && si.detail === "mixer")
+                    UiState.toggle("mixer");
+                else if (event.button === Qt.RightButton && si.detail !== "")
+                    UiState.openControl(si.detail);
+                else
+                    UiState.toggle("control");
+            }
             onWheel: event => si.wheel(event.angleDelta.y > 0)
         }
     }

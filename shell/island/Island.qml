@@ -409,6 +409,8 @@ PanelWindow {
                         return wallpaperView;
                     case "translate":
                         return translateView;
+                    case "mixer":
+                        return mixerView;
                     }
                     return searchView;
                 }
@@ -582,5 +584,9 @@ PanelWindow {
     Component {
         id: translateView
         TranslateView {}
+    }
+    Component {
+        id: mixerView
+        MixerView {}
     }
 }

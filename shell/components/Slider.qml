@@ -16,6 +16,7 @@ Item {
 
     signal moved(real value)
     signal iconClicked
+    signal rightClicked
 
     implicitWidth: 260
     implicitHeight: 40
@@ -70,20 +71,23 @@ Item {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         preventStealing: true
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         function at(x) {
             root.set(x / width);
         }
         onPressed: event => {
-            if (event.x < 40)
+            if (event.button === Qt.RightButton || event.x < 40)
                 return;
             at(event.x);
         }
         onClicked: event => {
-            if (event.x < 40)
+            if (event.button === Qt.RightButton)
+                root.rightClicked();
+            else if (event.x < 40)
                 root.iconClicked();
         }
         onPositionChanged: event => {
-            if (pressed && event.x >= 0)
+            if (pressed && pressedButtons & Qt.LeftButton && event.x >= 0)
                 at(event.x);
         }
         onWheel: event => root.set(root.value + (event.angleDelta.y > 0 ? root.step : -root.step))
