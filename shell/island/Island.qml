@@ -77,7 +77,10 @@ PanelWindow {
 
     WlrLayershell.namespace: "somehypr:island"
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    // Exclusive at first so typing straight after Super lands in search; OnDemand
+    // once the focus grab holds, because an exclusive layer keeps the keyboard
+    // and Hyprland never clears the grab on a click outside
+    WlrLayershell.keyboardFocus: !open ? WlrKeyboardFocus.None : grab.active ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive
     anchors.top: true
     exclusiveZone: UiState.hidden ? 0 : Theme.barHeight
     implicitWidth: 1000

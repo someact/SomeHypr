@@ -479,7 +479,9 @@ Root causes found:
 - [x] Dock: a half-screen flicker when it hides after a peek
   - Cause: the blur gate (`bg.y < height - 1`) let the region through for ~1.5 px of the slide where the inset, rounded region (`ceil(y) + 1`) already lay below the surface; the compositor reads that as empty and blurs the whole 420 px dock surface for a frame (the Phase 4 gotcha). The gate now keeps a 4 px margin; the island, pills and OSK had the same edge and got the same margin
   - [ ] Hands-on check by you: peek the dock over a window and let it hide (not reproduced here without taking over the pointer)
-- [ ] Clicking outside the island closes it
+- [x] Clicking outside the island closes it
+  - Cause: the open island took `Exclusive` keyboard focus, and Hyprland never moves focus away from an exclusive layer, so a click elsewhere never cleared the focus grab (the "not new" note in 9d). It now starts `Exclusive` (typing right after Super still lands in search) and switches to `OnDemand` once the grab is active (50 ms), as ii's overview did
+  - Verified: a click on a window outside closes the island (grab cleared); → keys after the switch still change views
 
 **9f. Game overlay and live translator**
 - [ ] Overlay style settings (glass/solid/minimal, opacity, accent, radius, compact) under `overlay.style`
