@@ -33,8 +33,16 @@ Singleton {
     FileView {
         path: Paths.config
         watchChanges: true
-        onFileChanged: reload()
-        onAdapterUpdated: writeAdapter()
+        // Our own writes also fire fileChanged; reloading then would read the file
+        // back while later edits from the same handler are still unwritten and
+        // undo them (several Config writes in a row lost all but some). Only
+        // reload for changes made by someone else.
+        property real lastWrite: 0
+        onFileChanged: if (Date.now() - lastWrite > 600) reload()
+        onAdapterUpdated: {
+            lastWrite = Date.now();
+            writeAdapter();
+        }
         onLoaded: root.ready = true
         onLoadFailed: error => {
             // First run: write the defaults so the file is there to edit
@@ -124,6 +132,7 @@ Singleton {
                 property list<string> open: ["resources", "mixer"]   // widgets shown while the overlay is up
                 property list<string> pinned: []      // also shown (click-through) while it is closed
                 property var positions: ({})          // widget id -> { x, y }
+                property var translateArea: ({})      // live translator area { x, y, w, h } (layout pixels)
                 property bool blur: true              // frost the bar and cards while the overlay is open
                 property bool pinnedBlur: false       // also frost pinned cards after it closes (keeps Hyprland blur on in game mode)
                 property JsonObject style: JsonObject {

@@ -20,6 +20,7 @@ Singleton {
         { id: "ocr", icon: "document_scanner", name: "Copy text" },
         { id: "lens", icon: "image_search", name: "Lens" },
         { id: "translate", icon: "translate", name: "Translate" },
+        { id: "liveTranslate", icon: "g_translate", name: "Live translate" },
         { id: "record", icon: "screen_record", name: "Record" },
         { id: "recordSound", icon: "mic", name: "Record + sound" }
     ]
@@ -103,6 +104,14 @@ Singleton {
             // Same flow as ii: upload to uguu.se (expires in 3 h), open Google Lens on the URL
             Osd.show("capture", "image_search", -1, "Uploading to Lens…");
             run(`${crop} '${Paths.crop}' && url=$(curl -sF files[]=@'${Paths.crop}' https://uguu.se/upload | jq -r '.files[0].url') && xdg-open "https://lens.google.com/uploadbyurl?url=$url"; rm -f '${Paths.crop}'`);
+            break;
+        case "liveTranslate":
+            {
+                // grim -g takes layout coordinates
+                const mon = Hyprland.monitors.values.find(m => m.name === monitor);
+                LiveTranslate.setArea(r.x + (mon?.x ?? 0), r.y + (mon?.y ?? 0), r.width, r.height, { x: mon?.x ?? 0, y: mon?.y ?? 0, width: (mon?.width ?? 1920) / (mon?.scale ?? 1), height: (mon?.height ?? 1080) / (mon?.scale ?? 1) });
+                Osd.show("capture", "g_translate", -1, "Live translate on · Super+G to see the card");
+            }
             break;
         case "record":
         case "recordSound":

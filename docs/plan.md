@@ -488,8 +488,13 @@ Root causes found:
   - `overlay.style` { look, opacity, accent, radius, compact }, Settings → Modes → Overlay style (segmented look, opacity slider, accent swatches with "Theme", corner radius, compact). Glass = tint + rim + frost (the frost switches show only for glass, and Hyprland's game-mode blur is asked for only then); solid = no blur, tint at the opacity; minimal = faint backing, no rim, outlined titles
   - Accent colors the card icons, the toolbar's active buttons, pin, crosshair toggles and FPS presets (dark content on custom accents; `Toggle.activeFg` added). Compact: 32 px title bars (24 pinned), 10 px padding
   - Verified live over the open overlay and pinned cards (grim): glass, solid + yellow + 8 px + compact, minimal + cyan open and pinned; settings page loads with no warnings
-- [ ] Live area translator (`overlay/TranslateCard.qml` + `services/LiveTranslate.qml`): pick an area once; re-run OCR and `trans` only when the pixels change, with one chain at a time; stops on unpin
-- [ ] `/translate live` command and an overlay card entry
+- [x] Live area translator (`overlay/TranslateCard.qml` + `services/LiveTranslate.qml`): pick an area once; re-run OCR and `trans` only when the pixels change, with one chain at a time; stops on unpin
+  - `services/LiveTranslate.qml`: area in `overlay.translateArea` (layout px). Every 1.5 s, only while the card exists, the overlay is closed and not paused, one chain at a time: grim → 64×24 posterized gray thumbnail → md5; unchanged pixels stop there. Changed → grim → 2× gray → tesseract (all installed languages); unchanged text stops there. Changed → `trans` into `capture.translateTo`. A failed translation retries on the next tick
+  - `overlay/TranslateCard.qml`: translation (outlined, larger when pinned), source text, "New area", language cycle (ไทย / English / 日本語, re-translates the current text), pause, copy; the area is outlined while the overlay is open; a warning when the card covers the area (grim sees the overlay too). Picking an area pins the card and places it just below the area (or above), never over it; closing or unpinning stops everything
+  - Found and fixed: several Config writes in one handler lost some of them, because the file watcher reloaded config.json after our own first write and undid the later ones. `Config` now ignores file changes within 600 ms of its own write
+- [x] `/translate live` command and an overlay card entry
+  - `/translate live` (suggested after `/translate`), `ipc call livetranslate pick|state`, a "Live translate" mode in the region picker (key 7), and the overlay toolbar button (key 7) for the card
+  - Verified with a real drag in the picker over a kitty window: English → Thai, an edited line re-translated within a tick, nothing runs while the overlay is open, unpinning → `stopped` with no grim/tesseract left (grim)
 
 **9g. Widgets and lock polish**
 - [x] Lock dots: only the added or removed dot animates; smooth clear after the shake

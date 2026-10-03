@@ -19,7 +19,8 @@ Scope {
         { id: "resources", icon: "monitoring", name: "Resources" },
         { id: "mixer", icon: "graphic_eq", name: "Mixer" },
         { id: "notes", icon: "sticky_note_2", name: "Notes" },
-        { id: "lyrics", icon: "lyrics", name: "Lyrics" }
+        { id: "lyrics", icon: "lyrics", name: "Lyrics" },
+        { id: "translate", icon: "g_translate", name: "Live translate" }
     ]
     readonly property bool hasPinned: Config.overlay.pinned.length > 0
     property ShellScreen screen: Quickshell.screens[0]
@@ -80,7 +81,7 @@ Scope {
             // `item:` region only updates when that item's own geometry changes,
             // so it stayed behind while a card was dragged by its parent.
             readonly property bool frostOpen: Theme.glass && Config.overlay.style.look === "glass" && Config.overlay.blur && win.shown
-            readonly property bool frostPinned: Theme.glass && Config.overlay.pinnedBlur && !win.shown && [crosshairCard, fpsCard, resourcesCard, mixerCard, notesCard, lyricsCard].some(l => l.item !== null)
+            readonly property bool frostPinned: Theme.glass && Config.overlay.pinnedBlur && !win.shown && [crosshairCard, fpsCard, resourcesCard, mixerCard, notesCard, lyricsCard, translateCard].some(l => l.item !== null)
             Region {
                 id: frost
                 Region { item: win.frostOpen ? bar.frost : null; radius: bar.frostRadius }
@@ -90,6 +91,7 @@ Scope {
                 CardRegion { loader: mixerCard }
                 CardRegion { loader: notesCard }
                 CardRegion { loader: lyricsCard }
+                CardRegion { loader: translateCard }
             }
             BackgroundEffect.blurRegion: win.frostOpen || win.frostPinned ? frost : null
 
@@ -169,6 +171,16 @@ Scope {
                         widgetId: "notes"
                         interactive: win.shown
                         defaultPos: Qt.point(Math.round(win.width / 2 - 160), 160)
+                    }
+                }
+                Loader {
+                    id: translateCard
+                    active: win.isOpen("translate")
+                    sourceComponent: TranslateCard {
+                        widgetId: "translate"
+                        interactive: win.shown
+                        overlayScreen: root.screen
+                        defaultPos: Qt.point(Math.round(win.width / 2 - 200), 90)
                     }
                 }
                 Loader {

@@ -120,6 +120,17 @@ Scope {
     }
 
     IpcHandler {
+        target: "livetranslate"
+        // "<status> <area> | <source> => <translated>"
+        function state(): string {
+            return `${LiveTranslate.running ? LiveTranslate.status : "stopped"} ${LiveTranslate.geometry} | ${LiveTranslate.source} => ${LiveTranslate.translated}`;
+        }
+        function pick(): void {
+            LiveTranslate.pick();
+        }
+    }
+
+    IpcHandler {
         target: "lyrics"
         // "<status> <index>/<lines> <current line>"
         function state(): string {
