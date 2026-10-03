@@ -1,7 +1,8 @@
 # SomeHypr
 
 Personal Hyprland desktop for one machine: CachyOS, Hyprland 0.56 (Lua config), RTX 3060, one 1920x1080@100 monitor (DP-1), US/TH keyboard, UGTablet pen.
-Goals are in `idea.md`. The full plan, with phases and targets, is in `docs/plan.md`.
+Goals are in `idea.md`; Phase 9's requests are in `Improvement idea.md` (both move to `docs/ideas/` in Phase 11b). The full plan, with phases and targets, is in `docs/plan.md`.
+Current work: Phase 10 (fixes, wallpaper schedule, quick options), then Phase 11 (optimize, then make the repo public with an installer for other PCs).
 
 ## Layout
 - `hypr/` is linked to `~/.config/hypr`. `hyprland.lua` loads files in a fixed order, and each setting lives in exactly one file:
@@ -78,3 +79,4 @@ Never edit `~/.config/hypr.pre-somehypr` or `~/.config/quickshell/ii`. They are 
 - Use matugen only: no Python and no cava.
 - Use compositor blur (`BackgroundEffect`) instead of QML blur.
 - Use global shortcuts under appid `somehypr`.
+- Don't hardcode this machine in new code (monitor name or size, GPU, tablet, keyboard layouts, absolute paths, user or place names). The repo goes public in Phase 11, so detect these values or read them from settings.

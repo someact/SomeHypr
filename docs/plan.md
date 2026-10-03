@@ -525,6 +525,64 @@ Root causes found:
   - Seen once, not reproduced: the lock preview did not get the keyboard until clicked (3 later tries took it at once)
 - [ ] Hands-on check by you: feel of the hover peek, glass over real windows, lyrics, live translator in a game
 
+### Phase 10: Fixes and improvements (brightness, binds, wallpaper schedule, quick options)
+From your request (2026-10-03). Commit and push per task, as in Phase 9.
+
+Starting points found while planning:
+- Brightness: `services/Brightness.qml` is DDC/CI only. It runs `ddcutil detect --brief` once at start and writes with `setvcp 10`, and the Control slider shows only while `Brightness.available`. Nothing is logged when ddcutil fails.
+- Super+Alt+N: `binds/keybinds.lua` (send to workspace N) calls `hl.dispatch(hl.dsp.window.move({ workspace = …, follow = false }))` from a Lua function, with no window target.
+- Wallpaper: `services/DayNight.qml` has two phases (day/night: `theme.schedule` dayStart/nightStart, dayFolder/nightFolder, modes, night light) and picks one random wallpaper per switch. `services/Weather.qml` already uses Open-Meteo, which also gives sunrise and sunset.
+- Quick options: `services/QuickTiles.qml` + `island/views/TileGrid.qml` (`control.tiles`, one global `control.tileStyle`). The volume, mic and brightness sliders are fixed below the grid in `island/views/ControlView.qml`.
+
+**10a. Fixes**
+- [ ] Brightness in the island cannot be changed
+  - Run ddcutil detect/getvcp/setvcp by hand first. Check i2c permission and the `i2c-dev` module, the bus regex (several displays, "Invalid display"), slow writes, and errors swallowed by `Process`
+  - Fix the cause. Log a failure once (no retry loop) and read the value back after a write, so the slider shows the real level
+  - Verify: the Control slider, the XF86 brightness keys and the OSD on DP-1 all change the monitor
+- [ ] Super+Alt+N moves every window; it should move only the focused one
+  - Reproduce with 2+ windows on a workspace, find what the Lua `window.move` acts on without a target, and pass the focused window explicitly (or switch to the right dispatcher)
+  - Verify: number row, Thai keycodes and keypad each move only the focused window, `follow = false` still holds, 201 binds
+
+**10b. Wallpaper engine: time-of-day schedule**
+- [ ] Five slots: sunrise, noon, sunset, night, midnight. Each one can be on or off and has a start time, a source, a light/dark mode and night light on/off
+  - Sources: one wallpaper (image or video), a folder (one random pick when the slot starts), or **dynamic** (a random re-pick from a folder every N minutes while the slot lasts)
+  - `theme.schedule.slots`. The old day/night values are migrated, day → sunrise and night → night
+- [ ] Optional sun times: sunrise and sunset from Open-Meteo (Weather's place), noon and midnight derived from them, and a ± minutes offset per slot. Fetched once a day, only while the option is on
+- [ ] `services/DayNight.qml` → a slot scheduler. It keeps the single minute clock, gated on enabled. The dynamic timer exists only in a dynamic slot and pauses in game mode. Picks go through `Wallpaper`, so videos still get mpvpaper and a matugen frame
+- [ ] Settings → Wallpaper: slot editor (timeline bar, source picker per slot, interval, mode, night light) and "Preview this slot". IPC `wallpaper slot <name>` for tests
+- [ ] Verify: step through every slot over IPC, check that the dynamic re-pick happens and stops at the slot edge, and compare memory with the rotation running
+
+**10c. Quick options: per-tile style and movable sliders**
+- [ ] Style per tile: full (icon + text) or icon only. The global `tileStyle` becomes the default, and edit mode changes one tile. The grid packs mixed sizes, and the stable delegates still spring to their slots
+- [ ] Volume, mic and brightness sliders join the same layout (`control.tiles` entries like `slider:volume`): they can be dragged to reorder and hidden or shown in edit mode, and ↑/↓/←/→ follow the new order
+- [ ] Verify with real clicks (grim): mixed sizes, a slider dragged above the tiles, a hidden slider, no recreated delegates while recording
+
+- [ ] Verify Phase 10: the CLAUDE.md checks (201 binds, no WARN/ERROR), memory and CPU against Phase 9, game mode
+
+### Phase 11: Optimize, polish and public release
+From your request (2026-10-03). Runs after Phase 10.
+
+**11a. Optimize and polish**
+- [ ] Profile pass: anon/PSS and idle CPU against Phase 9, frame times of island morphs (`debug:overlay`), heaptrack if installed. Remove dead code and unused config keys, and lazy-load anything that still loads eagerly
+- [ ] Polish pass: fix the visual and motion rough edges from daily use and the open hands-on checks of Phases 7–9
+
+**11b. Public repo layout**
+- [ ] Move `idea.md` and `Improvement idea.md` to `docs/ideas/`, and update the links in CLAUDE.md and this plan
+- [ ] Rewrite `README.md` for other people: screenshots, features, requirements (Arch/CachyOS, Hyprland 0.56 Lua, Quickshell), install, update, uninstall/rollback, configuration, credits and licenses (the vendored shapes are Apache-2.0, plus the fonts). Add `docs/` pages for architecture, settings and troubleshooting, and a LICENSE
+- [ ] Remove machine-specific values: DP-1 / 1920x1080@100, the NVIDIA env, UGTablet, the US/TH layout and the weather place are detected or become settings. `hypr/monitors.lua` is generated and gitignored, with a default. No personal paths or names in the tracked files
+
+**11c. Installer for other PCs**
+- [ ] Bootstrap in `install.sh` (or a `setup.sh` that calls it). It does the following:
+  - Checks dependencies and installs the missing ones with pacman/paru: Hyprland, quickshell, matugen, grim, wf-recorder, ddcutil, tesseract, translate-shell, ydotool and the fonts. The fonts must not depend on ii's package
+  - Detects the GPU (NVIDIA env only when needed) and the monitors (writes monitors.lua)
+  - Backs up existing configs (`.pre-somehypr`)
+  - Runs a first matugen pass
+  - Sets up ydotoold and the i2c group
+  - Keeps `--check` and `--rollback`
+- [ ] Test on a clean user or a VM (a nested Hyprland does not cover the installer), and document it in the README
+
+- [ ] Verify Phase 11: a fresh install from a clone works, rollback works, the CLAUDE.md checks pass
+
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.
