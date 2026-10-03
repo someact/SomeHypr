@@ -449,6 +449,10 @@ Root causes found:
   - Also fixed: `DetailRow`'s busy pulse animated `opacity` directly, so it could freeze half-faded when busy ended; it now drives a separate value
   - Verified: view switch frames (shape springs, content fades in behind it), fast workspace flicks 1 → 2 → 3 (grim); install --check ok, no config errors, 201 binds. The press squash was not caught on a frame → hands-on feel check
 
+- [x] Fix: the shell crashed when the island opened (added 2026-10-03)
+  - Cause: `components/Reveal.qml` (motion pass) put a `SpringAnimation` inside an animation group; Qt segfaults starting it there (`QQuickSpringAnimation::transition` → `QQmlProperty::name`, 3 core dumps). Its scale step is now a `NumberAnimation` (OutBack), as `ContentReveal` had; no other SpringAnimation sits in a group. Verified: every island view, a Control detail page and the settings app open with no new core dump
+- [x] Fix: the hover peek never showed over a maximized window (added 2026-10-03)
+  - Cause: Hyprland's `hasFullscreen` is also true for maximize (fullscreen mode 1). The island now blocks the peek only when a toplevel on the workspace is really fullscreen (`wayland.fullscreen`). Verified: peeks over maximized kitty, not over a fullscreen (mode 2) one
 **9e. Media and lyrics**
 - [ ] `services/Lyrics.qml`: LRCLIB via curl on track change, cached in `~/.cache/somehypr/lyrics/`, synced LRC, `media.lyrics` toggle
 - [ ] MediaView: lyrics pane and per-player volume (MPRIS volume, or the PipeWire stream)

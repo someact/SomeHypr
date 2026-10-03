@@ -2,8 +2,8 @@ import QtQuick
 import qs.core
 
 // Enter motion for freshly loaded content (island views, ambient states,
-// Control detail pages, settings pages): fades in and grows from `fromScale`
-// on a spring, a beat after the container starts moving.
+// Control detail pages, settings pages): fades in and grows from `fromScale`,
+// a beat after the container starts moving.
 //
 //   Loader { onLoaded: reveal.play(); Reveal { id: reveal; target: loader.item } }
 //
@@ -16,7 +16,6 @@ SequentialAnimation {
     property real fromScale: 0.96
     property int delay: Motion.reduced ? 0 : 60
     property Item _last: null
-    readonly property var _spring: Motion.get("smooth")
 
     function play() {
         if (!target)
@@ -40,14 +39,16 @@ SequentialAnimation {
             duration: Motion.normal
             easing.type: Easing.OutCubic
         }
-        SpringAnimation {
+        // Not a SpringAnimation: inside an animation group Qt's SpringAnimation
+        // segfaults on start (QQuickSpringAnimation::transition), it only works
+        // in a Behavior or as `SpringAnimation on <property>`
+        NumberAnimation {
             target: root.target
             property: "scale"
             to: 1
-            spring: root._spring.spring
-            damping: root._spring.damping
-            mass: root._spring.mass
-            epsilon: 0.002
+            duration: Motion.normal
+            easing.type: Easing.OutBack
+            easing.overshoot: 1.2
         }
     }
 }

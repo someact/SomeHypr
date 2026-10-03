@@ -172,7 +172,10 @@ PanelWindow {
     // it) for a moment shows the view a click would open, without keyboard
     // focus; leaving closes it after a short grace. Off in game mode, over a
     // fullscreen window, and while polkit waits (that needs the keyboard).
-    readonly property bool fullscreen: Hyprland.monitorFor(modelData)?.activeWorkspace?.hasFullscreen ?? false
+    // Real fullscreen only: Hyprland's hasFullscreen is also true for a
+    // maximized window (fullscreen mode 1), which must not block the peek
+    readonly property var activeWorkspace: Hyprland.monitorFor(modelData)?.activeWorkspace ?? null
+    readonly property bool fullscreen: (activeWorkspace?.hasFullscreen ?? false) && activeWorkspace.toplevels.values.some(t => t.wayland?.fullscreen ?? false)
     readonly property bool peekAllowed: Config.island.hoverPeek && !GameMode.active && !fullscreen && !UiState.hidden && !UiState.overview && ambient !== "polkit"
     readonly property bool hovered: bodyHover.hovered || stripHover.hovered
     readonly property string peekView: ambient === "notif" ? "notifications" : ambient === "media" ? "media" : "control"
