@@ -91,11 +91,55 @@ FocusScope {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
-            Label {
+            // Title, then the player chips and the lyrics button in what is left
+            Item {
                 width: parent.width
-                text: Media.title
-                font.pixelSize: Theme.font.large
-                font.weight: Theme.font.weightTitle
+                height: Math.max(titleLabel.implicitHeight, tools.height)
+                Label {
+                    id: titleLabel
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width - (tools.width > 0 ? tools.width + 10 : 0)
+                    text: Media.title
+                    font.pixelSize: Theme.font.large
+                    font.weight: Theme.font.weightTitle
+                }
+                Row {
+                    id: tools
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 4
+
+                    // Player switcher, when there is more than one
+                    Repeater {
+                        model: Media.players.length > 1 ? Media.players : []
+                        PressButton {
+                            required property MprisPlayer modelData
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: Math.min(chip.implicitWidth, 84) + 16
+                            height: 24
+                            color: Theme.islandRaised
+                            active: Media.player === modelData
+                            onClicked: Media.last = modelData
+                            Label {
+                                id: chip
+                                anchors.centerIn: parent
+                                width: Math.min(implicitWidth, 84)
+                                text: modelData.identity
+                                font.pixelSize: Theme.font.small
+                                color: parent.active ? Theme.fgPrimary : Theme.fgIsland
+                            }
+                        }
+                    }
+                    IconButton {
+                        visible: Config.media.lyrics
+                        width: 30
+                        height: 30
+                        icon: "lyrics"
+                        iconSize: 18
+                        active: Config.media.lyricsPane
+                        onClicked: Config.media.lyricsPane = !Config.media.lyricsPane
+                    }
+                }
             }
             Label {
                 width: parent.width
@@ -190,19 +234,6 @@ FocusScope {
         }
     }
 
-    // Lyrics toggle, top right of the text column (beside the player chips)
-    IconButton {
-        visible: Media.player !== null && Config.media.lyrics
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.topMargin: Media.players.length > 1 ? 26 : 0
-        width: 30
-        height: 30
-        icon: "lyrics"
-        iconSize: 18
-        active: Config.media.lyricsPane
-        onClicked: Config.media.lyricsPane = !Config.media.lyricsPane
-    }
 
     Loader {
         active: root.showLyrics
@@ -227,31 +258,6 @@ FocusScope {
         }
     }
 
-    // Player switcher, when there is more than one
-    Row {
-        visible: Media.players.length > 1
-        anchors.right: parent.right
-        anchors.top: parent.top
-        spacing: 4
-        Repeater {
-            model: Media.players
-            PressButton {
-                required property MprisPlayer modelData
-                width: chip.implicitWidth + 16
-                height: 22
-                color: Theme.islandRaised
-                active: Media.player === modelData
-                onClicked: Media.last = modelData
-                Label {
-                    id: chip
-                    anchors.centerIn: parent
-                    text: modelData.identity
-                    font.pixelSize: Theme.font.small
-                    color: parent.active ? Theme.fgPrimary : Theme.fgIsland
-                }
-            }
-        }
-    }
 
     function fmt(s) {
         s = Math.max(0, Math.floor(s));

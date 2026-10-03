@@ -471,7 +471,8 @@ Root causes found:
   - Verified with the fake player (grim): the island line matches `ipc call lyrics state` line by line, toggling the option live adds/removes the watcher; the widget in edit mode shows the slider and lyrics; settings rows render; install --check ok, no config errors, 201 binds
 
 **9e+. Media and island fixes** (added 2026-10-03, on request)
-- [ ] Media view: the player chips overlap the title
+- [x] Media view: the player chips overlap the title
+  - The chips and the lyrics button now sit in the title row (chip names capped at 84 px) and the title elides in the space left. Verified with Brave + Plasma browser integration (grim)
 - [ ] Album art sometimes missing (browser players)
 - [ ] Dock: a half-screen flicker when it hides after a peek
 - [ ] Clicking outside the island closes it
