@@ -473,7 +473,9 @@ Root causes found:
 **9e+. Media and island fixes** (added 2026-10-03, on request)
 - [x] Media view: the player chips overlap the title
   - The chips and the lyrics button now sit in the title row (chip names capped at 84 px) and the title elides in the space left. Verified with Brave + Plasma browser integration (grim)
-- [ ] Album art sometimes missing (browser players)
+- [x] Album art sometimes missing (browser players)
+  - Cause: Brave shows up twice (its own MPRIS without art, and Plasma browser integration, which downloads the art to a temp file and sometimes leaves it out, e.g. on YouTube Music). `Media.art` now falls back to another player of the same process (`kde:pid` / `instance<pid>`), then to the YouTube thumbnail of `xesam:url` (`i.ytimg.com/…/mqdefault.jpg`, 16:9 without bars). `Cover` retries a failed load 3× (700 ms), for art files announced before they are written
+  - Verified over IPC: the art-less Brave player resolves to its sibling's file, a fake player with only a music.youtube.com URL to the thumbnail; Qt loads the https thumbnail (offscreen test)
 - [ ] Dock: a half-screen flicker when it hides after a peek
 - [ ] Clicking outside the island closes it
 

@@ -19,12 +19,36 @@ Singleton {
     readonly property bool isPlaying: player?.isPlaying ?? false
     readonly property string title: player?.trackTitle ?? ""
     readonly property string artist: player?.trackArtist ?? ""
-    readonly property string art: player?.trackArtUrl ?? ""
+    readonly property string art: artFor(player)
     readonly property real length: player?.length ?? 0
     readonly property real progress: length > 0 ? Math.min(1, (player?.position ?? 0) / length) : 0
 
     // Views that show progress raise this; position updates only while > 0
     property int watchers: 0
+
+    // Browsers often leave the art out (Plasma browser integration downloads it to a
+    // temp file, and not always). Fall back to another player of the same process
+    // (Brave's own MPRIS + the extension), then to the YouTube thumbnail of the URL.
+    function pidOf(p) {
+        return String(p?.metadata["kde:pid"] ?? ((p?.dbusName ?? "").match(/instance_?(\d+)/) ?? [])[1] ?? "");
+    }
+    function artFor(p) {
+        if (!p)
+            return "";
+        if (p.trackArtUrl)
+            return p.trackArtUrl;
+        const pid = pidOf(p);
+        const kin = pid === "" ? [] : players.filter(q => q !== p && pidOf(q) === pid);
+        const art = kin.find(q => q.trackArtUrl)?.trackArtUrl;
+        if (art)
+            return art;
+        for (const q of [p, ...kin]) {
+            const id = ((q.metadata["xesam:url"] ?? "").match(/(?:youtube\.com\/watch\?.*?v=|youtu\.be\/)([\w-]{11})/) ?? [])[1];
+            if (id)
+                return "https://i.ytimg.com/vi/" + id + "/mqdefault.jpg";
+        }
+        return "";
+    }
 
     // The player's own volume: its Pipewire stream when one matches (works for
     // every app, browsers included), else MPRIS Volume when the player has it.
