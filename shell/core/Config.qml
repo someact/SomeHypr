@@ -124,6 +124,8 @@ Singleton {
                 property list<string> open: ["resources", "mixer"]   // widgets shown while the overlay is up
                 property list<string> pinned: []      // also shown (click-through) while it is closed
                 property var positions: ({})          // widget id -> { x, y }
+                property bool blur: true              // frost the bar and cards while the overlay is open
+                property bool pinnedBlur: false       // also frost pinned cards after it closes (keeps Hyprland blur on in game mode)
                 property JsonObject crosshair: JsonObject {
                     property bool enabled: false
                     property string color: "#00ff88"

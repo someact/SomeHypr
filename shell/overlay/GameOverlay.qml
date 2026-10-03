@@ -76,17 +76,23 @@ Scope {
             // Frost behind the bar and the open cards (no xray on this layer, so it
             // blurs the game itself). Game mode turns compositor blur off; while the
             // overlay is open it is switched back on (hypr/modes/gamemode.lua).
+            // Card regions follow the card itself in window coordinates: an
+            // `item:` region only updates when that item's own geometry changes,
+            // so it stayed behind while a card was dragged by its parent.
+            readonly property bool frostOpen: Theme.glass && Config.overlay.blur && win.shown
+            readonly property bool frostPinned: Theme.glass && Config.overlay.pinnedBlur && !win.shown && [crosshairCard, fpsCard, resourcesCard, mixerCard, notesCard, lyricsCard].some(l => l.item !== null)
             Region {
                 id: frost
-                Region { item: bar.frost; radius: bar.frostRadius }
-                Region { item: crosshairCard.item?.card.frost ?? null; radius: crosshairCard.item?.card.frostRadius ?? 0 }
-                Region { item: fpsCard.item?.card.frost ?? null; radius: fpsCard.item?.card.frostRadius ?? 0 }
-                Region { item: resourcesCard.item?.card.frost ?? null; radius: resourcesCard.item?.card.frostRadius ?? 0 }
-                Region { item: mixerCard.item?.card.frost ?? null; radius: mixerCard.item?.card.frostRadius ?? 0 }
-                Region { item: notesCard.item?.card.frost ?? null; radius: notesCard.item?.card.frostRadius ?? 0 }
-                Region { item: lyricsCard.item?.card.frost ?? null; radius: lyricsCard.item?.card.frostRadius ?? 0 }
+                Region { item: win.frostOpen ? bar.frost : null; radius: bar.frostRadius }
+                CardRegion { loader: crosshairCard }
+                CardRegion { loader: fpsCard }
+                CardRegion { loader: resourcesCard }
+                CardRegion { loader: mixerCard }
+                CardRegion { loader: notesCard }
+                CardRegion { loader: lyricsCard }
             }
-            BackgroundEffect.blurRegion: Theme.glass && win.shown ? frost : null
+            BackgroundEffect.blurRegion: win.frostOpen || win.frostPinned ? frost : null
+
 
             Rectangle {
                 id: backdrop
@@ -187,7 +193,7 @@ Scope {
                 width: tools.implicitWidth + 12
                 height: 48
                 radius: height / 2
-                tint: Qt.rgba(0, 0, 0, Theme.glass ? 0.5 : 0.8)
+                tint: Qt.rgba(0, 0, 0, win.frostOpen ? 0.5 : 0.8)
 
                 Row {
                     id: tools
@@ -253,5 +259,17 @@ Scope {
             }
 
         }
+    }
+
+    // A card's frost in window coordinates (cards sit at window x/y)
+    component CardRegion: Region {
+        required property Loader loader
+        readonly property Item card: loader.item
+        readonly property bool on: card !== null && card.frosted
+        x: on ? Math.ceil(card.x) + 1 : 0
+        y: on ? Math.ceil(card.y) + 1 : 0
+        width: on ? Math.max(0, Math.floor(card.width) - 2) : 0
+        height: on ? Math.max(0, Math.floor(card.height) - 2) : 0
+        radius: on ? card.card.frostRadius : 0
     }
 }

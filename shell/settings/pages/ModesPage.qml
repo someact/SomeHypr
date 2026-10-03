@@ -55,6 +55,24 @@ Page {
             }
         }
         SettingRow {
+            icon: "blur_on"
+            title: "Frosted glass"
+            subtitle: "Blur the game behind the bar and cards while the overlay is open; off draws them solid"
+            Switch {
+                checked: Config.overlay.blur
+                onToggled: on => Config.overlay.blur = on
+            }
+        }
+        SettingRow {
+            icon: "blur_circular"
+            title: "Frost pinned widgets"
+            subtitle: "Keep the blur behind pinned widgets after the overlay closes. In a game this keeps Hyprland's blur on (a small GPU cost, only under the cards); off draws them translucent"
+            Switch {
+                checked: Config.overlay.pinnedBlur
+                onToggled: on => Config.overlay.pinnedBlur = on
+            }
+        }
+        SettingRow {
             icon: "keep_off"
             title: "Pinned widgets"
             subtitle: Config.overlay.pinned.length > 0 ? Array.from(Config.overlay.pinned).join(", ") : "None"

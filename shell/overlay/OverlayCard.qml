@@ -16,6 +16,8 @@ Item {
     default property alias content: body.data
 
     readonly property bool pinned: Config.overlay.pinned.includes(widgetId)
+    // GameOverlay blurs behind the card (open: overlay.blur, pinned: overlay.pinnedBlur)
+    readonly property bool frosted: Theme.glass && (interactive ? Config.overlay.blur : Config.overlay.pinnedBlur)
     readonly property var saved: Config.overlay.positions?.[widgetId] ?? null
 
     implicitWidth: 300
@@ -52,7 +54,7 @@ Item {
         id: card
         anchors.fill: parent
         radius: Theme.radius.large
-        tint: Qt.rgba(0, 0, 0, !root.interactive ? 0.55 : Theme.glass ? 0.5 : 0.78)
+        tint: Qt.rgba(0, 0, 0, root.frosted ? 0.5 : root.interactive ? 0.78 : 0.55)
         highlight: root.interactive && Config.glass.rim
         border.color: root.interactive ? Theme.glassRim : Qt.rgba(1, 1, 1, 0.05)
     }
