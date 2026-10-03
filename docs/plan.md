@@ -595,9 +595,25 @@ Starting points found while planning:
 ### Phase 11: Optimize, polish and public release
 From your request (2026-10-03). Runs after Phase 10.
 
-**11a. Optimize and polish**
-- [ ] Profile pass: anon/PSS and idle CPU against Phase 9, frame times of island morphs (`debug:overlay`), heaptrack if installed. Remove dead code and unused config keys, and lazy-load anything that still loads eagerly
-- [ ] Polish pass: fix the visual and motion rough edges from daily use and the open hands-on checks of Phases 7–9
+**11a. Optimize and polish** (planned 2026-10-03: optimize without changing the look)
+Measured before starting:
+- Shell CPU idle: 0 %. Hyprland: ~1 % (a terminal spinner drawing). GPU: 8–10 %, ~16 W.
+- Shell anon: 180 MB fresh, 216 / 230 / 222 MB after 1–3 `bench.sh --cycle` rounds, 274–281 MB after ~40 min of mixed use (settings, wallpaper changes, tests).
+- Wasted work found:
+  - The island keeps redrawing at refresh rate while music plays or the mic/record dot pulses, even under a fullscreen window.
+  - Every wallpaper change does a full Hyprland config reload.
+  - Every shell keybind with a fallback starts a `qs` process.
+
+Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greeter's Xorg (stays after login, 74 MB) goes to 11c; Material Symbols keeps its 4 optical sizes.
+- [x] 11a-1. `hypr/scripts/bench.sh`: memory (RSS/PSS/anon) and font mappings, shell and Hyprland CPU over N s, GPU on NVIDIA; `--cycle N` runs a use round over IPC and prints memory after each. README → Checks
+- [ ] 11a-2. Stop drawing the island when nobody can see it: media peak bars, the 1 s progress and the privacy/record pulses pause under a fullscreen window; the bars stop springing once settled
+- [ ] 11a-3. Stop the memory climb: keep the last island view a few seconds instead of rebuilding it on every hover; bound the fuzzysort query cache, Thumbs.pending, emoji/app indexes after their view closes; a stable notification model, images only for the newest ones
+- [ ] 11a-4. Cheaper workspace shapes on Super: no Morph at creation, cache morphs, skip unchanged path rebuilds
+- [ ] 11a-5. Small shell items: no toplevel refresh on focus change, text weights from Theme (fewer faces, no DejaVu fallback), one shared clock for the pill zones, `osk/layout.js` as a library
+- [ ] 11a-6. Hyprland side: shell keybind fallbacks check the island layer in Lua (no process per press); one dbus activation call; wallpaper colors applied with `hyprctl eval` instead of a full config reload; measure `render.cm_enabled`
+- [ ] 11a-7. "Fast glass" setting (off by default): window blur xray, cheaper GPU for glass windows; a floating glass window over another window shows the wallpaper behind it
+- [ ] 11a-8. Polish pass: the open hands-on checks of Phases 7–10 and the rough edges you report
+- [ ] Verify 11a: CLAUDE.md checks, bench fresh and `--cycle 3` against the numbers above, game mode, grim in light and dark to show the look did not change
 
 **11b. Public repo layout**
 - [ ] Move `idea.md` and `Improvement idea.md` to `docs/ideas/`, and update the links in CLAUDE.md and this plan

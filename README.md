@@ -117,3 +117,5 @@ timeout 10 qs -p shell/shell.qml 2>&1 | grep -E "WARN|ERROR"
 ```
 
 `CLAUDE.md` has the full list, including the IPC calls that open each part of the shell.
+
+To measure the shell and Hyprland, run `hypr/scripts/bench.sh`. It prints the shell's memory (anonymous memory and PSS are the numbers to compare, against a fresh start) and its font mappings, then CPU for the shell and Hyprland, plus GPU use and power on NVIDIA, over 30 s. `--cycle N` opens every island view, the overview, the game overlay and widget edit mode N times and prints memory after each round.
