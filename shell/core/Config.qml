@@ -168,6 +168,10 @@ Singleton {
                 property list<string> enabled: ["clock", "media"]
                 property var positions: ({})          // widget id -> { x, y }
                 property bool glass: true             // frosted card behind each widget
+                property string galleryDir: ""        // gallery widget folder (empty: ~/Pictures)
+                property int galleryInterval: 60      // seconds per picture
+                property string weatherCity: ""       // weather widget place (empty: rough location from the IP)
+                property bool fahrenheit: false
             }
             property JsonObject osk: JsonObject {
                 property bool pinned: false           // reserve space so windows sit above it

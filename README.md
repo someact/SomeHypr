@@ -43,7 +43,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 | **Super+G** | Game overlay with resources, mixer, crosshair, FPS limit, notes and lyrics (pin a card to keep it over the game). |
 | **Super+K** | On-screen keyboard. |
 | **Capture** | Region tools: screenshot, OCR, Lens, translate, live translate (keeps translating an area, e.g. game subtitles, in a pinned overlay card; `/translate live`), record. |
-| **Desktop** | Lock screen and desktop widgets. |
+| **Desktop** | Lock screen and desktop widgets: clock, now playing, system, notes, calendar, weather (Open-Meteo), wallpaper, gallery, lyrics, quick launch. Right-click one to arrange them. |
 | **Settings** | A separate window: `qs -c somehypr ipc call settings open`, or `/settings` in search. |
 
 - **Glass:** the compositor blurs exactly the shapes the shell draws (`ext-background-effect`). An optional plugin, *liquid glass*, adds refraction on top; see below.

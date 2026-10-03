@@ -40,23 +40,46 @@ Scope {
             anchors.right: true
             color: "transparent"
 
+            // Every widget's loader; a hidden widget (media, lyrics while nothing plays) counts as absent
+            readonly property var loaders: [clock, media, system, notes, calendar, weather, wallpaper, gallery, lyrics, launch]
+            function shownItem(l) {
+                return l.item?.visible ? l.item : null;
+            }
+
             // Input: just the widgets, or the whole screen while editing
             mask: Region {
                 item: win.editing ? backdrop : null
-                Region { item: clock.item }
-                Region { item: media.item?.visible ? media.item : null }
-                Region { item: system.item }
-                Region { item: notes.item }
+                Region { item: win.shownItem(clock) }
+                Region { item: win.shownItem(media) }
+                Region { item: win.shownItem(system) }
+                Region { item: win.shownItem(notes) }
+                Region { item: win.shownItem(calendar) }
+                Region { item: win.shownItem(weather) }
+                Region { item: win.shownItem(wallpaper) }
+                Region { item: win.shownItem(gallery) }
+                Region { item: win.shownItem(lyrics) }
+                Region { item: win.shownItem(launch) }
             }
+
             // Frost behind framed cards. Never an empty region (that blurs everything).
-            readonly property bool anyFramed: Theme.blur && Config.widgets.glass && (media.item?.visible || system.item || notes.item)
+            // Each region is built from the widget's own x/y: an `item:` region on
+            // the card would not follow the widget while it is dragged.
+            readonly property bool anyFramed: Theme.blur && Config.widgets.glass && loaders.some(l => win.shownItem(l)?.framed)
             Region {
                 id: blurArea
-                Region { item: media.item?.visible ? media.item.card.frost : null; radius: media.item?.card.frostRadius ?? 0 }
-                Region { item: system.item?.card.frost ?? null; radius: system.item?.card.frostRadius ?? 0 }
-                Region { item: notes.item?.card.frost ?? null; radius: notes.item?.card.frostRadius ?? 0 }
+                WidgetRegion { loader: clock }
+                WidgetRegion { loader: media }
+                WidgetRegion { loader: system }
+                WidgetRegion { loader: notes }
+                WidgetRegion { loader: calendar }
+                WidgetRegion { loader: weather }
+                WidgetRegion { loader: wallpaper }
+                WidgetRegion { loader: gallery }
+                WidgetRegion { loader: lyrics }
+                WidgetRegion { loader: launch }
             }
             BackgroundEffect.blurRegion: anyFramed ? blurArea : null
+
 
             // Edit mode: dim the desktop, show a grid
             Rectangle {
@@ -103,6 +126,62 @@ Scope {
                     area: Qt.size(win.width, win.height)
                     live: win.uncovered || win.editing
                     defaultPos: Qt.point(win.width - 420, 88)
+                }
+            }
+            Loader {
+                id: calendar
+                active: Widgets.isOn("calendar")
+                sourceComponent: CalendarWidget {
+                    widgetId: "calendar"
+                    area: Qt.size(win.width, win.height)
+                    defaultPos: Qt.point(64, 520)
+                }
+            }
+            Loader {
+                id: weather
+                active: Widgets.isOn("weather")
+                sourceComponent: WeatherWidget {
+                    widgetId: "weather"
+                    area: Qt.size(win.width, win.height)
+                    defaultPos: Qt.point(win.width - 340, 560)
+                }
+            }
+            Loader {
+                id: wallpaper
+                active: Widgets.isOn("wallpaper")
+                sourceComponent: WallpaperWidget {
+                    widgetId: "wallpaper"
+                    area: Qt.size(win.width, win.height)
+                    defaultPos: Qt.point(400, 88)
+                }
+            }
+            Loader {
+                id: gallery
+                active: Widgets.isOn("gallery")
+                sourceComponent: GalleryWidget {
+                    widgetId: "gallery"
+                    area: Qt.size(win.width, win.height)
+                    live: win.uncovered || win.editing
+                    defaultPos: Qt.point(win.width - 760, 88)
+                }
+            }
+            Loader {
+                id: lyrics
+                active: Widgets.isOn("lyrics")
+                sourceComponent: LyricsWidget {
+                    widgetId: "lyrics"
+                    area: Qt.size(win.width, win.height)
+                    live: win.uncovered || win.editing
+                    defaultPos: Qt.point(Math.round(win.width / 2 - 200), win.height - 330)
+                }
+            }
+            Loader {
+                id: launch
+                active: Widgets.isOn("launch")
+                sourceComponent: LaunchWidget {
+                    widgetId: "launch"
+                    area: Qt.size(win.width, win.height)
+                    defaultPos: Qt.point(400, 330)
                 }
             }
             Loader {
@@ -205,5 +284,16 @@ Scope {
                 }
             }
         }
+    }
+
+    // A framed widget's frost in window coordinates (widgets sit at window x/y)
+    component WidgetRegion: Region {
+        required property Loader loader
+        readonly property Item w: loader.item?.visible && loader.item.framed ? loader.item : null
+        x: w ? Math.ceil(w.x) + 1 : 0
+        y: w ? Math.ceil(w.y) + 1 : 0
+        width: w ? Math.max(0, Math.floor(w.width) - 2) : 0
+        height: w ? Math.max(0, Math.floor(w.height) - 2) : 0
+        radius: w ? w.card.frostRadius : 0
     }
 }

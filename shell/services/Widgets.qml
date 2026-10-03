@@ -13,7 +13,13 @@ Singleton {
         { id: "clock", icon: "schedule", name: "Clock" },
         { id: "media", icon: "music_note", name: "Now playing" },
         { id: "system", icon: "monitoring", name: "System" },
-        { id: "notes", icon: "sticky_note_2", name: "Notes" }
+        { id: "notes", icon: "sticky_note_2", name: "Notes" },
+        { id: "calendar", icon: "calendar_month", name: "Calendar" },
+        { id: "weather", icon: "partly_cloudy_day", name: "Weather" },
+        { id: "wallpaper", icon: "wallpaper", name: "Wallpaper" },
+        { id: "gallery", icon: "photo_library", name: "Gallery" },
+        { id: "lyrics", icon: "lyrics", name: "Lyrics" },
+        { id: "launch", icon: "apps", name: "Quick launch" }
     ]
     // Game mode hides them all; edit mode shows the layer even with none on
     readonly property bool shown: !GameMode.active && (Config.widgets.enabled.length > 0 || UiState.widgetEdit)

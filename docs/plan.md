@@ -499,7 +499,11 @@ Root causes found:
 **9g. Widgets and lock polish**
 - [x] Lock dots: only the added or removed dot animates; smooth clear after the shake
   - Done in 9b+ (password shapes)
-- [ ] New widgets: wallpaper, gallery, calendar, weather, lyrics, quick launch
+- [x] New widgets: wallpaper, gallery, calendar, weather, lyrics, quick launch
+  - Calendar (locale's first weekday, today as a cookie shape, ‹ › months, minute clock only), Weather (`services/Weather.qml`: Open-Meteo, place from `widgets.weatherCity` or a rough IP location via ip-api.com, °C/°F, one curl chain at start and every 30 min, only while the widget is on), Wallpaper (thumbnail, shuffle, light/dark, picker), Gallery (FolderListModel over `widgets.galleryDir`, default ~/Pictures; crossfade every `widgets.galleryInterval` s only while the desktop is visible; images decoded at widget size; click next, double-click opens), Lyrics (five synced lines, outlined when unframed; the line follows only while visible), Quick launch (most used apps by search frecency, topped up with the dock's pinned apps, eight at most)
+  - Settings → Desktop lists them all, plus weather place/units and gallery folder/speed (shown while that widget is on)
+  - Fixed on the way: the widgets' frost used `item:` regions on the card, so it lagged behind a dragged widget (same as the overlay cards); each region is now built from the widget's x/y
+  - Verified with all ten on in edit mode (grim): weather found Uttaradit 31 °C with a 3-day forecast, calendar marks today, gallery crossfades on a 5 s test interval, frost follows a dragged widget; your widget setup was restored afterwards
 - [x] Game overlay lyrics card: the playing track's synced lyrics on screen over the game, pinnable click-through (added 2026-10-03)
   - `overlay/LyricsCard.qml` (toolbar button, key 6): open, it shows the track (art, title, artist), previous / play-pause / next and five lines (`LyricsPane`, click seeks); pinned over a game, three larger lines with a dark glyph outline (`LyricsPane.outline`) so they read over anything. Messages for lyrics off, nothing playing, loading, none, error (click retries). Raises `Lyrics.watchers` only while the card exists
   - Verified with a real YouTube Music track in Brave (Aimer "Ito", synced Japanese lyrics): card opens with the overlay, pin by click, overlay closed → the card stays, follows the song, and a click on it lands on the window below (grim)

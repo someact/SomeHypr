@@ -12,7 +12,13 @@ Page {
         { id: "clock", icon: "schedule", name: "Clock", note: "Large time and date" },
         { id: "media", icon: "music_note", name: "Now playing", note: "Shown only while something plays" },
         { id: "system", icon: "monitoring", name: "System", note: "CPU, GPU, RAM, VRAM; updates only while the desktop is uncovered" },
-        { id: "notes", icon: "sticky_note_2", name: "Notes", note: "Same notes as the game overlay" }
+        { id: "notes", icon: "sticky_note_2", name: "Notes", note: "Same notes as the game overlay" },
+        { id: "calendar", icon: "calendar_month", name: "Calendar", note: "This month; ‹ › to look around, the title goes back to today" },
+        { id: "weather", icon: "partly_cloudy_day", name: "Weather", note: "Open-Meteo, refreshed every 30 minutes while shown" },
+        { id: "wallpaper", icon: "wallpaper", name: "Wallpaper", note: "Current wallpaper; shuffle, light/dark, picker" },
+        { id: "gallery", icon: "photo_library", name: "Gallery", note: "Slideshow of a folder; changes only while the desktop is visible" },
+        { id: "lyrics", icon: "lyrics", name: "Lyrics", note: "Synced lyrics of what is playing" },
+        { id: "launch", icon: "apps", name: "Quick launch", note: "Your most used apps, then the dock's pinned ones" }
     ]
     function toggleWidget(id, on) {
         const list = Config.widgets.enabled.filter(w => w !== id);
@@ -43,6 +49,53 @@ Page {
             Switch {
                 checked: Config.media.widgetLyrics
                 onToggled: on => Config.media.widgetLyrics = on
+            }
+        }
+        SettingRow {
+            visible: Config.widgets.enabled.includes("weather")
+            icon: "location_on"
+            title: "Weather place"
+            subtitle: "A city name; empty uses a rough location from your IP (ip-api.com)"
+            Row {
+                spacing: 8
+                Field {
+                    implicitWidth: 200
+                    placeholder: "Automatic"
+                    text: Config.widgets.weatherCity
+                    onCommitted: t => Config.widgets.weatherCity = t.trim()
+                }
+                Choice {
+                    value: Config.widgets.fahrenheit
+                    model: [{ value: false, label: "°C" }, { value: true, label: "°F" }]
+                    onPicked: v => Config.widgets.fahrenheit = v
+                }
+            }
+        }
+        SettingRow {
+            visible: Config.widgets.enabled.includes("gallery")
+            icon: "folder_open"
+            title: "Gallery folder"
+            subtitle: "Pictures directly in this folder (not its subfolders)"
+            Field {
+                implicitWidth: 260
+                placeholder: Paths.home + "/Pictures"
+                text: Config.widgets.galleryDir
+                onCommitted: t => Config.widgets.galleryDir = t.trim()
+            }
+        }
+        SettingRow {
+            visible: Config.widgets.enabled.includes("gallery")
+            icon: "timer"
+            title: "Gallery speed"
+            changed: Config.widgets.galleryInterval !== 60
+            onReset: Config.widgets.galleryInterval = 60
+            ValueSlider {
+                from: 5
+                to: 600
+                stepSize: 5
+                suffix: " s"
+                value: Config.widgets.galleryInterval
+                onMoved: v => Config.widgets.galleryInterval = v
             }
         }
         SettingRow {
