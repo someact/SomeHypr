@@ -22,7 +22,7 @@ Singleton {
 
     // The game overlay frosts its cards: Hyprland keeps blur on while it is open
     // (overlay.blur), and while frosted cards stay pinned (overlay.pinnedBlur)
-    readonly property bool overlayBlur: Config.overlay.blur && UiState.overlay || Config.overlay.pinnedBlur && Config.overlay.pinned.length > 0
+    readonly property bool overlayBlur: Config.overlay.style.look === "glass" && (Config.overlay.blur && UiState.overlay || Config.overlay.pinnedBlur && Config.overlay.pinned.length > 0)
     onOverlayBlurChanged: Quickshell.execDetached(["hyprctl", "eval", `GameMode.overlay(${overlayBlur})`])
 
     Connections {

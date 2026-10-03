@@ -16,12 +16,18 @@ Item {
     default property alias content: body.data
 
     readonly property bool pinned: Config.overlay.pinned.includes(widgetId)
+    // Look (overlay.style): glass | solid | minimal, tint opacity, accent, radius, compact
+    readonly property var style: Config.overlay.style
+    readonly property bool minimal: style.look === "minimal"
+    readonly property bool compact: style.compact
+    readonly property color accent: style.accent !== "" ? style.accent : Theme.primary
+    readonly property color onAccent: style.accent !== "" ? "#101014" : Theme.fgPrimary
     // GameOverlay blurs behind the card (open: overlay.blur, pinned: overlay.pinnedBlur)
-    readonly property bool frosted: Theme.glass && (interactive ? Config.overlay.blur : Config.overlay.pinnedBlur)
+    readonly property bool frosted: Theme.glass && style.look === "glass" && (interactive ? Config.overlay.blur : Config.overlay.pinnedBlur)
     readonly property var saved: Config.overlay.positions?.[widgetId] ?? null
 
     implicitWidth: 300
-    implicitHeight: header.height + body.childrenRect.height + 24
+    implicitHeight: header.height + body.childrenRect.height + (compact ? 12 : 24)
     x: saved?.x ?? defaultPos.x
     y: saved?.y ?? defaultPos.y
 
@@ -53,32 +59,38 @@ Item {
     Glass {
         id: card
         anchors.fill: parent
-        radius: Theme.radius.large
-        tint: Qt.rgba(0, 0, 0, root.frosted ? 0.5 : root.interactive ? 0.78 : 0.55)
-        highlight: root.interactive && Config.glass.rim
-        border.color: root.interactive ? Theme.glassRim : Qt.rgba(1, 1, 1, 0.05)
+        radius: root.style.radius
+        // Without frost a glass card needs more tint to stay readable; minimal is
+        // only a faint backing (no rim)
+        tint: Qt.rgba(0, 0, 0, root.minimal ? (root.interactive ? 0.25 : 0.15) : root.frosted || root.style.look === "solid" ? root.style.opacity : Math.min(0.9, root.style.opacity + 0.25))
+        highlight: root.interactive && Config.glass.rim && root.style.look === "glass"
+        border.width: root.minimal && !root.interactive ? 0 : 1
+        border.color: root.interactive && root.style.look === "glass" ? Theme.glassRim : Qt.rgba(1, 1, 1, 0.05)
     }
 
     Item {
         id: header
         width: parent.width
-        height: root.interactive ? 40 : 30
+        height: root.interactive ? (root.compact ? 32 : 40) : (root.compact ? 24 : 30)
         Row {
             anchors.left: parent.left
-            anchors.leftMargin: 14
+            anchors.leftMargin: root.compact ? 10 : 14
             anchors.verticalCenter: parent.verticalCenter
             spacing: 8
             Icon {
                 anchors.verticalCenter: parent.verticalCenter
                 name: root.icon
-                size: 17
+                size: root.compact ? 15 : 17
                 fill: 1
-                color: Theme.primary
+                color: root.accent
             }
             Label {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.title
                 font.weight: Theme.font.weightTitle
+                font.pixelSize: root.compact ? Theme.font.small : Theme.font.normal
+                style: root.minimal ? Text.Outline : Text.Normal
+                styleColor: Qt.rgba(0, 0, 0, 0.7)
             }
         }
         MouseArea {
@@ -100,6 +112,8 @@ Item {
                 iconSize: 16
                 icon: "keep"
                 active: root.pinned
+                activeColor: root.accent
+                iconColor: active ? root.onAccent : Theme.fgIsland
                 onClicked: root.togglePin()
             }
             IconButton {
@@ -114,9 +128,9 @@ Item {
 
     Item {
         id: body
-        x: 14
+        x: root.compact ? 10 : 14
         y: header.height
-        width: parent.width - 28
+        width: parent.width - (root.compact ? 20 : 28)
         height: childrenRect.height
         enabled: root.interactive
     }

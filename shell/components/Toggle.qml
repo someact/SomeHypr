@@ -10,6 +10,7 @@ PressButton {
     property string title
     property string subtitle
     property bool compact: false
+    property color activeFg: Theme.fgPrimary
 
     implicitWidth: 170
     implicitHeight: 52
@@ -25,7 +26,7 @@ PressButton {
         name: root.icon
         size: 22
         fill: root.active ? 1 : 0
-        color: root.active ? Theme.fgPrimary : Theme.fgIsland
+        color: root.active ? root.activeFg : Theme.fgIsland
     }
 
     Row {
@@ -40,7 +41,7 @@ PressButton {
             name: root.icon
             size: 22
             fill: root.active ? 1 : 0
-            color: root.active ? Theme.fgPrimary : Theme.fgIsland
+            color: root.active ? root.activeFg : Theme.fgIsland
         }
         Column {
             anchors.verticalCenter: parent.verticalCenter
@@ -49,14 +50,14 @@ PressButton {
                 width: parent.width
                 text: root.title
                 font.weight: Theme.font.weightTitle
-                color: root.active ? Theme.fgPrimary : Theme.fgIsland
+                color: root.active ? root.activeFg : Theme.fgIsland
             }
             Label {
                 width: parent.width
                 visible: text !== ""
                 text: root.subtitle
                 font.pixelSize: Theme.font.small
-                color: root.active ? Theme.fgPrimary : Theme.fgIslandDim
+                color: root.active ? root.activeFg : Theme.fgIslandDim
                 opacity: 0.85
             }
         }

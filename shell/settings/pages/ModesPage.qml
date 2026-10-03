@@ -55,6 +55,7 @@ Page {
             }
         }
         SettingRow {
+            visible: Config.overlay.style.look === "glass"
             icon: "blur_on"
             title: "Frosted glass"
             subtitle: "Blur the game behind the bar and cards while the overlay is open; off draws them solid"
@@ -64,6 +65,7 @@ Page {
             }
         }
         SettingRow {
+            visible: Config.overlay.style.look === "glass"
             icon: "blur_circular"
             title: "Frost pinned widgets"
             subtitle: "Keep the blur behind pinned widgets after the overlay closes. In a game this keeps Hyprland's blur on (a small GPU cost, only under the cards); off draws them translucent"
@@ -85,6 +87,91 @@ Page {
         }
     }
 
+
+    Section {
+        title: "Overlay style"
+        note: "How the Super+G bar and widgets look. Applies live, also to pinned widgets."
+        SettingRow {
+            icon: "style"
+            title: "Look"
+            subtitle: "Glass: tinted and frosted · Solid: no blur · Minimal: no card when pinned, outlined text"
+            Choice {
+                value: Config.overlay.style.look
+                model: [{ value: "glass", label: "Glass" }, { value: "solid", label: "Solid" }, { value: "minimal", label: "Minimal" }]
+                onPicked: v => Config.overlay.style.look = v
+            }
+        }
+        SettingRow {
+            visible: Config.overlay.style.look !== "minimal"
+            icon: "opacity"
+            title: "Opacity"
+            subtitle: "Darkness of the cards"
+            changed: Config.overlay.style.opacity !== 0.5
+            onReset: Config.overlay.style.opacity = 0.5
+            ValueSlider {
+                from: 0.2
+                to: 0.95
+                stepSize: 0.05
+                value: Config.overlay.style.opacity
+                onMoved: v => Config.overlay.style.opacity = v
+            }
+        }
+        SettingRow {
+            icon: "palette"
+            title: "Accent"
+            subtitle: "Icons and active buttons; Theme follows the wallpaper"
+            Row {
+                spacing: 8
+                Repeater {
+                    model: ["", "#00ff88", "#00e5ff", "#ffd60a", "#ff9f0a", "#ff3b30", "#ff2dd4", "#ffffff"]
+                    Rectangle {
+                        required property string modelData
+                        width: 26
+                        height: 26
+                        radius: 13
+                        color: modelData !== "" ? modelData : Theme.primary
+                        border.width: Config.overlay.style.accent === modelData ? 3 : 1
+                        border.color: Config.overlay.style.accent === modelData ? Theme.fgSurface : Qt.rgba(0, 0, 0, 0.4)
+                        Icon {
+                            anchors.centerIn: parent
+                            visible: parent.modelData === ""
+                            name: "wallpaper"
+                            size: 14
+                            color: Theme.fgPrimary
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Config.overlay.style.accent = parent.modelData
+                        }
+                    }
+                }
+            }
+        }
+        SettingRow {
+            icon: "rounded_corner"
+            title: "Corner radius"
+            changed: Config.overlay.style.radius !== 22
+            onReset: Config.overlay.style.radius = 22
+            ValueSlider {
+                from: 0
+                to: 32
+                stepSize: 1
+                suffix: " px"
+                value: Config.overlay.style.radius
+                onMoved: v => Config.overlay.style.radius = v
+            }
+        }
+        SettingRow {
+            icon: "density_small"
+            title: "Compact"
+            subtitle: "Slimmer title bars and padding"
+            Switch {
+                checked: Config.overlay.style.compact
+                onToggled: on => Config.overlay.style.compact = on
+            }
+        }
+    }
     Section {
         title: "Streamer mode"
         note: "Notification text is hidden in the island, and peeks show on a layer that screen shares and recordings leave out."

@@ -79,7 +79,7 @@ Scope {
             // Card regions follow the card itself in window coordinates: an
             // `item:` region only updates when that item's own geometry changes,
             // so it stayed behind while a card was dragged by its parent.
-            readonly property bool frostOpen: Theme.glass && Config.overlay.blur && win.shown
+            readonly property bool frostOpen: Theme.glass && Config.overlay.style.look === "glass" && Config.overlay.blur && win.shown
             readonly property bool frostPinned: Theme.glass && Config.overlay.pinnedBlur && !win.shown && [crosshairCard, fpsCard, resourcesCard, mixerCard, notesCard, lyricsCard].some(l => l.item !== null)
             Region {
                 id: frost
@@ -193,7 +193,7 @@ Scope {
                 width: tools.implicitWidth + 12
                 height: 48
                 radius: height / 2
-                tint: Qt.rgba(0, 0, 0, win.frostOpen ? 0.5 : 0.8)
+                tint: Qt.rgba(0, 0, 0, win.frostOpen || Config.overlay.style.look === "solid" ? Math.max(0.35, Config.overlay.style.opacity) : 0.8)
 
                 Row {
                     id: tools
@@ -209,6 +209,8 @@ Scope {
                             iconSize: 19
                             icon: modelData.icon
                             active: Config.overlay.open.includes(modelData.id)
+                            activeColor: Config.overlay.style.accent !== "" ? Config.overlay.style.accent : Theme.primary
+                            iconColor: active ? (Config.overlay.style.accent !== "" ? "#101014" : Theme.fgPrimary) : Theme.fgIsland
                             onClicked: win.toggle(modelData.id)
                         }
                     }

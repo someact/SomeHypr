@@ -126,6 +126,13 @@ Singleton {
                 property var positions: ({})          // widget id -> { x, y }
                 property bool blur: true              // frost the bar and cards while the overlay is open
                 property bool pinnedBlur: false       // also frost pinned cards after it closes (keeps Hyprland blur on in game mode)
+                property JsonObject style: JsonObject {
+                    property string look: "glass"     // glass (tint + rim, frosted) | solid (no blur) | minimal (no card, outlined text)
+                    property real opacity: 0.5        // card tint (glass, solid)
+                    property string accent: ""        // "" = theme primary, or a #rrggbb
+                    property int radius: 22           // card corners
+                    property bool compact: false      // slimmer title bars and padding
+                }
                 property JsonObject crosshair: JsonObject {
                     property bool enabled: false
                     property string color: "#00ff88"

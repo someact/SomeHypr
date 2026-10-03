@@ -484,7 +484,10 @@ Root causes found:
   - Verified: a click on a window outside closes the island (grab cleared); → keys after the switch still change views
 
 **9f. Game overlay and live translator**
-- [ ] Overlay style settings (glass/solid/minimal, opacity, accent, radius, compact) under `overlay.style`
+- [x] Overlay style settings (glass/solid/minimal, opacity, accent, radius, compact) under `overlay.style`
+  - `overlay.style` { look, opacity, accent, radius, compact }, Settings → Modes → Overlay style (segmented look, opacity slider, accent swatches with "Theme", corner radius, compact). Glass = tint + rim + frost (the frost switches show only for glass, and Hyprland's game-mode blur is asked for only then); solid = no blur, tint at the opacity; minimal = faint backing, no rim, outlined titles
+  - Accent colors the card icons, the toolbar's active buttons, pin, crosshair toggles and FPS presets (dark content on custom accents; `Toggle.activeFg` added). Compact: 32 px title bars (24 pinned), 10 px padding
+  - Verified live over the open overlay and pinned cards (grim): glass, solid + yellow + 8 px + compact, minimal + cyan open and pinned; settings page loads with no warnings
 - [ ] Live area translator (`overlay/TranslateCard.qml` + `services/LiveTranslate.qml`): pick an area once; re-run OCR and `trans` only when the pixels change, with one chain at a time; stops on unpin
 - [ ] `/translate live` command and an overlay card entry
 

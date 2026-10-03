@@ -71,6 +71,8 @@ OverlayCard {
                 icon: "point_scan"
                 title: root.c.enabled ? "On" : "Off"
                 active: root.c.enabled
+                activeColor: root.accent
+                activeFg: root.onAccent
                 onClicked: root.c.enabled = !root.c.enabled
             }
             Toggle {
@@ -79,6 +81,8 @@ OverlayCard {
                 icon: "fiber_manual_record"
                 title: "Dot"
                 active: root.c.dot
+                activeColor: root.accent
+                activeFg: root.onAccent
                 onClicked: root.c.dot = !root.c.dot
             }
         }

@@ -46,12 +46,13 @@ OverlayCard {
                     radius: 16
                     color: Theme.islandRaised
                     active: root.current === modelData
+                    activeColor: root.accent
                     onClicked: root.apply(modelData)
                     Label {
                         anchors.centerIn: parent
                         mono: preset.modelData > 0
                         text: preset.modelData > 0 ? preset.modelData : "Off"
-                        color: preset.active ? Theme.fgPrimary : Theme.fgIsland
+                        color: preset.active ? root.onAccent : Theme.fgIsland
                     }
                 }
             }
