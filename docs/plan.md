@@ -492,6 +492,7 @@ Root causes found:
 - [x] Lock dots: only the added or removed dot animates; smooth clear after the shake
   - Done in 9b+ (password shapes)
 - [ ] New widgets: wallpaper, gallery, calendar, weather, lyrics, quick launch
+- [ ] Game overlay lyrics card: the playing track's synced lyrics on screen over the game, pinnable click-through (added 2026-10-03)
 
 - [ ] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode
 - [ ] Hands-on check by you: feel of the hover peek, glass over real windows, lyrics, live translator in a game
