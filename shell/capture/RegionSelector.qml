@@ -132,7 +132,7 @@ Scope {
                     color: "transparent"
                     radius: win.hasSel ? 2 : 10
                     border.width: 2
-                    border.color: Theme.primary
+                    border.color: Theme.accentIsland
                 }
             }
 

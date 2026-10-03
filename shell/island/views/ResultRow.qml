@@ -49,7 +49,7 @@ Item {
                 visible: root.iconSource === "" && root.glyph === ""
                 name: root.icon
                 size: 22
-                color: root.current ? Theme.primary : Theme.fgIsland
+                color: root.current ? Theme.accentIsland : Theme.fgIsland
             }
             Text {
                 anchors.centerIn: parent

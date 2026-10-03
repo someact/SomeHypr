@@ -277,7 +277,7 @@ Scope {
         }
         Rectangle {
             anchors.fill: parent
-            color: tile.target ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.25) : hover.hovered ? Qt.rgba(1, 1, 1, 0.06) : "transparent"
+            color: tile.target ? Qt.rgba(Theme.accentIsland.r, Theme.accentIsland.g, Theme.accentIsland.b, 0.25) : hover.hovered ? Qt.rgba(1, 1, 1, 0.06) : "transparent"
             Behavior on color {
                 ColorAnimation { duration: Motion.fast }
             }
@@ -311,7 +311,7 @@ Scope {
         radius: Theme.radius.normal
         color: "transparent"
         border.width: current || selected || target ? 2 : 1
-        border.color: target || current ? Theme.primary : selected ? Theme.fgSurface : Qt.rgba(1, 1, 1, 0.12)
+        border.color: target || current ? Theme.accentIsland : selected ? Theme.fgSurface : Qt.rgba(1, 1, 1, 0.12)
 
         Rectangle {
             x: 8

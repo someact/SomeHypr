@@ -59,6 +59,12 @@ Item {
 
     signal rightClicked(string id)
 
+    // The view opens with the grid at width 0; springs start one tick after the
+    // first real width, so opening lays everything out without animating it
+    property bool settled: false
+    onWidthChanged: if (width > 0 && !settled)
+        Qt.callLater(() => grid.settled = true)
+
     implicitHeight: edit ? hiddenTop + Math.max(52, hiddenPack.height) : shownPack.height
 
     function isSlider(i) {
@@ -144,15 +150,15 @@ Item {
             width: slot?.w ?? 0
             height: slot?.h ?? 0
             Behavior on x {
-                enabled: cell.placed && !cell.dragging
+                enabled: grid.settled && cell.placed && !cell.dragging
                 Spring { preset: "snappy" }
             }
             Behavior on y {
-                enabled: cell.placed && !cell.dragging
+                enabled: grid.settled && cell.placed && !cell.dragging
                 Spring { preset: "snappy" }
             }
             Behavior on width {
-                enabled: cell.placed
+                enabled: grid.settled && cell.placed
                 Spring { preset: "snappy" }
             }
 

@@ -583,6 +583,15 @@ Starting points found while planning:
   - Game mode forced on: blur, shadows and animations off, island → dot, schedule rotation paused; auto restored all of them
 - [ ] Hands-on check by you: brightness slider and keys, Super+Alt+N with a few windows, editing the quick options by hand, a real day with the time-of-day schedule (and Follow the sun)
 
+**10+. Light mode and slider fixes** (added 2026-10-03, on request)
+- [x] Unreadable text and icons in light mode
+  - Tested every surface in light mode with grim: all island views, overview, game overlay, on-screen keyboard, lock preview, widgets edit bar, pills, every settings page (the dock read from code: theme colors on its glass, island colors on its dark menu and tooltip)
+  - Causes: (1) `Slider` drew its icon and value over the light fill in `Theme.surface`, which is light in light mode (island Control and Mixer, the overlay mixer card); (2) `Theme.primary` used as an accent on surfaces that stay dark (island, game overlay, overview, region picker) turns dark teal in light mode (the shortcuts group header, polkit and translate icons, meters, media peak bars, selected rows, borders); (3) the new slot chevrons on Settings → Wallpaper had no icon color, so they took the island's near-white
+  - New `Theme.accentIsland` / `fgAccentIsland` (matugen `primary_fixed_dim` / `on_primary_fixed`, the same in both modes) for those dark surfaces, and `Theme.fgOnIslandFill` for the slider content. Fills paired with `fgPrimary` (tiles, switches, badges) and light surfaces (widgets, keyboard, settings) keep `Theme.primary`. Every other settings `IconButton` already set its color
+  - Verified in light mode (grim): shortcuts header, mixer and Control sliders, overlay toolbar, Wallpaper page chevrons
+- [x] The Control view's sliders animated every time the island opened
+  - Cause: the view is created on open with width 0, so the slider fill (and the tile cells' x/y/width) sprang from 0 to their real size. `Slider` and `TileGrid` now enable those springs one tick after their first real width. Verified: frames 200 ms into opening already show the sliders at their value; later changes still spring
+
 ### Phase 11: Optimize, polish and public release
 From your request (2026-10-03). Runs after Phase 10.
 

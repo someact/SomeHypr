@@ -68,7 +68,7 @@ Item {
                 anchors.fill: parent
                 preferredRendererType: Shape.CurveRenderer
                 ShapePath {
-                    strokeColor: Theme.primary
+                    strokeColor: Theme.accentIsland
                     strokeWidth: 2
                     fillColor: "transparent"
                     capStyle: ShapePath.RoundCap
@@ -123,7 +123,7 @@ Item {
                 width: 3
                 radius: 1.5
                 height: 3 + 11 * Math.min(1, peaks.playing ? level * 1.4 : 0)
-                color: Theme.primary
+                color: Theme.accentIsland
                 Behavior on height {
                     Spring { preset: "snappy" }
                 }

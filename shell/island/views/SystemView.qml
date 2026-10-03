@@ -104,7 +104,7 @@ FocusScope {
                 height: parent.height
                 radius: 2
                 width: parent.width * Math.min(1, meter.value)
-                color: meter.value > 0.85 ? Theme.error : Theme.primary
+                color: meter.value > 0.85 ? Theme.error : Theme.accentIsland
                 Behavior on width {
                     Spring { preset: "gentle" }
                 }

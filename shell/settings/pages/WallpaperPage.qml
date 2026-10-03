@@ -273,6 +273,7 @@ Page {
                             height: 32
                             iconSize: 20
                             icon: slot.open ? "expand_less" : "expand_more"
+                            iconColor: Theme.fgSurfaceVariant
                             hoverColor: Theme.surfaceHigh
                             onClicked: page.expanded = slot.open ? "" : slot.modelData
                         }

@@ -60,7 +60,7 @@ FocusScope {
                 name: "translate"
                 size: 22
                 fill: 1
-                color: Theme.primary
+                color: Theme.accentIsland
             }
             Label {
                 anchors.verticalCenter: parent.verticalCenter

@@ -20,8 +20,8 @@ Item {
     readonly property var style: Config.overlay.style
     readonly property bool minimal: style.look === "minimal"
     readonly property bool compact: style.compact
-    readonly property color accent: style.accent !== "" ? style.accent : Theme.primary
-    readonly property color onAccent: style.accent !== "" ? "#101014" : Theme.fgPrimary
+    readonly property color accent: style.accent !== "" ? style.accent : Theme.accentIsland
+    readonly property color onAccent: style.accent !== "" ? "#101014" : Theme.fgAccentIsland
     // GameOverlay blurs behind the card (open: overlay.blur, pinned: overlay.pinnedBlur)
     readonly property bool frosted: Theme.glass && style.look === "glass" && (interactive ? Config.overlay.blur : Config.overlay.pinnedBlur)
     readonly property var saved: Config.overlay.positions?.[widgetId] ?? null

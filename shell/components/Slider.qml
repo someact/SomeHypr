@@ -13,9 +13,14 @@ Item {
     property color trackColor: Theme.islandRaised
     property color contentColor: Theme.fgIsland     // icon (and dimmed value) over the track
     property color contentDim: Theme.fgIslandDim
-    property color contentOnFill: Theme.surface      // the same over the fill
+    property color contentOnFill: Theme.fgOnIslandFill   // the same over the fill (fixed: the fill stays light in both modes)
     property real step: 0.05
     readonly property bool dragging: mouse.pressed
+    // The fill springs only after the first real width, so a slider that is
+    // created (a view opening) shows its value at once instead of growing to it
+    property bool settled: false
+    onWidthChanged: if (width > 0 && !settled)
+        Qt.callLater(() => root.settled = true)
 
     signal moved(real value)
     signal iconClicked
@@ -42,7 +47,7 @@ Item {
             color: root.fillColor
             width: Math.max(height, parent.width * Math.min(1, root.value))
             Behavior on width {
-                enabled: !root.dragging
+                enabled: root.settled && !root.dragging
                 Spring { preset: "snappy" }
             }
         }

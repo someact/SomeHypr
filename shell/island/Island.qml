@@ -501,7 +501,7 @@ PanelWindow {
                     name: "admin_panel_settings"
                     size: 18
                     fill: 1
-                    color: Theme.primary
+                    color: Theme.accentIsland
                 }
                 Label {
                     anchors.verticalCenter: parent.verticalCenter

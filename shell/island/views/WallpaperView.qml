@@ -175,7 +175,7 @@ FocusScope {
                 radius: Theme.radius.normal
                 color: Theme.islandRaised
                 border.width: cell.isCurrent ? 2 : 0
-                border.color: Theme.primary
+                border.color: Theme.accentIsland
                 scale: mouse.pressed ? 0.96 : 1
                 Behavior on scale {
                     Spring { preset: "bouncy" }

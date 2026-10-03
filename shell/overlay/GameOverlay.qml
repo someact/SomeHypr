@@ -221,8 +221,8 @@ Scope {
                             iconSize: 19
                             icon: modelData.icon
                             active: Config.overlay.open.includes(modelData.id)
-                            activeColor: Config.overlay.style.accent !== "" ? Config.overlay.style.accent : Theme.primary
-                            iconColor: active ? (Config.overlay.style.accent !== "" ? "#101014" : Theme.fgPrimary) : Theme.fgIsland
+                            activeColor: Config.overlay.style.accent !== "" ? Config.overlay.style.accent : Theme.accentIsland
+                            iconColor: active ? (Config.overlay.style.accent !== "" ? "#101014" : Theme.fgAccentIsland) : Theme.fgIsland
                             onClicked: win.toggle(modelData.id)
                         }
                     }

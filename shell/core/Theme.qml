@@ -40,6 +40,11 @@ Singleton {
     readonly property color fgIslandDim: "#a8a6b0"
     readonly property color islandRaised: Qt.rgba(1, 1, 1, 0.08)
     readonly property color islandRaisedHover: Qt.rgba(1, 1, 1, 0.14)
+    // Accent for surfaces that stay dark in light mode too (island, game overlay,
+    // overview, region picker): `primary` turns dark in light mode, the fixed tones do not
+    readonly property color accentIsland: pick("primary_fixed_dim", "#c6c0ff")
+    readonly property color fgAccentIsland: pick("on_primary_fixed", "#1a1452")
+    readonly property color fgOnIslandFill: "#1b1b21"    // content over a light fill on the island (slider)
     readonly property color pill: Qt.rgba(surface.r, surface.g, surface.b, blur ? glassAlpha : 0.92)
 
     // Glass: a tint over the compositor frost, a 1 px light rim and a soft top

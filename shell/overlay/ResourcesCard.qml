@@ -44,7 +44,7 @@ OverlayCard {
                 height: parent.height
                 radius: 2.5
                 width: parent.width * Math.min(1, Math.max(0, m.value))
-                color: m.value > 0.9 ? Theme.error : Theme.primary
+                color: m.value > 0.9 ? Theme.error : Theme.accentIsland
                 Behavior on width {
                     Spring { preset: "smooth" }
                 }

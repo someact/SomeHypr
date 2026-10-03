@@ -56,7 +56,7 @@ FilterListView {
             anchors.bottomMargin: 4
             x: 10
             text: row.modelData.group ?? ""
-            color: Theme.primary
+            color: Theme.accentIsland
             font.pixelSize: Theme.font.small
             font.weight: Theme.font.weightTitle
         }

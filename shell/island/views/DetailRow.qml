@@ -31,7 +31,7 @@ PressButton {
             name: root.icon
             size: 22
             fill: root.current ? 1 : 0
-            color: root.current ? Theme.primary : Theme.fgIsland
+            color: root.current ? Theme.accentIsland : Theme.fgIsland
             // The pulse drives its own value, so the icon is fully back once busy ends
             property real pulse: 1
             opacity: root.busy ? pulse : 1
@@ -54,7 +54,7 @@ PressButton {
                 width: parent.width
                 visible: text !== ""
                 text: root.subtitle
-                color: root.current ? Theme.primary : Theme.fgIslandDim
+                color: root.current ? Theme.accentIsland : Theme.fgIslandDim
                 font.pixelSize: Theme.font.small
             }
         }

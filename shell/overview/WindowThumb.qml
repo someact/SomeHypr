@@ -71,7 +71,7 @@ Item {
         radius: Theme.radius.small
         color: thumb.hovered ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
         border.width: thumb.modelData.activated ? 2 : 1
-        border.color: thumb.modelData.activated ? Theme.primary : Qt.rgba(1, 1, 1, thumb.hovered ? 0.3 : 0.1)
+        border.color: thumb.modelData.activated ? Theme.accentIsland : Qt.rgba(1, 1, 1, thumb.hovered ? 0.3 : 0.1)
     }
 
     IconImage {
