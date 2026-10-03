@@ -426,7 +426,10 @@ Root causes found:
   - Settings → Island → Active workspace shape → Dynamic: 1 cookie4, 2 clover4, 3 cookie7, 4 sunny, 5 flower, 6 soft burst, 7 pentagon, 8 cookie9, 9 clover8, 10 puffy (repeats per group); also the Super-held view. Verified switching 1 → 2 morphs cookie → clover and the held view shows all ten (grim)
 
 **9d. Island interaction**
-- [ ] Hover peek (~180 ms) with a top-edge hot strip; leaving closes it after ~300 ms; a click or Super opens the full view; no keyboard focus; off in game mode and fullscreen
+- [x] Hover peek (~180 ms) with a top-edge hot strip; leaving closes it after ~300 ms; a click or Super opens the full view; no keyboard focus; off in game mode and fullscreen
+  - `UiState.peeking`/`peekScreen` + `peek()`/`unpeek()`/`promote()`; the island renders a view while `open || peek`, keyboard focus and the focus grab only when open. Peeks the view a click would open (notification → Notifications, media → Media, otherwise Control); never while polkit waits. Hot strip: 2 px at the top edge, 16 px wider than the island on each side, in the input mask. A passive `PointHandler` over the peek promotes on any press, so the pressed button still acts; a Super tap promotes too. Settings → Island → Peek on hover (`island.hoverPeek`). Verified: hover peeks (grim), leaving closes, click on a tab promotes and stays open after leaving, Super tap promotes, no peek over a fullscreen window; `island state` reports `peeking`
+  - Found (not new): a ydotool click outside does not clear the island's focus grab, with or without this change
+- [ ] Workspaces peek with the mouse too: hovering the workspaces part shows every workspace as its shape, like holding Super; setting to turn it off (added 2026-10-03)
 - [ ] Quick options: a stable tile model (`services/QuickTiles.qml`) that fixes the frame skip; icon or full tiles; edit mode (add, hide, reorder) stored in `control.tiles`
 - [ ] Right-click detail pages: Wi-Fi list, Bluetooth devices, night light temperature, audio devices; other tiles open their settings page
 - [ ] Mixer: right-click volume → `MixerView` (per-app streams, output and input pickers); shared `Audio.streams`

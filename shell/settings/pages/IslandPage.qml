@@ -162,6 +162,15 @@ Page {
     Section {
         title: "Collapsed"
         SettingRow {
+            icon: "touch_app"
+            title: "Peek on hover"
+            subtitle: "Resting the pointer on the island or the screen edge above it shows a view; click or tap Super to open it fully"
+            Switch {
+                checked: Config.island.hoverPeek
+                onToggled: on => Config.island.hoverPeek = on
+            }
+        }
+        SettingRow {
             icon: "music_note"
             title: "Show media"
             subtitle: "Album art, title and peak bars while something plays"

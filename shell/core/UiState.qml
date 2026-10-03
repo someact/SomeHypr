@@ -13,6 +13,10 @@ Singleton {
     readonly property list<string> extraViews: ["clipboard", "emoji", "keys", "polkit", "wallpaper", "translate"]
 
     property bool expanded: false
+    // Hover peek: the island shows a view on one screen without keyboard focus;
+    // a click or a Super tap promotes it to the full view (expanded)
+    property bool peeking: false
+    property string peekScreen: ""
     property string view: "search"
     property string searchText: ""       // seed text for the search view, e.g. "/"
     property bool hidden: false          // Super+J hides the island and pills
@@ -41,11 +45,33 @@ Singleton {
             searchReset();
         }
         overview = false;
+        peeking = false;
         expanded = true;
     }
 
     function close() {
+        peeking = false;
         expanded = false;
+    }
+
+    function peek(name, screen) {
+        if (expanded || overview)
+            return;
+        view = name;
+        peekScreen = screen;
+        peeking = true;
+    }
+
+    function unpeek() {
+        peeking = false;
+    }
+
+    // Keeps the peeked view (no reload), now with focus
+    function promote() {
+        if (!peeking)
+            return;
+        peeking = false;
+        expanded = true;
     }
 
     function toggle(name, text) {

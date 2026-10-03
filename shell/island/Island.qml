@@ -24,6 +24,9 @@ PanelWindow {
 
     readonly property bool isFocusedScreen: (Hyprland.focusedMonitor?.name ?? modelData.name) === modelData.name
     readonly property bool open: UiState.expanded && isFocusedScreen
+    // Hover peek: a view shown without keyboard focus (see the hover section)
+    readonly property bool peek: UiState.peeking && !UiState.expanded && UiState.peekScreen === modelData.name
+    readonly property bool shown: open || peek
 
     // Ambient priority: polkit → notification → OSD → recording → privacy → game dot → media → clock
     // (in streamer mode notification peeks go to the private layer, see PrivatePeek.qml)
@@ -55,7 +58,7 @@ PanelWindow {
     readonly property bool showTabs: UiState.mainViews.includes(UiState.view)
 
     readonly property real targetWidth: {
-        if (open && viewLoader.item)
+        if (shown && viewLoader.item)
             return viewLoader.item.implicitWidth + pad * 2;
         const a = ambientLoader.item;
         if (ambient === "dot")
@@ -63,7 +66,7 @@ PanelWindow {
         return Math.max(minCollapsedWidth, (a?.implicitWidth ?? 60) + 32);
     }
     readonly property real targetHeight: {
-        if (open && viewLoader.item)
+        if (shown && viewLoader.item)
             return (showTabs ? tabs.height + 10 : 0) + viewLoader.item.implicitHeight + pad * 2 - 4;
         const a = ambientLoader.item;
         if (ambient === "dot")
@@ -83,6 +86,7 @@ PanelWindow {
 
     mask: Region {
         item: notch
+        Region { item: hotStrip }
     }
 
     // Compositor frost behind the notch. Region corners are whole-pixel steps, so
@@ -157,11 +161,54 @@ PanelWindow {
         onTriggered: grab.active = win.open
     }
     onOpenChanged: {
-        if (open) {
+        if (open)
             grabDelay.restart();
-        } else {
+        else
             grab.active = false;
-            unload.restart();
+    }
+    onShownChanged: if (!shown) unload.restart()
+
+    // Hover peek: resting on the island (or the top-edge strip above and beside
+    // it) for a moment shows the view a click would open, without keyboard
+    // focus; leaving closes it after a short grace. Off in game mode, over a
+    // fullscreen window, and while polkit waits (that needs the keyboard).
+    readonly property bool fullscreen: Hyprland.monitorFor(modelData)?.activeWorkspace?.hasFullscreen ?? false
+    readonly property bool peekAllowed: Config.island.hoverPeek && !GameMode.active && !fullscreen && !UiState.hidden && !UiState.overview && ambient !== "polkit"
+    readonly property bool hovered: bodyHover.hovered || stripHover.hovered
+    readonly property string peekView: ambient === "notif" ? "notifications" : ambient === "media" ? "media" : "control"
+
+    onHoveredChanged: {
+        if (hovered) {
+            peekOut.stop();
+            if (!shown)
+                peekIn.restart();
+        } else {
+            peekIn.stop();
+            if (peek)
+                peekOut.restart();
+        }
+    }
+    onPeekAllowedChanged: if (!peekAllowed && peek) UiState.unpeek()
+    Timer {
+        id: peekIn
+        interval: 180
+        onTriggered: if (win.hovered && win.peekAllowed && !UiState.expanded) UiState.peek(win.peekView, win.modelData.name)
+    }
+    Timer {
+        id: peekOut
+        interval: 300
+        onTriggered: if (!win.hovered && win.peek) UiState.unpeek()
+    }
+
+    // The top edge above and beside the island: flicking the cursor up there
+    // peeks too (Fitts' law), without covering the corner pills
+    Item {
+        id: hotStrip
+        x: body.x - 16
+        width: body.width + 32
+        height: win.peekAllowed ? 2 : 0
+        HoverHandler {
+            id: stripHover
         }
     }
 
@@ -183,7 +230,7 @@ PanelWindow {
         spread: 0
         offset: Qt.vector2d(0, 6)
         color: Qt.rgba(0, 0, 0, 0.45)
-        opacity: win.open ? 1 : 0
+        opacity: win.shown ? 1 : 0
         visible: opacity > 0 && !GameMode.active
         Behavior on opacity {
             NumberAnimation { duration: Motion.normal }
@@ -198,7 +245,7 @@ PanelWindow {
         bodyHeight: body.height
         ear: Math.min(win.ear, body.height)
         floating: win.floating
-        radius: win.open ? Theme.radius.island : Math.min(body.height / 2, Theme.radius.island)
+        radius: win.shown ? Theme.radius.island : Math.min(body.height / 2, Theme.radius.island)
         color: Theme.island
         rim: Theme.islandBlur ? Theme.glassRim : "transparent"
     }
@@ -222,10 +269,14 @@ PanelWindow {
             Spring { preset: "snappy" }
         }
 
+        HoverHandler {
+            id: bodyHover
+        }
+
         // Click the collapsed island to open what it is showing
         MouseArea {
             anchors.fill: parent
-            enabled: !win.open
+            enabled: !win.shown
             cursorShape: Qt.PointingHandCursor
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: event => {
@@ -262,8 +313,8 @@ PanelWindow {
         Loader {
             id: ambientLoader
             anchors.centerIn: parent
-            active: !win.open || unload.running
-            opacity: win.open ? 0 : 1
+            active: !win.shown || unload.running
+            opacity: win.shown ? 0 : 1
             visible: opacity > 0
             sourceComponent: {
                 switch (win.ambient) {
@@ -301,11 +352,11 @@ PanelWindow {
             anchors.margins: win.pad
             anchors.topMargin: win.pad - 6
             focus: win.open
-            opacity: win.open ? 1 : 0
+            opacity: win.shown ? 1 : 0
             visible: opacity > 0
 
             Behavior on opacity {
-                NumberAnimation { duration: win.open ? Motion.normal : Motion.fast }
+                NumberAnimation { duration: win.shown ? Motion.normal : Motion.fast }
             }
 
             Keys.onPressed: event => {
@@ -333,7 +384,7 @@ PanelWindow {
                 width: item ? item.implicitWidth : 0
                 height: item ? item.implicitHeight : 0
                 focus: true
-                active: win.open || unload.running
+                active: win.shown || unload.running
                 sourceComponent: {
                     switch (UiState.view) {
                     case "control":
@@ -366,6 +417,17 @@ PanelWindow {
                     id: viewReveal
                     target: viewLoader.item
                 }
+            }
+        }
+
+        // A press anywhere in a peek opens the full view. Stacked on top and only
+        // passive, so the button under the cursor still gets the click.
+        Item {
+            anchors.fill: parent
+            visible: win.peek
+            PointHandler {
+                acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                onActiveChanged: if (active && win.peek) UiState.promote()
             }
         }
     }

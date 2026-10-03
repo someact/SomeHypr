@@ -39,7 +39,9 @@ Scope {
         onReleased: {
             const tap = UiState.superMightTrigger && Date.now() - root.superPressedAt < 500;
             UiState.superMightTrigger = false;
-            if (tap)
+            if (tap && UiState.peeking)
+                UiState.promote();
+            else if (tap)
                 UiState.toggle("search");
         }
     }
