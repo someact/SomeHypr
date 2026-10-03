@@ -6,33 +6,40 @@ import qs.components
 import qs.services
 
 // Now playing: cover with a progress ring, title (or the current lyric line,
-// media.ambientLyrics), live peak bars.
+// media.ambientLyrics), live peak bars. While not `live` (the island is under a
+// fullscreen window) the peaks, the 1 s progress and the lyric line pause.
 Item {
     id: root
     implicitWidth: row.implicitWidth
     implicitHeight: Theme.barHeight
+
+    property bool live: true
 
     // Lyrics is only touched (and created) when the option is on
     readonly property bool lyricMode: Config.media.lyrics && Config.media.ambientLyrics && Lyrics.synced
     readonly property string text: lyricMode && Lyrics.line !== "" ? Lyrics.line
         : Media.artist !== "" ? Media.title + "  ·  " + Media.artist : Media.title
 
-    readonly property bool wantLyrics: Config.media.lyrics && Config.media.ambientLyrics
+    readonly property bool wantLyrics: Config.media.lyrics && Config.media.ambientLyrics && live
     property bool following: false
+    property bool watching: false
     function syncWatch() {
         if (wantLyrics !== following) {
             Lyrics.watchers += wantLyrics ? 1 : -1;
             following = wantLyrics;
             Lyrics.sync();
         }
+        if (live !== watching) {
+            Media.watchers += live ? 1 : -1;
+            watching = live;
+        }
     }
     onWantLyricsChanged: syncWatch()
-    Component.onCompleted: {
-        Media.watchers++;
-        syncWatch();
-    }
+    onLiveChanged: syncWatch()
+    Component.onCompleted: syncWatch()
     Component.onDestruction: {
-        Media.watchers--;
+        if (watching)
+            Media.watchers--;
         if (following)
             Lyrics.watchers--;
     }
@@ -107,7 +114,7 @@ Item {
         PwNodePeakMonitor {
             id: monitor
             node: Audio.sink
-            enabled: peaks.playing && !GameMode.active
+            enabled: peaks.playing && !GameMode.active && root.live
         }
 
         Repeater {

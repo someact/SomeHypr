@@ -606,7 +606,11 @@ Measured before starting:
 
 Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greeter's Xorg (stays after login, 74 MB) goes to 11c; Material Symbols keeps its 4 optical sizes.
 - [x] 11a-1. `hypr/scripts/bench.sh`: memory (RSS/PSS/anon) and font mappings, shell and Hyprland CPU over N s, GPU on NVIDIA; `--cycle N` runs a use round over IPC and prints memory after each. README → Checks
-- [ ] 11a-2. Stop drawing the island when nobody can see it: media peak bars, the 1 s progress and the privacy/record pulses pause under a fullscreen window; the bars stop springing once settled
+- [x] 11a-2. Stop drawing the island when nobody can see it: media peak bars, the 1 s progress and the privacy/record pulses pause under a fullscreen window; the bars stop springing once settled
+  - `Island.covered` (a real fullscreen window on its monitor and the island not open) sets `live` on the loaded ambient item. AmbientMedia: the peak monitor, its `Media.watchers` count (the 1 s progress) and the lyric follow depend on `live`. AmbientPrivacy/AmbientRecord: the pulse runs only while live
+  - [~] The bars keep their spring: making them stop early would change how they move
+  - Measured with a test MPRIS player and quiet pink noise (bench, 15 s). Under a fullscreen window, old code: shell 2.5 %, Hyprland 4.0 %, GPU 33 %. New code: shell 0.0 %, Hyprland 0.1 %, GPU 0 %
+  - Found: with the island visible, the four peak bars cost shell 7.5 %, Hyprland 4.5 %, GPU 34 % (~4 W). The whole 1000×720 island surface is redrawn and re-blurred every frame while the springs run. Options for later (they change the look a little): fewer bar updates, or a smaller collapsed surface
 - [ ] 11a-3. Stop the memory climb: keep the last island view a few seconds instead of rebuilding it on every hover; bound the fuzzysort query cache, Thumbs.pending, emoji/app indexes after their view closes; a stable notification model, images only for the newest ones
 - [ ] 11a-4. Cheaper workspace shapes on Super: no Morph at creation, cache morphs, skip unchanged path rebuilds
 - [ ] 11a-5. Small shell items: no toplevel refresh on focus change, text weights from Theme (fewer faces, no DejaVu fallback), one shared clock for the pill zones, `osk/layout.js` as a library

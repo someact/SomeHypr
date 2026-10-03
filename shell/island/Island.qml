@@ -179,6 +179,9 @@ PanelWindow {
     // maximized window (fullscreen mode 1), which must not block the peek
     readonly property var activeWorkspace: Hyprland.monitorFor(modelData)?.activeWorkspace ?? null
     readonly property bool fullscreen: (activeWorkspace?.hasFullscreen ?? false) && activeWorkspace.toplevels.values.some(t => t.wayland?.fullscreen ?? false)
+    // Collapsed under a fullscreen window nobody sees the island: ambient items
+    // pause their animations and live updates (`live` on the loaded item)
+    readonly property bool covered: fullscreen && !shown
     readonly property bool peekAllowed: Config.island.hoverPeek && !GameMode.active && !fullscreen && !UiState.hidden && !UiState.overview && ambient !== "polkit"
     readonly property bool hovered: bodyHover.hovered || stripHover.hovered
     readonly property string peekView: ambient === "notif" ? "notifications" : ambient === "media" ? "media" : "control"
@@ -341,7 +344,11 @@ PanelWindow {
                 }
                 return clockAmbient;
             }
-            onLoaded: reveal.play()
+            onLoaded: {
+                if (item.live !== undefined)
+                    item.live = Qt.binding(() => !win.covered);
+                reveal.play();
+            }
             Behavior on opacity {
                 NumberAnimation { duration: Motion.fast }
             }

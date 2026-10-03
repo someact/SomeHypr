@@ -6,8 +6,11 @@ import qs.services
 // Screen recording: pulsing red dot, elapsed time and a stop button.
 // Clicking anywhere on the island stops the recording (see Island.qml).
 Item {
+    id: root
     implicitWidth: row.implicitWidth
     implicitHeight: Theme.barHeight
+
+    property bool live: true    // false under a fullscreen window: the pulse stops
 
     Row {
         id: row
@@ -22,7 +25,7 @@ Item {
             color: "#ff453a"
             SequentialAnimation on opacity {
                 loops: Animation.Infinite
-                running: !GameMode.active
+                running: !GameMode.active && root.live
                 NumberAnimation { to: 0.35; duration: 900; easing.type: Easing.InOutSine }
                 NumberAnimation { to: 1; duration: 900; easing.type: Easing.InOutSine }
             }
