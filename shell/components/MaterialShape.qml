@@ -2,12 +2,14 @@ import QtQuick
 import QtQuick.Shapes
 import qs.core
 import "../lib/shapes/material-shapes.js" as MaterialShapes
-import "../lib/shapes/shapes/morph.js" as Morph
+import "../lib/shapes/morph-cache.js" as MorphCache
 
 // A Material 3 Expressive shape (cookie, clover, pill, sunny, …), centered and
 // fit into the item. Drawn with QtQuick.Shapes, so it is GPU curves with no
 // offscreen Canvas texture per shape. Changing `shape` morphs the outline from
-// the old one with a spring; the path is rebuilt only while that runs.
+// the old one with a spring; the path is rebuilt only while that runs. Morphs
+// and resting outlines are shared between all shapes (lib/shapes/morph-cache.js),
+// so ten workspace shapes morphing together match each outline pair only once.
 //
 //   MaterialShape { shape: "cookie7Sided"; color: Theme.primary }
 //
@@ -25,18 +27,19 @@ Shape {
     property color borderColor: "transparent"
     property real borderWidth: 0
 
+    readonly property string _name: MaterialShapes["get" + shape.charAt(0).toUpperCase() + shape.slice(1)] ? shape : "circle"
     readonly property var polygon: {
-        const getter = MaterialShapes["get" + shape.charAt(0).toUpperCase() + shape.slice(1)];
-        if (!getter) {
+        const getter = MaterialShapes["get" + _name.charAt(0).toUpperCase() + _name.slice(1)];
+        if (_name !== shape)
             console.warn("MaterialShape: unknown shape", shape);
-            return MaterialShapes.getCircle();
-        }
         return getter();
     }
 
-    // Morph state: from the previous outline to the current one
+    // Morph state: from the previous outline to the current one (none until the
+    // shape first changes; at rest the cached outline is drawn)
     property var _from: null
-    property var _morph: new Morph.Morph(polygon, polygon)
+    property string _fromName: ""
+    property var _morph: null
     property real _progress: 1
     // A morph only runs between whole shapes, so a change mid-morph waits until
     // the running one is almost done (instead of snapping back to its start)
@@ -53,14 +56,18 @@ Shape {
         _pending = false;
         if (_from === polygon)
             return;
-        _morph = new Morph.Morph(_from ?? polygon, polygon);
+        _morph = MorphCache.morph(_fromName || _name, _from ?? polygon, _name, polygon);
         _from = polygon;
+        _fromName = _name;
         morph.enabled = false;
         _progress = 0;
         morph.enabled = !Motion.reduced;
         _progress = 1;
     }
-    Component.onCompleted: _from = polygon
+    Component.onCompleted: {
+        _from = polygon;
+        _fromName = _name;
+    }
     Behavior on _progress {
         id: morph
         Spring { preset: "snappy" }
@@ -69,9 +76,9 @@ Shape {
     // Normalized cubics (0..1) scaled into the item as an SVG path
     readonly property string svg: {
         const size = Math.min(width, height);
-        if (size <= 0 || !_morph)
+        if (size <= 0)
             return "";
-        const cubics = _morph.asCubics(_progress);
+        const cubics = _morph && _progress < 1 ? _morph.asCubics(_progress) : MorphCache.rest(_name);
         if (cubics.length === 0)
             return "";
         const ox = (width - size) / 2, oy = (height - size) / 2;
