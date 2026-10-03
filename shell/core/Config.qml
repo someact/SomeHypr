@@ -157,6 +157,7 @@ Singleton {
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)
                 property string scheme: "scheme-tonal-spot"   // matugen -t
+                property int nightLightTemp: 4500     // hyprsunset temperature (K)
                 // Day/night: switch wallpaper folder, mode and night light on a schedule
                 property JsonObject schedule: JsonObject {
                     property bool enabled: false

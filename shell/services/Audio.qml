@@ -17,6 +17,12 @@ Singleton {
     readonly property real micVolume: source?.audio?.volume ?? 0
     readonly property bool micMuted: source?.audio?.muted ?? false
 
+    // Devices and app streams (for the pickers and the mixer). Pipewire.nodes is
+    // a live list; these filters only re-run when nodes come and go.
+    readonly property var sinks: Pipewire.nodes.values.filter(n => n.audio && n.isSink && !n.isStream)
+    readonly property var sources: Pipewire.nodes.values.filter(n => n.audio && !n.isSink && !n.isStream)
+    readonly property var streams: Pipewire.nodes.values.filter(n => n.audio && n.isSink && n.isStream)
+
     readonly property string icon: muted ? "volume_off" : volume <= 0.01 ? "volume_mute" : volume < 0.5 ? "volume_down" : "volume_up"
     readonly property string micIcon: micMuted ? "mic_off" : "mic"
 
@@ -32,6 +38,31 @@ Singleton {
             source.audio.volume = Math.max(0, Math.min(1.5, v));
         }
     }
+    function setSink(node) {
+        Pipewire.preferredDefaultAudioSink = node;
+    }
+    function setSource(node) {
+        Pipewire.preferredDefaultAudioSource = node;
+    }
+    function deviceName(node) {
+        return node?.nickname || node?.description || node?.name || "";
+    }
+    function appName(stream) {
+        return stream?.properties["application.name"] || stream?.description || stream?.name || "";
+    }
+    function deviceIcon(node) {
+        const s = ((node?.properties["device.form-factor"] ?? "") + " " + (node?.properties["device.bus"] ?? "") + " " + (node?.name ?? "")).toLowerCase();
+        if (s.includes("headset") || s.includes("headphone"))
+            return "headphones";
+        if (s.includes("bluez") || s.includes("bluetooth"))
+            return "bluetooth";
+        if (s.includes("hdmi") || s.includes("displayport"))
+            return "tv";
+        if (s.includes("usb"))
+            return "usb";
+        return node?.isSink ? "speaker" : "mic";
+    }
+
     function toggleMute() {
         if (sink?.audio)
             sink.audio.muted = !sink.audio.muted;

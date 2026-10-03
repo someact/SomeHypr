@@ -5,6 +5,8 @@ import qs.services
 
 // Quick tiles and sliders. ↑/↓ select, Enter toggles, ←/→ adjust a selected slider.
 // The pencil edits the tiles (show, hide, reorder); the grid button switches icon/full tiles.
+// Right-click a tile: its detail page here (network, Bluetooth, night light,
+// audio devices; Esc or ← goes back) or its page in the settings app.
 FocusScope {
     id: root
 
@@ -17,11 +19,43 @@ FocusScope {
     readonly property int sliderCount: Brightness.available ? 3 : 2
     readonly property int total: tileCount + sliderCount
 
+    // The open detail page, "" for the tiles
+    property string detail: ""
+    readonly property var detailTitles: ({ wifi: "Network", bluetooth: "Bluetooth", nightlight: "Night light", audio: "Sound devices" })
+
+    function openTile(id) {
+        const t = QuickTiles.tile(id);
+        if (!t)
+            return;
+        if (t.detail !== "") {
+            tiles.edit = false;
+            detail = t.detail;
+        } else if (t.settings !== "") {
+            Session.openSettings(t.settings);
+            UiState.close();
+        }
+    }
+    Connections {
+        target: QuickTiles
+        function onOpenDetail(name) {
+            root.detail = name;
+        }
+    }
+
     function sliderAt(i) {
         return [volume, mic, brightness][i];
     }
     function handleKey(event) {
         const k = event.key;
+        if (detail !== "") {
+            if (page.item?.handleKey && page.item.handleKey(event))
+                return true;
+            if (k === Qt.Key_Escape || k === Qt.Key_Backspace) {
+                detail = "";
+                return true;
+            }
+            return UiState.navKey(event);
+        }
         if (tiles.edit && (k === Qt.Key_Escape || k === Qt.Key_Return || k === Qt.Key_Enter)) {
             tiles.edit = false;
             return true;
@@ -51,13 +85,33 @@ FocusScope {
         Item {
             width: parent.width
             height: 26
+            IconButton {
+                id: back
+                visible: root.detail !== ""
+                anchors.verticalCenter: parent.verticalCenter
+                width: 30
+                height: 26
+                iconSize: 18
+                icon: "arrow_back"
+                onClicked: root.detail = ""
+            }
             Label {
+                visible: root.detail !== ""
+                anchors.left: back.right
+                anchors.leftMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                text: root.detailTitles[root.detail] ?? ""
+                font.weight: Theme.font.weightTitle
+            }
+            Label {
+                visible: root.detail === ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: tiles.edit ? "Click to show or hide · drag to reorder" : ""
                 color: Theme.fgIslandDim
                 font.pixelSize: Theme.font.small
             }
             Row {
+                visible: root.detail === ""
                 anchors.right: parent.right
                 spacing: 4
                 IconButton {
@@ -81,14 +135,39 @@ FocusScope {
             }
         }
 
+        Loader {
+            id: page
+            active: root.detail !== ""
+            visible: active
+            width: parent.width
+            height: item ? item.implicitHeight : 0
+            sourceComponent: ({ wifi: networkPage, bluetooth: bluetoothPage, nightlight: nightPage, audio: audioPage })[root.detail] ?? null
+            onLoaded: {
+                item.width = Qt.binding(() => page.width);
+                item.opacity = 0;
+                pageIn.restart();
+            }
+            NumberAnimation {
+                id: pageIn
+                target: page.item
+                property: "opacity"
+                to: 1
+                duration: Motion.normal
+                easing.type: Easing.OutCubic
+            }
+        }
+
         TileGrid {
             id: tiles
+            visible: root.detail === ""
             width: parent.width
             selected: root.selected
+            onRightClicked: id => root.openTile(id)
         }
 
         Slider {
             id: volume
+            visible: root.detail === ""
             width: parent.width
             icon: Audio.icon
             value: Audio.volume
@@ -98,6 +177,7 @@ FocusScope {
         }
         Slider {
             id: mic
+            visible: root.detail === ""
             width: parent.width
             icon: Audio.micIcon
             value: Audio.micVolume
@@ -107,12 +187,29 @@ FocusScope {
         }
         Slider {
             id: brightness
-            visible: Brightness.available
+            visible: Brightness.available && root.detail === ""
             width: parent.width
             icon: "light_mode"
             value: Brightness.value
             onMoved: v => Brightness.set(v)
             trackColor: root.selected === root.tileCount + 2 ? Theme.islandRaisedHover : Theme.islandRaised
         }
+    }
+
+    Component {
+        id: networkPage
+        NetworkDetail {}
+    }
+    Component {
+        id: bluetoothPage
+        BluetoothDetail {}
+    }
+    Component {
+        id: nightPage
+        NightLightDetail {}
+    }
+    Component {
+        id: audioPage
+        AudioDevices {}
     }
 }

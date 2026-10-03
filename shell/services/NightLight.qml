@@ -3,13 +3,27 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.core
 
-// hyprsunset on/off. State is read once at start and then tracked locally.
+// hyprsunset on/off and temperature. State is read once at start and then
+// tracked locally; a temperature change while on goes over hyprsunset's IPC.
 Singleton {
     id: root
 
     property bool active: false
-    property int temperature: 4500
+    readonly property int temperature: Config.theme.nightLightTemp
+
+    function setTemperature(k) {
+        Config.theme.nightLightTemp = Math.round(Math.max(2500, Math.min(6500, k)) / 50) * 50;
+        if (active)
+            apply.restart();
+    }
+    // One IPC call per pause while a slider drags
+    Timer {
+        id: apply
+        interval: 80
+        onTriggered: Quickshell.execDetached(["hyprctl", "hyprsunset", "temperature", String(root.temperature)])
+    }
 
     function toggle() {
         if (active)
