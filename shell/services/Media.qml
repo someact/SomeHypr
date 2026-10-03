@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
+import Quickshell.Services.Pipewire
 
 // The player worth showing: whichever is playing, else the one that played last.
 Singleton {
@@ -25,6 +26,45 @@ Singleton {
     // Views that show progress raise this; position updates only while > 0
     property int watchers: 0
 
+    // The player's own volume: its Pipewire stream when one matches (works for
+    // every app, browsers included), else MPRIS Volume when the player has it.
+    readonly property PwNode stream: streamFor(player)
+    readonly property bool hasVolume: stream !== null || (player?.volumeSupported ?? false) && (player?.canControl ?? false)
+    readonly property real volume: stream ? (stream.audio?.volume ?? 0) : player?.volume ?? 0
+    readonly property bool muted: stream?.audio?.muted ?? false
+
+    // MPRIS names its bus org.mpris.MediaPlayer2.<app>[.instance<pid>]; Pipewire
+    // streams carry the process id and binary. Match the pid first, then the name.
+    function streamFor(p) {
+        if (!p)
+            return null;
+        const streams = Audio.streams;
+        const bus = (p.dbusName ?? "").replace("org.mpris.MediaPlayer2.", "").toLowerCase();
+        const pid = (bus.match(/instance_?(\d+)/) ?? [])[1] ?? "";
+        const names = [bus.split(".")[0], (p.desktopEntry ?? "").toLowerCase(), (p.identity ?? "").toLowerCase()].filter(n => n.length > 1);
+        if (pid !== "") {
+            const byPid = streams.find(s => s.properties["application.process.id"] === pid);
+            if (byPid)
+                return byPid;
+        }
+        const label = s => [s.properties["application.process.binary"], s.properties["application.name"], s.properties["application.id"]].map(v => (v ?? "").toLowerCase());
+        return streams.find(s => label(s).some(l => l !== "" && names.some(n => l === n || l.includes(n) || n.includes(l)))) ?? null;
+    }
+    function setVolume(v) {
+        v = Math.max(0, Math.min(1, v));
+        if (stream?.audio) {
+            stream.audio.muted = false;
+            stream.audio.volume = v;
+        } else if (player?.volumeSupported)
+            player.volume = v;
+    }
+    function toggleMute() {
+        if (stream?.audio)
+            stream.audio.muted = !stream.audio.muted;
+        else if (player?.volumeSupported)
+            player.volume = player.volume > 0 ? 0 : 1;
+    }
+
     function toggle() {
         if (player?.canTogglePlaying)
             player.togglePlaying();
@@ -40,6 +80,11 @@ Singleton {
     function seek(fraction) {
         if (player?.canSeek && length > 0)
             player.position = fraction * length;
+    }
+
+    // Stream properties (and volume) are only filled in for bound nodes
+    PwObjectTracker {
+        objects: root.watchers > 0 ? Audio.streams : []
     }
 
     Timer {

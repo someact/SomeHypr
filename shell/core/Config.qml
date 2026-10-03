@@ -157,6 +157,7 @@ Singleton {
             }
             property JsonObject media: JsonObject {
                 property bool lyrics: true            // fetch lyrics from LRCLIB (services/Lyrics.qml)
+                property bool lyricsPane: true        // the media view shows them (L toggles)
             }
             property JsonObject theme: JsonObject {
                 property string mode: "dark"          // dark | light (matugen -m)

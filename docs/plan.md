@@ -459,7 +459,11 @@ Root causes found:
   - LRC parsed to `lines` (several stamps per line handled), `plain`, `status` (off/loading/synced/plain/none/error). The current `index` follows the playhead with one single-shot timer aimed at the next line, only while a view raises `Lyrics.watchers`; seeks resync through the player's position signal
   - Settings → Island → Lyrics; `ipc call lyrics state` / `retry`
   - Verified with a fake MPRIS player (`gi` test script, not shipped): Bohemian Rhapsody → synced 56 lines on the right line 65 s in; "Queen - Don't Stop Me Now (Official Video)" with no artist → found; an unknown track → `none`, cached as `[]`
-- [ ] MediaView: lyrics pane and per-player volume (MPRIS volume, or the PipeWire stream)
+- [x] MediaView: lyrics pane and per-player volume (MPRIS volume, or the PipeWire stream)
+  - `components/LyricsPane.qml` (pure view, reused by the widget): synced lines in a ListView that keeps the current one centered (brighter, title weight, springs to 1.06), earlier lines dimmer; click a line to seek there; plain lyrics scroll; loading / none / error (click retries) messages. Opens at the current line, not the top
+  - The pane sits under the controls (island grows by ~200 px), loaded only while shown; the lyrics button (or L) hides it (`media.lyricsPane`). The view raises `Lyrics.watchers` only while the pane is up
+  - `Media.stream` matches the player's Pipewire stream (pid from `…instance<pid>` in the bus name, else binary / app name vs bus name, desktop entry, identity); `Media.setVolume` uses it, else MPRIS `Volume`. Streams are bound only while a media view watches (their properties are empty until bound). Slider under the controls, +/− keys, the icon mutes
+  - Verified with the fake player (grim): the pane opens on the right line and follows it, an external seek (`playerctl position 200`) and a click on a line both resync; the slider sets MPRIS volume (0.38); with a silent `pw-play` named like the player it sets the stream instead (0.52 → Pipewire 0.143 cubic) and leaves MPRIS alone; the toggle shrinks the island
 - [ ] Ambient/peek lyric line (optional); MediaWidget lyrics and volume
 
 **9f. Game overlay and live translator**

@@ -4,15 +4,38 @@ import qs.core
 import qs.components
 import qs.services
 
-// Now playing. Enter/Space play-pause, ↑/↓ previous/next, click a player chip to switch.
+// Now playing, the player's own volume and synced lyrics. Enter/Space play-pause,
+// ↑/↓ previous/next, +/− volume, L shows or hides lyrics, click a player chip to switch.
 FocusScope {
     id: root
 
-    implicitWidth: 520
-    implicitHeight: Media.player ? 156 : 80
+    readonly property bool showLyrics: Media.player !== null && Config.media.lyrics && Config.media.lyricsPane
+    readonly property int topHeight: Media.hasVolume ? 190 : 156
 
-    Component.onCompleted: Media.watchers++
-    Component.onDestruction: Media.watchers--
+    implicitWidth: 520
+    implicitHeight: !Media.player ? 80 : topHeight + (showLyrics ? 14 + 184 : 0)
+
+    Component.onCompleted: {
+        Media.watchers++;
+        syncWatch();
+    }
+    Component.onDestruction: {
+        Media.watchers--;
+        if (following)
+            Lyrics.watchers--;
+    }
+
+    // The lyric line follows the playhead only while the pane is up
+    property bool following: false
+    function syncWatch() {
+        const want = showLyrics;
+        if (want !== following) {
+            Lyrics.watchers += want ? 1 : -1;
+            following = want;
+            Lyrics.sync();
+        }
+    }
+    onShowLyricsChanged: syncWatch()
 
     function handleKey(event) {
         switch (event.key) {
@@ -27,6 +50,17 @@ FocusScope {
         case Qt.Key_Down:
             Media.next();
             return true;
+        case Qt.Key_Plus:
+        case Qt.Key_Equal:
+            Media.setVolume(Media.volume + 0.05);
+            return true;
+        case Qt.Key_Minus:
+            Media.setVolume(Media.volume - 0.05);
+            return true;
+        case Qt.Key_L:
+            if (Config.media.lyrics)
+                Config.media.lyricsPane = !Config.media.lyricsPane;
+            return true;
         }
         return UiState.navKey(event);
     }
@@ -40,12 +74,14 @@ FocusScope {
 
     Row {
         visible: Media.player !== null
-        anchors.fill: parent
+        width: parent.width
+        height: root.topHeight
         spacing: 16
 
         Cover {
             width: 148
             height: 148
+            anchors.verticalCenter: parent.verticalCenter
             radius: Theme.radius.large
             source: Media.art
         }
@@ -140,6 +176,54 @@ FocusScope {
                     onClicked: Media.next()
                 }
             }
+
+            // This player's volume (its Pipewire stream, or MPRIS)
+            Slider {
+                visible: Media.hasVolume
+                width: parent.width
+                height: 30
+                icon: Media.muted || Media.volume <= 0.01 ? "volume_off" : Media.volume < 0.5 ? "volume_down" : "volume_up"
+                value: Media.volume
+                onMoved: v => Media.setVolume(v)
+                onIconClicked: Media.toggleMute()
+            }
+        }
+    }
+
+    // Lyrics toggle, top right of the text column (beside the player chips)
+    IconButton {
+        visible: Media.player !== null && Config.media.lyrics
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.topMargin: Media.players.length > 1 ? 26 : 0
+        width: 30
+        height: 30
+        icon: "lyrics"
+        iconSize: 18
+        active: Config.media.lyricsPane
+        onClicked: Config.media.lyricsPane = !Config.media.lyricsPane
+    }
+
+    Loader {
+        active: root.showLyrics
+        y: root.topHeight + 14
+        width: parent.width
+        height: 184
+        sourceComponent: LyricsPane {
+            lines: Lyrics.lines
+            index: Lyrics.index
+            plain: Lyrics.plain
+            synced: Lyrics.synced
+            seekable: Media.player?.canSeek ?? false
+            message: Lyrics.status === "loading" ? "Looking for lyrics…"
+                : Lyrics.status === "none" ? "No lyrics for this track"
+                : Lyrics.status === "error" ? "Couldn't reach lrclib.net · click to retry"
+                : Lyrics.has ? "" : "…"
+            onSeek: time => {
+                Media.player.position = time;
+                Lyrics.sync();
+            }
+            onMessageClicked: Lyrics.retry()
         }
     }
 

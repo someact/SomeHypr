@@ -18,7 +18,7 @@ Singleton {
     property var lines: []          // [{ time: seconds, text }] (synced only)
     property string plain: ""       // unsynced text, or the synced lines joined
     property int index: -1          // current line in `lines`, -1 before the first
-    readonly property string line: index >= 0 ? lines[index].text : ""
+    readonly property string line: lines[index]?.text ?? ""
     readonly property bool synced: status === "synced"
     readonly property bool has: status === "synced" || status === "plain"
 
@@ -58,9 +58,9 @@ Singleton {
             return;
         fetcher.running = false;
         key = k;
+        index = -1;
         lines = [];
         plain = "";
-        index = -1;
         if (k === "") {
             status = enabled ? "none" : "off";
             return;

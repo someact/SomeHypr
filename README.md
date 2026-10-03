@@ -36,7 +36,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 
 | Part | What it does |
 |---|---|
-| **Island** | The notch at the top. Collapsed, it shows the clock, media, notifications, OSD and recording. Rest the pointer on it (or flick to the screen edge above it) for a peek; click or tap Super to open it fully. Open, it holds search, quick controls, media, notifications, system and power. Quick tiles can be shown, hidden and reordered (pencil), and right-clicking one opens its detail page (Wi-Fi, Bluetooth, night light, sound devices) or its settings page; right-click the volume slider for the per-app mixer. |
+| **Island** | The notch at the top. Collapsed, it shows the clock, media, notifications, OSD and recording. Rest the pointer on it (or flick to the screen edge above it) for a peek; click or tap Super to open it fully. Open, it holds search, quick controls, media (with the player's own volume and synced lyrics), notifications, system and power. Quick tiles can be shown, hidden and reordered (pencil), and right-clicking one opens its detail page (Wi-Fi, Bluetooth, night light, sound devices) or its settings page; right-click the volume slider for the per-app mixer. |
 | **Pills** | Workspaces, app title, tray, status icons and clock. Each one can sit in a top corner or beside the island, in any order, as glass or floating (Settings → Island). Hover the workspaces (or hold Super) to see them all; right-click the network, Bluetooth or volume icon for its page or the mixer. |
 | **Dock** | Bottom bar with pinned and running apps. |
 | **Super+Tab** | Workspace overview. |
