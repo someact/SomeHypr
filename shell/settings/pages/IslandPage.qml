@@ -198,6 +198,16 @@ Page {
             }
         }
         SettingRow {
+            visible: Config.media.lyrics
+            icon: "subtitles"
+            title: "Lyric line in the island"
+            subtitle: "While a track with synced lyrics plays, the collapsed island shows the current line instead of the title"
+            Switch {
+                checked: Config.media.ambientLyrics
+                onToggled: on => Config.media.ambientLyrics = on
+            }
+        }
+        SettingRow {
             icon: "notifications"
             title: "Notification peek"
             subtitle: "How long a new notification shows in the island"

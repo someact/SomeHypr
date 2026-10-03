@@ -464,7 +464,11 @@ Root causes found:
   - The pane sits under the controls (island grows by ~200 px), loaded only while shown; the lyrics button (or L) hides it (`media.lyricsPane`). The view raises `Lyrics.watchers` only while the pane is up
   - `Media.stream` matches the player's Pipewire stream (pid from `…instance<pid>` in the bus name, else binary / app name vs bus name, desktop entry, identity); `Media.setVolume` uses it, else MPRIS `Volume`. Streams are bound only while a media view watches (their properties are empty until bound). Slider under the controls, +/− keys, the icon mutes
   - Verified with the fake player (grim): the pane opens on the right line and follows it, an external seek (`playerctl position 200`) and a click on a line both resync; the slider sets MPRIS volume (0.38); with a silent `pw-play` named like the player it sets the stream instead (0.52 → Pipewire 0.143 cubic) and leaves MPRIS alone; the toggle shrinks the island
-- [ ] Ambient/peek lyric line (optional); MediaWidget lyrics and volume
+- [x] Ambient/peek lyric line (optional); MediaWidget lyrics and volume
+  - Collapsed island: with `media.ambientLyrics` (off by default; Settings → Island → Lyric line in the island) the media state shows the current synced line instead of title · artist (up to 320 px), fading out, swapping, fading in; falls back to the title on instrumental gaps. `Lyrics` is not even created while the option is off. The peek is the media view, which already has the pane
+  - Desktop widget: the player's volume slider under the controls and three synced lines (`LyricsPane`, click seeks) when lyrics are found (`media.widgetLyrics`, Settings → Desktop); the line follows only while the widget is visible (same `live` gate as its progress). `Slider` gained `contentColor`/`contentDim`/`contentOnFill` for the widget's own colors
+  - Fixed on the way: the swap used a `PropertyAction` whose value is read at `restart()`, so the island lagged one line behind; now a `ScriptAction`
+  - Verified with the fake player (grim): the island line matches `ipc call lyrics state` line by line, toggling the option live adds/removes the watcher; the widget in edit mode shows the slider and lyrics; settings rows render; install --check ok, no config errors, 201 binds
 
 **9f. Game overlay and live translator**
 - [ ] Overlay style settings (glass/solid/minimal, opacity, accent, radius, compact) under `overlay.style`

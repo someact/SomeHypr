@@ -11,6 +11,9 @@ Item {
     property string label
     property color fillColor: Theme.fgIsland
     property color trackColor: Theme.islandRaised
+    property color contentColor: Theme.fgIsland     // icon (and dimmed value) over the track
+    property color contentDim: Theme.fgIslandDim
+    property color contentOnFill: Theme.surface      // the same over the fill
     property real step: 0.05
     readonly property bool dragging: mouse.pressed
 
@@ -53,7 +56,7 @@ Item {
         name: root.icon
         size: 20
         fill: 1
-        color: fillBar.width > 34 ? Theme.surface : Theme.fgIsland
+        color: fillBar.width > 34 ? root.contentOnFill : root.contentColor
     }
 
     Label {
@@ -62,7 +65,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         mono: true
         text: root.label !== "" ? root.label : Math.round(root.value * 100)
-        color: fillBar.width > parent.width - 40 ? Theme.surface : Theme.fgIslandDim
+        color: fillBar.width > parent.width - 40 ? root.contentOnFill : root.contentDim
         font.pixelSize: Theme.font.small
     }
 

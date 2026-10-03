@@ -36,6 +36,16 @@ Page {
             }
         }
         SettingRow {
+            visible: Config.widgets.enabled.includes("media") && Config.media.lyrics
+            icon: "lyrics"
+            title: "Lyrics in Now playing"
+            subtitle: "Three synced lines under the controls (lyrics are turned on in Island)"
+            Switch {
+                checked: Config.media.widgetLyrics
+                onToggled: on => Config.media.widgetLyrics = on
+            }
+        }
+        SettingRow {
             icon: "texture"
             title: "Frosted cards"
             subtitle: "Blurred card behind media, system and notes; off draws them straight on the wallpaper"

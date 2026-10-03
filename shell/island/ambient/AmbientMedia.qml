@@ -5,14 +5,46 @@ import qs.core
 import qs.components
 import qs.services
 
-// Now playing: cover with a progress ring, scrolling title, live peak bars.
+// Now playing: cover with a progress ring, title (or the current lyric line,
+// media.ambientLyrics), live peak bars.
 Item {
     id: root
     implicitWidth: row.implicitWidth
     implicitHeight: Theme.barHeight
 
-    Component.onCompleted: Media.watchers++
-    Component.onDestruction: Media.watchers--
+    // Lyrics is only touched (and created) when the option is on
+    readonly property bool lyricMode: Config.media.lyrics && Config.media.ambientLyrics && Lyrics.synced
+    readonly property string text: lyricMode && Lyrics.line !== "" ? Lyrics.line
+        : Media.artist !== "" ? Media.title + "  ·  " + Media.artist : Media.title
+
+    readonly property bool wantLyrics: Config.media.lyrics && Config.media.ambientLyrics
+    property bool following: false
+    function syncWatch() {
+        if (wantLyrics !== following) {
+            Lyrics.watchers += wantLyrics ? 1 : -1;
+            following = wantLyrics;
+            Lyrics.sync();
+        }
+    }
+    onWantLyricsChanged: syncWatch()
+    Component.onCompleted: {
+        Media.watchers++;
+        syncWatch();
+    }
+    Component.onDestruction: {
+        Media.watchers--;
+        if (following)
+            Lyrics.watchers--;
+    }
+
+    // A new line fades out the old one, swaps the text, fades back in
+    onTextChanged: swap.restart()
+    SequentialAnimation {
+        id: swap
+        NumberAnimation { target: title; property: "opacity"; to: 0; duration: Motion.fast }
+        ScriptAction { script: title.text = root.text }   // PropertyAction would keep the value from restart()
+        NumberAnimation { target: title; property: "opacity"; to: 1; duration: Motion.normal }
+    }
 
     Row {
         id: row
@@ -53,9 +85,10 @@ Item {
         }
 
         Label {
+            id: title
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.min(implicitWidth, 220)
-            text: Media.artist !== "" ? Media.title + "  ·  " + Media.artist : Media.title
+            width: Math.min(implicitWidth, root.lyricMode ? 320 : 220)
+            Component.onCompleted: text = root.text
             font.pixelSize: Theme.font.normal
         }
 
