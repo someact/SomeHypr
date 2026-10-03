@@ -16,7 +16,8 @@ Singleton {
     id: root
 
     property string path: ""
-    property string phase: ""          // last applied day/night phase (DayNight.qml)
+    property string phase: ""          // last applied schedule slot (Schedule.qml)
+    property bool loaded: false        // the saved state has been read (or there is none)
     readonly property bool isVideo: isVideoFile(path)
     readonly property string mode: Config.theme.mode
 
@@ -163,7 +164,11 @@ Singleton {
         }
     }
 
+    // Never before the saved state is read: a save then would write an empty
+    // path over it (a schedule check at start did, before `loaded`)
     function save() {
+        if (!loaded)
+            return;
         Quickshell.execDetached(["mkdir", "-p", Paths.stateDir]);
         state.setText(JSON.stringify({ path: root.path, phase: root.phase }));
     }
@@ -228,7 +233,9 @@ Singleton {
                 root.path = s.path ?? "";
                 root.phase = s.phase ?? "";
             } catch (e) {}
+            root.loaded = true;
             checkMpv.running = true;
         }
+        onLoadFailed: root.loaded = true
     }
 }

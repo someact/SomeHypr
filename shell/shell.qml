@@ -58,7 +58,7 @@ ShellRoot {
 
     // Services that act on their own (not only when a panel reads them)
     Component.onCompleted: {
-        DayNight.check();
+        Schedule.check();
         GameClients.pids;
     }
 }

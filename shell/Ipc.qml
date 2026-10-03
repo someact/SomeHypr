@@ -206,5 +206,22 @@ Scope {
             Config.theme.scheme = name;
             Wallpaper.retheme();
         }
+        // Preview a schedule slot (sunrise noon sunset night midnight) until the next one starts
+        function slot(name: string): void {
+            Schedule.preview(name);
+        }
+    }
+
+    IpcHandler {
+        target: "schedule"
+        function state(): string {
+            return Schedule.state();
+        }
+        // Test a time of day ("HH:MM"); "now" goes back to the clock
+        function at(time: string): string {
+            Schedule.testNow = time === "now" ? -1 : Schedule.minutesOf(time);
+            Schedule.check();
+            return Schedule.state();
+        }
     }
 }

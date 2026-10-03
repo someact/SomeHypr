@@ -15,7 +15,7 @@ Current work: Phase 10 (fixes, wallpaper schedule, quick options), then Phase 11
   - `modes/gamemode.lua` turns blur, shadows and animations off while a game is the focused fullscreen window. Control it with `hyprctl eval 'GameMode.toggle()'` and `'GameMode.auto()'`.
   - `generated/` is machine-written (matugen) and gitignored. `monitors.lua` is written by the display settings page.
 - `matugen/` is linked to `~/.config/matugen` and is the only color engine. `config.toml` lists every output (shell, Hyprland, terminals, GTK, KDE, fuzzel, Zen, Vesktop); `hooks/` reload apps. Run it without a terminal only with `--source-color-index 0`.
-- Wallpaper state is `~/.local/state/somehypr/wallpaper.json`; set it through the shell (`qs -c somehypr ipc call wallpaper set <path>`) so videos start mpvpaper and get a matugen frame. Images are shown from a screen-sized copy (`~/.cache/somehypr/wall-<WxH>-<md5>.jpg`, ImageMagick), because Qt keeps a large original's full decode in memory.
+- Wallpaper state is `~/.local/state/somehypr/wallpaper.json`; set it through the shell (`qs -c somehypr ipc call wallpaper set <path>`) so videos start mpvpaper and get a matugen frame. Images are shown from a screen-sized copy (`~/.cache/somehypr/wall-<WxH>-<md5>.jpg`, ImageMagick), because Qt keeps a large original's full decode in memory. The time-of-day schedule is `shell/services/Schedule.qml` (slot model in `shell/lib/schedule.js`, shared with the settings page so it never runs a second scheduler); `Wallpaper.save()` does nothing until the saved state is `loaded`, so a check at start cannot write an empty path over it.
 - `shell/` is linked to `~/.config/quickshell/somehypr` and runs with `qs -c somehypr`:
   - `core/` singletons (Config, Theme, Motion, Paths, UiState, GameMode), `components/`, `services/` (one singleton per system source).
   - `island/Island.qml` is the notch window; `island/views/*View.qml` are loaded only while open; `island/ambient/` holds the collapsed states.
@@ -35,6 +35,7 @@ Current work: Phase 10 (fixes, wallpaper schedule, quick options), then Phase 11
   - Focus gotcha: a layer with `Exclusive` keyboard focus keeps it, so a `HyprlandFocusGrab` never clears on an outside click; switch to `OnDemand` once the grab is active (`island/Island.qml`).
   - Config gotcha: `core/Config.qml` ignores file changes for 600 ms after its own write; without that, several `Config.x = …` in one handler lost some of them to the reload.
   - QML gotcha: a property named `onX` is parsed as a signal handler, so theme colors use `fgX` (e.g. `Theme.fgIsland`).
+  - Bindings are stale inside a change handler: in `onBusChanged`, a property bound to `bus` (or a `command` bound to it) still has its old value; read the source property itself. `Timer.restart()`/`start()` replaces a `running:` binding for good; leave a bound timer alone.
   - Animation gotcha: `SpringAnimation` (and `Spring`) only in a `Behavior` or as `SpringAnimation on <prop>`. Inside a `Sequential`/`ParallelAnimation` Qt segfaults when it starts; use `NumberAnimation` there (`components/Reveal.qml`).
   - Font gotcha: every distinct `font.variableAxes` value opens another face (mmap + glyph cache). `components/Icon.qml` snaps FILL to 0/1 and opsz to 20/24/40/48; never animate an axis.
 - `install.sh` links everything and reloads, rolling back automatically if there are config errors. `--check` only verifies; `--rollback` restores `~/.config/*.pre-somehypr`.
@@ -60,6 +61,7 @@ qs -c somehypr ipc call overview toggle
 qs -c somehypr ipc call capture region <mode>                   # shot ocr lens translate record recordSound
 qs -c somehypr ipc call overlay toggle · streamer toggle
 qs -c somehypr ipc call lock preview · widgets edit · osk toggle
+qs -c somehypr ipc call schedule state · schedule at <HH:MM|now> · wallpaper slot <name>   # time-of-day schedule (at/slot change the wallpaper)
 timeout 8 qs -p shell/settings.qml 2>&1 | grep -E "WARN|ERROR"   # settings app
 ```
 - IPC function names must not clash with `qs ipc` subcommands (`show`, `call`, `prop`): `qs ipc call x show` is parsed as `qs ipc show`.

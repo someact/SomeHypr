@@ -546,13 +546,23 @@ Starting points found while planning:
   - Verified with two throwaway windows on workspace 18: Super+Alt+9 moved only the focused one to 19, keypad Super+Alt+7 → 17, Super+9 focuses 19; install --check ok, no config errors, 201 binds
 
 **10b. Wallpaper engine: time-of-day schedule**
-- [ ] Five slots: sunrise, noon, sunset, night, midnight. Each one can be on or off and has a start time, a source, a light/dark mode and night light on/off
+- [x] Five slots: sunrise, noon, sunset, night, midnight. Each one can be on or off and has a start time, a source, a light/dark mode and night light on/off
   - Sources: one wallpaper (image or video), a folder (one random pick when the slot starts), or **dynamic** (a random re-pick from a folder every N minutes while the slot lasts)
   - `theme.schedule.slots`. The old day/night values are migrated, day → sunrise and night → night
-- [ ] Optional sun times: sunrise and sunset from Open-Meteo (Weather's place), noon and midnight derived from them, and a ± minutes offset per slot. Fetched once a day, only while the option is on
-- [ ] `services/DayNight.qml` → a slot scheduler. It keeps the single minute clock, gated on enabled. The dynamic timer exists only in a dynamic slot and pauses in game mode. Picks go through `Wallpaper`, so videos still get mpvpaper and a matugen frame
-- [ ] Settings → Wallpaper: slot editor (timeline bar, source picker per slot, interval, mode, night light) and "Preview this slot". IPC `wallpaper slot <name>` for tests
-- [ ] Verify: step through every slot over IPC, check that the dynamic re-pick happens and stops at the slot edge, and compare memory with the rotation running
+  - [~] Mode and night light are each keep / one of the values, so a slot can leave them alone. Not migrated by a write: `lib/schedule.js` builds the slots from the day/night keys while `slots` is empty (night light: on at night and off at sunrise only if the old switch was on), and the saved phase `day` counts as `sunrise`, so an old setup does not re-apply after the update
+- [x] Optional sun times: sunrise and sunset from Open-Meteo (Weather's place), noon and midnight derived from them, and a ± minutes offset per slot. Fetched once a day, only while the option is on
+  - Noon = solar noon (midpoint), midnight = noon + 12 h, night = sunset + 1 h, then each slot's offset. The location step is shared with Weather (`Weather.locate`); the result is cached in `~/.local/state/somehypr/sun.json` per day and place. Without an answer the slot times are used (one warning)
+- [x] `services/DayNight.qml` → a slot scheduler. It keeps the single minute clock, gated on enabled. The dynamic timer exists only in a dynamic slot and pauses in game mode. Picks go through `Wallpaper`, so videos still get mpvpaper and a matugen frame
+  - `services/Schedule.qml` (DayNight removed); the model is the pure `lib/schedule.js`, used by the settings page too, so the settings process never runs a second scheduler. It waits for `Wallpaper.loaded` before its first check
+  - Found and fixed: the old DayNight could check before the wallpaper state was read and save an empty path over it (it happened once during this work; your wallpaper was set back). `Wallpaper.save()` now refuses to write before `loaded`
+  - Found and fixed: `rotate.restart()` broke the timer's `running` binding, so the rotation kept going in later slots; the binding alone drives it now
+- [x] Settings → Wallpaper: slot editor (timeline bar, source picker per slot, interval, mode, night light) and "Preview this slot". IPC `wallpaper slot <name>` for tests
+  - Time of day section: schedule switch, Follow the sun (shows today's times), a 24 h bar with one band per slot and its start, then one row per slot (summary, start time or ± offset with the sun, on switch, expand). Expanded: Keep / File / Folder / Dynamic, file or folder chooser (kdialog), Change every (min), Colors keep/dark/light, Night light keep/on/off, Preview. A preview holds until the next slot starts
+  - Also `ipc call schedule state` and `schedule at <HH:MM|now>` (test a time of day)
+- [x] Verify: step through every slot over IPC, check that the dynamic re-pick happens and stops at the slot edge, and compare memory with the rotation running
+  - Test slots over a scratch folder: 12:55 → noon (dynamic, 1 min) picked from the folder and re-picked after a minute; `at 18:30` → sunset set its file and the rotation stopped; preview night held through 18:45 and the 20:05 start cleared it; 03:00 → midnight (wraps past 00:00). Game mode forced on → rotation paused, auto → resumed. Sun times: 06:10 / 18:06 for the IP location, noon 12:08, midnight 00:08, night + 30 min offset → 19:36. A click in the editor wrote `slots.noon.source` and the shell followed. Your schedule, wallpaper and dark colors were restored afterwards (shell restarted so it resumed from the saved phase)
+  - Memory with the rotation: moved to the Phase 10 check
+  - Seen once: after forcing game mode on and back to auto, the shell kept the game-mode dot while Hyprland had it off; a second try matched. Not reproduced
 
 **10c. Quick options: per-tile style and movable sliders**
 - [x] Style per tile: full (icon + text) or icon only. The global `tileStyle` becomes the default, and edit mode changes one tile. The grid packs mixed sizes, and the stable delegates still spring to their slots

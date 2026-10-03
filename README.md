@@ -36,7 +36,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 
 | Part | What it does |
 |---|---|
-| **Island** | The notch at the top. Collapsed, it shows the clock, media, notifications, OSD and recording. Rest the pointer on it (or flick to the screen edge above it) for a peek; click or tap Super to open it fully. Open, it holds search, quick controls, media (with the player's own volume and synced lyrics), notifications, system and power. Quick tiles can be shown, hidden and reordered (pencil), and right-clicking one opens its detail page (Wi-Fi, Bluetooth, night light, sound devices) or its settings page; right-click the volume slider for the per-app mixer. |
+| **Island** | The notch at the top. Collapsed, it shows the clock, media, notifications, OSD and recording. Rest the pointer on it (or flick to the screen edge above it) for a peek; click or tap Super to open it fully. Open, it holds search, quick controls, media (with the player's own volume and synced lyrics), notifications, system and power. Quick tiles and the volume, mic and brightness sliders can be shown, hidden and reordered (pencil), and each tile can be full (icon and text) or icon only; and right-clicking one opens its detail page (Wi-Fi, Bluetooth, night light, sound devices) or its settings page; right-click the volume slider for the per-app mixer. |
 | **Pills** | Workspaces, app title, tray, status icons and clock. Each one can sit in a top corner or beside the island, in any order, as glass or floating (Settings → Island). Hover the workspaces (or hold Super) to see them all; right-click the network, Bluetooth or volume icon for its page or the mixer. |
 | **Dock** | Bottom bar with pinned and running apps. |
 | **Super+Tab** | Workspace overview. |
@@ -48,6 +48,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 
 - **Glass:** the compositor blurs exactly the shapes the shell draws (`ext-background-effect`). An optional plugin, *liquid glass*, adds refraction on top; see below.
 - **Colors:** set a wallpaper (`/wallpaper`, or the island's wallpaper view) and matugen recolors everything. Video wallpapers run through mpvpaper.
+- **Time of day:** Settings → Wallpaper → Time of day switches the wallpaper, light/dark colors and night light at sunrise, noon, sunset, night and midnight. Each slot keeps the wallpaper, sets one file, picks at random from a folder, or keeps picking a new one every few minutes (dynamic). Slot times can follow the sun (Open-Meteo, from the weather place or your IP's rough location).
 - **Lyrics:** the playing track's lyrics come from [LRCLIB](https://lrclib.net), asked once per track with curl and cached in `~/.cache/somehypr/lyrics/` (misses too). Turn it off in Settings → Island → Lyrics (`media.lyrics`).
 - **Shell settings** live in `~/.config/somehypr/config.json`. The file reloads live, so you can edit it by hand too.
 

@@ -33,8 +33,10 @@ Singleton {
         onTriggered: root.refresh()
     }
 
-    // $1 city (may be empty), $2 temperature unit. Prints "<place>\t<forecast json>"
-    readonly property string script: '
+    // Shell code that sets $ua, $lat, $lon and $name from the place in $1 (empty:
+    // the IP's rough location); exits 1 without a connection, 2 if not found.
+    // Also used by services/Schedule.qml for sun times.
+    readonly property string locate: '
 ua="SomeHypr (https://github.com/someact/SomeHypr)"
 if [ -n "$1" ]; then
   g=$(curl -sfG -m 10 -A "$ua" --data-urlencode "name=$1" -d count=1 https://geocoding-api.open-meteo.com/v1/search) || exit 1
@@ -45,6 +47,10 @@ else
   lat=$(printf %s "$g" | jq -r ".lat // empty"); lon=$(printf %s "$g" | jq -r ".lon // empty"); name=$(printf %s "$g" | jq -r ".city // empty")
 fi
 [ -n "$lat" ] || exit 2
+'
+
+    // $1 city (may be empty), $2 temperature unit. Prints "<place>\t<forecast json>"
+    readonly property string script: locate + '
 f=$(curl -sfG -m 10 -A "$ua" -d latitude=$lat -d longitude=$lon -d timezone=auto -d forecast_days=4 -d temperature_unit=$2 \
   -d current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day \
   -d daily=temperature_2m_max,temperature_2m_min,weather_code https://api.open-meteo.com/v1/forecast) || exit 1
