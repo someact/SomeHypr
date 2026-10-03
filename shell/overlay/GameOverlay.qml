@@ -18,7 +18,8 @@ Scope {
         { id: "fps", icon: "speed", name: "FPS limit" },
         { id: "resources", icon: "monitoring", name: "Resources" },
         { id: "mixer", icon: "graphic_eq", name: "Mixer" },
-        { id: "notes", icon: "sticky_note_2", name: "Notes" }
+        { id: "notes", icon: "sticky_note_2", name: "Notes" },
+        { id: "lyrics", icon: "lyrics", name: "Lyrics" }
     ]
     readonly property bool hasPinned: Config.overlay.pinned.length > 0
     property ShellScreen screen: Quickshell.screens[0]
@@ -83,6 +84,7 @@ Scope {
                 Region { item: resourcesCard.item?.card.frost ?? null; radius: resourcesCard.item?.card.frostRadius ?? 0 }
                 Region { item: mixerCard.item?.card.frost ?? null; radius: mixerCard.item?.card.frostRadius ?? 0 }
                 Region { item: notesCard.item?.card.frost ?? null; radius: notesCard.item?.card.frostRadius ?? 0 }
+                Region { item: lyricsCard.item?.card.frost ?? null; radius: lyricsCard.item?.card.frostRadius ?? 0 }
             }
             BackgroundEffect.blurRegion: Theme.glass && win.shown ? frost : null
 
@@ -161,6 +163,15 @@ Scope {
                         widgetId: "notes"
                         interactive: win.shown
                         defaultPos: Qt.point(Math.round(win.width / 2 - 160), 160)
+                    }
+                }
+                Loader {
+                    id: lyricsCard
+                    active: win.isOpen("lyrics")
+                    sourceComponent: LyricsCard {
+                        widgetId: "lyrics"
+                        interactive: win.shown
+                        defaultPos: Qt.point(Math.round(win.width / 2 - 190), win.height - 380)
                     }
                 }
             }

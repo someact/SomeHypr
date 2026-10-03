@@ -16,6 +16,7 @@ Item {
     property color fgDim: Theme.fgIslandDim
     property int fontSize: Theme.font.normal
     property bool seekable: false
+    property bool outline: false    // dark glyph outline, for text over busy backgrounds (a game)
     signal seek(real time)
     signal messageClicked
 
@@ -84,7 +85,9 @@ Item {
                 font.pixelSize: root.fontSize
                 font.weight: line.current ? Theme.font.weightTitle : Theme.font.weight
                 color: line.current ? root.fg : root.fgDim
-                opacity: line.current ? 1 : line.index < root.index ? 0.55 : 0.8
+                style: root.outline ? Text.Outline : Text.Normal
+                styleColor: Qt.rgba(0, 0, 0, 0.7)
+                opacity: line.current ? 1 : line.index < root.index ? (root.outline ? 0.75 : 0.55) : (root.outline ? 0.9 : 0.8)
                 scale: line.current ? 1.06 : 1
                 Behavior on scale {
                     Spring { preset: "smooth" }

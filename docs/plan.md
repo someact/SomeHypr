@@ -492,7 +492,9 @@ Root causes found:
 - [x] Lock dots: only the added or removed dot animates; smooth clear after the shake
   - Done in 9b+ (password shapes)
 - [ ] New widgets: wallpaper, gallery, calendar, weather, lyrics, quick launch
-- [ ] Game overlay lyrics card: the playing track's synced lyrics on screen over the game, pinnable click-through (added 2026-10-03)
+- [x] Game overlay lyrics card: the playing track's synced lyrics on screen over the game, pinnable click-through (added 2026-10-03)
+  - `overlay/LyricsCard.qml` (toolbar button, key 6): open, it shows the track (art, title, artist), previous / play-pause / next and five lines (`LyricsPane`, click seeks); pinned over a game, three larger lines with a dark glyph outline (`LyricsPane.outline`) so they read over anything. Messages for lyrics off, nothing playing, loading, none, error (click retries). Raises `Lyrics.watchers` only while the card exists
+  - Verified with a real YouTube Music track in Brave (Aimer "Ito", synced Japanese lyrics): card opens with the overlay, pin by click, overlay closed → the card stays, follows the song, and a click on it lands on the window below (grim)
 
 - [ ] Verify: the CLAUDE.md checks (201 binds, no WARN/ERROR), grim checks (edges over a bright window, no tile flicker while recording, lock dots), memory and CPU against Phase 8, game mode
 - [ ] Hands-on check by you: feel of the hover peek, glass over real windows, lyrics, live translator in a game

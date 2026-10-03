@@ -40,7 +40,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 | **Pills** | Workspaces, app title, tray, status icons and clock. Each one can sit in a top corner or beside the island, in any order, as glass or floating (Settings → Island). Hover the workspaces (or hold Super) to see them all; right-click the network, Bluetooth or volume icon for its page or the mixer. |
 | **Dock** | Bottom bar with pinned and running apps. |
 | **Super+Tab** | Workspace overview. |
-| **Super+G** | Game overlay with resources, mixer, crosshair, FPS limit and notes. |
+| **Super+G** | Game overlay with resources, mixer, crosshair, FPS limit, notes and lyrics (pin a card to keep it over the game). |
 | **Super+K** | On-screen keyboard. |
 | **Capture** | Region tools: screenshot, OCR, Lens, translate, record. |
 | **Desktop** | Lock screen and desktop widgets. |
