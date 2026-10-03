@@ -44,9 +44,13 @@ Singleton {
         setter.command = ["ddcutil", "-b", bus, "--noverify", "setvcp", "10", String(Math.round(value * max))];
         setter.running = true;
     }
+    // Checks `bus` and sets the command here instead of using bindings: in
+    // onBusChanged, `available` and a bound command have not caught up yet
     function read() {
-        if (available && !getter.running)
-            getter.running = true;
+        if (bus === "" || getter.running)
+            return;
+        getter.command = ["ddcutil", "-b", bus, "getvcp", "10", "--brief"];
+        getter.running = true;
     }
     onBusChanged: read()
 
@@ -72,7 +76,6 @@ Singleton {
 
     Process {
         id: getter
-        command: ["ddcutil", "-b", root.bus, "getvcp", "10", "--brief"]
         stdout: StdioCollector {
             onStreamFinished: {
                 // "VCP 10 C <current> <max>"
