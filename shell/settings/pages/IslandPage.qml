@@ -109,10 +109,19 @@ Page {
         SettingRow {
             icon: "check_box_outline_blank"
             title: "Show empty workspaces"
-            subtitle: "Off shows only workspaces with windows and the one you are on (holding Super shows them all)"
+            subtitle: "Off shows only workspaces with windows and the one you are on (holding Super or hovering shows them all)"
             Switch {
                 checked: Config.pills.showEmpty
                 onToggled: on => Config.pills.showEmpty = on
+            }
+        }
+        SettingRow {
+            icon: "touch_app"
+            title: "Show all workspaces on hover"
+            subtitle: "Resting the pointer on the workspaces shows every one as its shape, like holding Super"
+            Switch {
+                checked: Config.pills.hoverPeek
+                onToggled: on => Config.pills.hoverPeek = on
             }
         }
         PartRow {

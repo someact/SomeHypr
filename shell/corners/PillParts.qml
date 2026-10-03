@@ -34,6 +34,26 @@ QtObject {
             style: Config.pills.workspaces
             spacing: 0
 
+            // Every workspace as its shape: while Super is held, or while the
+            // pointer rests on the part (pills.hoverPeek). The hover waits a moment
+            // before showing and a little longer before going, so passing over or
+            // the part growing under the cursor does not flicker.
+            property bool hoverPeek: false
+            readonly property bool peek: UiState.superHeld || hoverPeek && Config.pills.hoverPeek
+
+            HoverHandler {
+                id: wsHover
+                enabled: Config.pills.hoverPeek
+                onHoveredChanged: {
+                    wsHoverDelay.interval = hovered ? 150 : 300;
+                    wsHoverDelay.restart();
+                }
+            }
+            Timer {
+                id: wsHoverDelay
+                onTriggered: wsPart.hoverPeek = wsHover.hovered
+            }
+
             Repeater {
                 model: HyprData.groupSize
                 Item {
@@ -46,10 +66,10 @@ QtObject {
                         return HyprData.occupied(wsId);
                     }
                     // Only workspaces with windows and the active one (unless "show empty"
-                    // is on, or Super is held). The 10 slots stay; a hidden one springs
+                    // is on, or the part peeks). The 10 slots stay; a hidden one springs
                     // to zero width, so nothing is rebuilt and they slide in and out.
-                    readonly property bool shown: isActive || isOccupied || Config.pills.showEmpty || UiState.superHeld
-                    width: !shown ? 0 : (UiState.superHeld ? 21 : isActive ? 22 : 10) + 2
+                    readonly property bool shown: isActive || isOccupied || Config.pills.showEmpty || wsPart.peek
+                    width: !shown ? 0 : (wsPart.peek ? 21 : isActive ? 22 : 10) + 2
                     height: 20
                     opacity: shown ? 1 : 0
                     scale: shown ? 1 : 0.4
@@ -64,10 +84,10 @@ QtObject {
                     }
 
                     // Expressive: the active workspace morphs from a dot into a Material
-                    // shape (root.wsShape) holding its number. Holding Super
+                    // shape (root.wsShape) holding its number. A peek (Super held or hover)
                     // turns every slot into that shape with its number: filled when it
                     // has windows, an outline when empty.
-                    readonly property bool held: UiState.superHeld
+                    readonly property bool held: wsPart.peek
                     MaterialShape {
                         anchors.centerIn: parent
                         width: ws.isActive ? 20 : ws.held ? 18 : ws.isOccupied ? 7 : 5
