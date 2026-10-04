@@ -636,6 +636,8 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
   - Verified (grim, a floating glass kitty over a green test window): off shows the green window blurred, on shows the wallpaper; `decoration:blur:xray` follows the setting with no config errors
   - Measured with a test window redrawing at ~100 Hz behind the glass (two rounds, 10 s each): off 26.8 / 33.1 % GPU, on 30.7 / 30.8 %, Hyprland 5.2 % either way. No measurable gain on the RTX 3060 at 1080p; kept as an option for weaker GPUs
 - [ ] 11a-8. Polish pass: the open hands-on checks of Phases 7–10 and the rough edges you report
+- [x] 11a+ (2026-10-04). Second machine (laptop, eDP-1 2560x1440@165): a catch-all `hl.monitor` (`highrr`, auto position, scale 1) in `hyprland.lua` before `monitors.lua`, so outputs the file does not name get their fastest mode instead of 60 Hz. The desktop's DP-1 line still wins there
+  - Verified on the laptop: config ok, no config errors, 201 binds, eDP-1 at 165 Hz. Open laptop gaps for later: no battery indicator in the shell, no touchpad settings or gestures
 - [ ] Verify 11a: CLAUDE.md checks, bench fresh and `--cycle 3` against the numbers above, game mode, grim in light and dark to show the look did not change
 
 **11b. Public repo layout**

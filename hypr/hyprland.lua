@@ -31,5 +31,8 @@ require("core.execs")
 if not require_optional("generated.colors") then
     require("core.colors_default")
 end
+-- Any output monitors.lua does not name: its fastest mode, so a new machine
+-- does not start at 60 Hz on a high-refresh panel.
+hl.monitor({ output = "", mode = "highrr", position = "auto", scale = 1 })
 require_optional("monitors")
 require("core.settings")
