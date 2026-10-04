@@ -7,7 +7,7 @@ Current work: Phase 11 (optimize, then make the repo public with an installer fo
 ## Layout
 - `hypr/` is linked to `~/.config/hypr`. `hyprland.lua` loads files in a fixed order, and each setting lives in exactly one file:
   - `user.lua` holds user choices: apps, `glass`, `fastGlass`, `liquidGlass*`, `gameModeAuto`. The settings app overrides them through `~/.config/somehypr/hypr.json` (`SETTINGS`, loaded by `lib/util.lua` with `lib/json.lua`); `core/settings.lua` loads last and applies its `hyprland` table (a partial `hl.config`). The file only holds changed values.
-  - `core/` covers env (NVIDIA), input and tablet, look, motion, misc, and execs.
+  - `core/` covers env (GPU detected), input (touchpad, tablet), look, motion, misc, and execs.
   - `rules/` holds window rules (windows, media, art, gaming) and layer rules.
   - `binds/keybinds.lua` holds every bind. Shell binds go through `shell_bind()` / `SHELL_ACTIONS` in `binds/shell.lua`: a `somehypr:` global shortcut plus an optional CLI fallback that runs only while the shell is not answering.
   - `binds/user.lua` applies `~/.config/somehypr/keybinds.json` (settings app): it wraps `hl.bind` while keybinds.lua runs (remap/disable by normalized combo), then `UserBinds.finish()` adds custom binds and the `somehypr-record` submap. User changes never go into keybinds.lua.
@@ -41,7 +41,8 @@ Current work: Phase 11 (optimize, then make the repo public with an installer fo
   - Bindings are stale inside a change handler: in `onBusChanged`, a property bound to `bus` (or a `command` bound to it) still has its old value; read the source property itself. `Timer.restart()`/`start()` replaces a `running:` binding for good; leave a bound timer alone.
   - Animation gotcha: `SpringAnimation` (and `Spring`) only in a `Behavior` or as `SpringAnimation on <prop>`. Inside a `Sequential`/`ParallelAnimation` Qt segfaults when it starts; use `NumberAnimation` there (`components/Reveal.qml`).
   - Font gotcha: every distinct `font.variableAxes` value opens another face (mmap + glyph cache). `components/Icon.qml` snaps FILL to 0/1 and opsz to 20/24/40/48; never animate an axis.
-- `install.sh` links everything and reloads, rolling back automatically if there are config errors. `--check` only verifies; `--rollback` restores `~/.config/*.pre-somehypr`.
+- `install.sh` is the installer for any Arch PC: missing packages (pacman, paru/yay), Google Sans Flex download, ydotool service, i2c group, links (backup `*.pre-somehypr`), screens (`generated/monitors.lua` from `hyprctl monitors all -j`, kept if present), reload with automatic rollback on config errors, then it starts the shell (stopping other Quickshell configs). `--update` pulls first, `--detect` rewrites screens, `--check` only verifies, `--rollback` restores. Questions default to no without a terminal, so test it with `./install.sh </dev/null` (changes nothing that needs an answer) or into a throwaway `XDG_CONFIG_HOME` with `env -u HYPRLAND_INSTANCE_SIGNATURE`.
+- `core/env.lua` reads GPU vendors from `/sys/class/drm/card*/device/vendor` (`GPU_VENDORS`); the NVIDIA env applies only when NVIDIA is the only GPU.
 
 ## Hyprland Lua API
 - The authoritative stub is `/usr/share/hypr/stubs/hl.meta.lua`: events, rule fields, config keys and dispatchers. Example config: `/usr/share/hypr/hyprland.lua`.

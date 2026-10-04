@@ -57,42 +57,38 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 
 ## Install
 
-The setup targets this one machine, but these are the pieces it expects:
-
-```sh
-# Hyprland 0.56+ and the shell (paru also covers packages that are only in the AUR)
-paru -S hyprland quickshell matugen hypridle hyprlock
-# tools the shell calls
-paru -S grim slurp wl-clipboard cliphist imagemagick jq curl wf-recorder \
-        tesseract tesseract-data-eng translate-shell mpvpaper ydotool swappy
-# laptops: battery and charge limit (UPower 1.90+), panel brightness
-paru -S upower brightnessctl
-# fonts
-paru -S ttf-material-symbols-variable-git ttf-jetbrains-mono-nerd
-# plus Google Sans Flex (from Google Fonts) in ~/.local/share/fonts
-```
-
-> On this machine, Google Sans Flex and the Material Symbols file the shell loads both come from ii's `ii-sddm-theme-fonts` package. Before you remove the `illogical-impulse-*` packages, copy the fonts to `~/.local/share/fonts`, or the shell falls back to other fonts.
-
-Then link everything:
+On Arch or CachyOS with Hyprland 0.56+ (Lua config):
 
 ```sh
 git clone https://github.com/someact/SomeHypr && cd SomeHypr
-./install.sh            # links hypr/, shell/, matugen/ into ~/.config and reloads Hyprland
+./install.sh                      # asks before each change; -y answers yes to all
 ```
 
-`install.sh` moves any existing directory it replaces to `<name>.pre-somehypr`. If the new config has errors after the reload, it rolls back by itself.
+`install.sh` works out what this machine needs and asks before it changes anything:
+
+1. **Packages:** installs whatever is missing with pacman, or paru/yay for AUR packages: Hyprland, Quickshell, matugen, hypridle/hyprlock, capture and OCR tools, mpvpaper, ydotool, ddcutil, plus upower and power-profiles-daemon on a laptop. Fonts are Material Symbols, JetBrains Mono Nerd and the Bibata cursor. Google Sans Flex isn't packaged, so it's downloaded from google/fonts (OFL) into `~/.local/share/fonts/somehypr`.
+2. **Services:** enables the ydotool user service (on-screen keyboard). For DDC brightness on external monitors, it loads i2c-dev at boot and adds you to the `i2c` group.
+3. **Links:** links `hypr/`, `shell/`, `matugen/` into `~/.config`. Any directory it replaces is moved to `<name>.pre-somehypr`.
+4. **Screens:** inside Hyprland, it writes `hypr/generated/monitors.lua` from the connected monitors. Each gets its largest resolution and fastest refresh, a scale from its pixel density (unless you already set one), and a left-to-right layout. An existing file is kept. From a TTY, every screen gets its fastest mode until you run `--detect`.
+5. **Session:** reloads Hyprland and rolls back if there are config errors. It then stops any other Quickshell config (e.g. ii) and starts the SomeHypr shell, so a running session switches over without logging out.
+
+Hardware is also detected at runtime, so one config fits every machine. The NVIDIA env is set only when NVIDIA is the only GPU. Battery, backlight and touchpad features appear only when that hardware exists.
 
 ```sh
-./install.sh --check     # only verify the Hyprland config, change nothing
-./install.sh --rollback  # remove the links and restore the .pre-somehypr directories
+./install.sh --update            # git pull, then the same setup (only what is missing)
+./install.sh --detect            # redo the screen setup after changing monitors
+./install.sh --wallpaper <file>  # also set a wallpaper; matugen colors everything from it
+./install.sh --no-deps           # skip packages and fonts
+./install.sh --check             # only verify the Hyprland config, change nothing
+./install.sh --rollback          # remove the links and restore the .pre-somehypr directories
 ```
+
+Every step is safe to run again. Without a terminal and without `-y`, every question is answered no, so nothing is installed unattended.
 
 ## Update
 
 ```sh
-git pull
-./install.sh --check && hyprctl reload   # Hyprland part
+./install.sh --update   # or: git pull && ./install.sh --check && hyprctl reload
 ```
 
 - **Shell:** files under `shell/` reload the running shell as soon as they change, so a pull is live at once. If something looks stuck, restart it with `pkill -x qs; qs -c somehypr &`.

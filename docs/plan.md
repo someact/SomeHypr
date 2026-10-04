@@ -653,13 +653,15 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
 - [ ] Remove machine-specific values: DP-1 / 1920x1080@100, the NVIDIA env, UGTablet, the US/TH layout and the weather place are detected or become settings. `hypr/monitors.lua` is generated and gitignored, with a default. No personal paths or names in the tracked files
 
 **11c. Installer for other PCs**
-- [ ] Bootstrap in `install.sh` (or a `setup.sh` that calls it). It does the following:
+- [x] Bootstrap in `install.sh` (2026-10-04, asked for early: "auto detect display, auto apply to other pc"). It does the following:
   - Checks dependencies and installs the missing ones with pacman/paru: Hyprland, quickshell, matugen, grim, wf-recorder, ddcutil, tesseract, translate-shell, ydotool and the fonts. The fonts must not depend on ii's package
   - Detects the GPU (NVIDIA env only when needed) and the monitors (writes monitors.lua)
   - Backs up existing configs (`.pre-somehypr`)
   - Runs a first matugen pass
   - Sets up ydotoold and the i2c group
   - Keeps `--check` and `--rollback`
+  - Done as: packages by "package:command" checks (pacman, else paru/yay; upower/power-profiles-daemon only with a battery), Google Sans Flex from google/fonts, ydotool user service, i2c-dev + group. GPU detected at load in `core/env.lua` (NVIDIA env only when NVIDIA is the only GPU) instead of by the installer. Screens: `generated/monitors.lua` from `hyprctl monitors all -j` (largest mode, fastest refresh, scale from ppi unless already set, left-to-right; off stays off), kept if present, a placeholder from a TTY so the desktop's tracked file never applies elsewhere; `--detect` redoes it. Starts the shell (stopping ii or other Quickshell configs). New `--update` (git pull first). [~] first matugen pass: only with `--wallpaper <file>` (set through the shell, which runs matugen); without one the default colors apply
+  - Verified on the laptop: an installed run (no terminal) changes nothing and reports every step; `--detect` reproduces the saved eDP-1 file; the monitor filter on a made-up 4-screen desktop (60→100 Hz, disabled HDMI kept off, 4K 27" → 1.25, rotated screen placed); install + rollback into a throwaway XDG_CONFIG_HOME restores the old directory; the font URL answers 200
 - [ ] Test on a clean user or a VM (a nested Hyprland does not cover the installer), and document it in the README
 
 - [ ] Verify Phase 11: a fresh install from a clone works, rollback works, the CLAUDE.md checks pass
