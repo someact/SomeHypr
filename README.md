@@ -24,10 +24,12 @@ The repo has three parts. `install.sh` links each one into `~/.config`, so editi
 | File | Holds |
 |---|---|
 | `user.lua` | your choices (apps, `glass`, `fastGlass`, `liquidGlass`, `gameModeAuto`) |
-| `core/` | NVIDIA env, input and tablet, look, motion, misc, autostart, liquid glass |
+| `core/` | NVIDIA env, input (keyboard, touchpad and gestures, tablet), look, motion, misc, autostart, liquid glass |
 | `rules/` | window and layer rules |
 | `binds/` | every keybind |
 | `modes/gamemode.lua` | game mode: turns blur, shadows and animations off while a game is the focused fullscreen window |
+
+Screens: `generated/monitors.lua` (written by Settings → Displays, per machine and gitignored) names your outputs; any output it doesn't name runs at its fastest mode. A machine that has never saved displays falls back to the tracked `monitors.lua`.
 
 The settings app never edits these files. It writes its changes to `~/.config/somehypr/hypr.json` (Hyprland choices) and `~/.config/somehypr/keybinds.json` (keybinds). Those load on top of the repo defaults, so `git pull` never conflicts with your settings.
 
@@ -44,6 +46,7 @@ One Quickshell process, `qs -c somehypr`, started by Hyprland:
 | **Super+K** | On-screen keyboard. |
 | **Capture** | Region tools: screenshot, OCR, Lens, translate, live translate (keeps translating an area, e.g. game subtitles, in a pinned overlay card; `/translate live`), record. |
 | **Desktop** | Lock screen and desktop widgets: clock, now playing, system, notes, calendar, weather (Open-Meteo), wallpaper, gallery, lyrics, quick launch. Right-click one to arrange them. |
+| **Laptops** | Found at start, so a desktop shows none of it. The status pill shows the battery (icon and percent, red at 15% on battery). Right-click it for Settings → Power, which has **battery bypass**: UPower's charge limit, which on Lenovo IdeaPad/Legion is conservation mode (stops near 80%, runs from the charger). It's also a quick tile, and switching it needs no password. Brightness keys and the slider drive the panel backlight (brightnessctl); external monitors still use DDC. Settings → Hyprland → Touchpad (shown only with a touchpad) sets natural scrolling, tap to click, finger clicks, typing lockout, scroll speed and gestures: 4 fingers sideways switches workspace, up or down opens the overview; 3 fingers drag a window or pinch for fullscreen. |
 | **Settings** | A separate window: `qs -c somehypr ipc call settings open`, or `/settings` in search. |
 
 - **Glass:** the compositor blurs exactly the shapes the shell draws (`ext-background-effect`). An optional plugin, *liquid glass*, adds refraction on top; see below.
@@ -62,6 +65,8 @@ paru -S hyprland quickshell matugen hypridle hyprlock
 # tools the shell calls
 paru -S grim slurp wl-clipboard cliphist imagemagick jq curl wf-recorder \
         tesseract tesseract-data-eng translate-shell mpvpaper ydotool swappy
+# laptops: battery and charge limit (UPower 1.90+), panel brightness
+paru -S upower brightnessctl
 # fonts
 paru -S ttf-material-symbols-variable-git ttf-jetbrains-mono-nerd
 # plus Google Sans Flex (from Google Fonts) in ~/.local/share/fonts

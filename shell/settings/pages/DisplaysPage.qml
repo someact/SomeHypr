@@ -6,12 +6,12 @@ import qs.components
 import qs.settings
 import qs.settings.ui
 
-// Port of the ii display page: edits every monitor, writes hypr/monitors.lua
+// Port of the ii display page: edits every monitor, writes hypr/generated/monitors.lua
 // and reloads. After applying, the old file comes back in 15 s unless kept.
 Page {
     id: page
     title: "Displays"
-    subtitle: "Resolution, refresh rate, position, scale and rotation. Saved to hypr/monitors.lua."
+    subtitle: "Resolution, refresh rate, position, scale and rotation. Saved to hypr/generated/monitors.lua (this machine only)."
 
     property var monitors: []          // hyprctl monitors all -j
     property var drafts: ({})          // name -> { enabled, mode, x, y, scale, transform }

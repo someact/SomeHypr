@@ -118,6 +118,52 @@ Page {
     }
 
     Section {
+        title: "Touchpad"
+        visible: HyprSettings.hasTouchpad
+        OptionSwitch {
+            path: "input.touchpad.natural_scroll"
+            icon: "swipe_vertical"
+            title: "Natural scrolling"
+            subtitle: "Content follows your fingers"
+        }
+        OptionSwitch {
+            path: "input.touchpad.tap_to_click"
+            icon: "touch_app"
+            title: "Tap to click"
+        }
+        OptionSwitch {
+            path: "input.touchpad.clickfinger_behavior"
+            icon: "ads_click"
+            title: "Click with fingers"
+            subtitle: "Pressing with two fingers is a right click, three a middle click (instead of by area)"
+        }
+        OptionSwitch {
+            path: "input.touchpad.disable_while_typing"
+            icon: "keyboard_hide"
+            title: "Off while typing"
+        }
+        OptionSlider {
+            path: "input.touchpad.scroll_factor"
+            icon: "unfold_more"
+            title: "Scroll speed"
+            from: 0.1
+            to: 2
+            stepSize: 0.05
+        }
+        SettingRow {
+            icon: "swipe"
+            title: "Gestures"
+            subtitle: "4 fingers: sideways switches workspace, up or down opens the overview. 3 fingers: drag moves a window, pinch toggles fullscreen"
+            changed: HyprSettings.isSet("touchpad.gestures")
+            onReset: HyprSettings.unset("touchpad.gestures")
+            Switch {
+                checked: HyprSettings.get("touchpad.gestures", true)
+                onToggled: on => HyprSettings.set("touchpad.gestures", on)
+            }
+        }
+    }
+
+    Section {
         title: "Display"
         OptionChoice {
             path: "misc.vrr"

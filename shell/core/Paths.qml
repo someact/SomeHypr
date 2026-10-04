@@ -43,7 +43,7 @@ Singleton {
     readonly property string mpvPid: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/somehypr-mpvpaper.pid"
 
     readonly property string hyprDir: configHome + "/hypr"
-    readonly property string monitors: hyprDir + "/monitors.lua"             // written by the Displays page
+    readonly property string monitors: hyprDir + "/generated/monitors.lua"   // written by the Displays page (per machine, gitignored)
     readonly property string scripts: hyprDir + "/scripts"
     readonly property string wallpapers: home + "/Pictures/Wallpapers"
     readonly property string projects: "/mnt/ssd_backup/Projects"

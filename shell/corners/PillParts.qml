@@ -283,6 +283,28 @@ QtObject {
                 onWheel: up => Audio.setVolume(Audio.volume + (up ? 0.02 : -0.02))
                 onMiddle: Audio.toggleMute()
             }
+            // Laptops only (Battery.available): icon and percent; right-click
+            // opens the Power page of the settings app
+            Row {
+                visible: Battery.available
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 2
+                StatusIcon {
+                    part: statusPart
+                    name: Battery.icon
+                    settings: "power"
+                    color: Battery.low ? Theme.error : statusPart.fg
+                }
+                Label {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: Battery.percent + "%"
+                    font.pixelSize: Theme.font.small
+                    font.weight: Theme.font.weightTitle
+                    color: Battery.low ? Theme.error : statusPart.fg
+                    style: statusPart.textStyle
+                    styleColor: statusPart.halo
+                }
+            }
         }
     }
 
@@ -317,6 +339,7 @@ QtObject {
         signal wheel(bool up)
         signal middle
         property string detail                // right-click: this Control page ("mixer" opens the mixer)
+        property string settings              // right-click: this settings app page instead
         anchors.verticalCenter: parent.verticalCenter
         size: 16
         color: dim ? part.fgDim : part.fg
@@ -330,6 +353,8 @@ QtObject {
             onClicked: event => {
                 if (event.button === Qt.MiddleButton)
                     si.middle();
+                else if (event.button === Qt.RightButton && si.settings !== "")
+                    Session.openSettings(si.settings);
                 else if (event.button === Qt.RightButton && si.detail === "mixer")
                     UiState.toggle("mixer");
                 else if (event.button === Qt.RightButton && si.detail !== "")

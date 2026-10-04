@@ -16,9 +16,10 @@ Singleton {
     property var live: ({})        // "general.gaps_in" -> current Hyprland value
     property string errors: ""     // `hyprctl configerrors` plus skipped keybinds after the last reload
     property bool reloading: false
+    property bool hasTouchpad: false   // any pointer device named "touchpad" (the Touchpad section shows only then)
 
     // Options the Hyprland page edits; live values are read for these
-    readonly property var options: ["general.gaps_in", "general.gaps_out", "general.border_size", "general.layout", "decoration.rounding", "decoration.blur.enabled", "decoration.blur.size", "decoration.blur.passes", "decoration.shadow.enabled", "decoration.dim_inactive", "animations.enabled", "input.sensitivity", "input.follow_mouse", "input.repeat_rate", "input.repeat_delay", "misc.vrr"]
+    readonly property var options: ["general.gaps_in", "general.gaps_out", "general.border_size", "general.layout", "decoration.rounding", "decoration.blur.enabled", "decoration.blur.size", "decoration.blur.passes", "decoration.shadow.enabled", "decoration.dim_inactive", "animations.enabled", "input.sensitivity", "input.follow_mouse", "input.repeat_rate", "input.repeat_delay", "input.touchpad.natural_scroll", "input.touchpad.tap_to_click", "input.touchpad.disable_while_typing", "input.touchpad.clickfinger_behavior", "input.touchpad.scroll_factor", "misc.vrr"]
 
     function walk(obj, path) {
         let v = obj;
@@ -123,6 +124,18 @@ Singleton {
                 root.reloading = false;
                 root.readLive();
                 root.reloaded();
+            }
+        }
+    }
+
+    Process {
+        running: true
+        command: ["hyprctl", "devices", "-j"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    root.hasTouchpad = (JSON.parse(text).mice ?? []).some(m => /touchpad/i.test(m.name));
+                } catch (e) {}
             }
         }
     }

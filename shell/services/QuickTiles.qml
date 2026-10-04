@@ -17,7 +17,7 @@ Singleton {
     id: root
 
     // Every tile and slider, in the order hidden ones are offered
-    readonly property list<string> ids: ["wifi", "bluetooth", "dnd", "game", "nightlight", "caffeine", "mic", "dark", "streamer", "record", "screenshot", "keyboard", "slider:volume", "slider:mic", "slider:brightness"]
+    readonly property list<string> ids: ["wifi", "bluetooth", "dnd", "game", "nightlight", "caffeine", "mic", "dark", "streamer", "record", "screenshot", "keyboard", "battery", "slider:volume", "slider:mic", "slider:brightness"]
     readonly property list<string> layout: Config.control.layout.length > 0 ? Array.from(Config.control.layout) : Array.from(Config.control.tiles).concat(["slider:volume", "slider:mic", "slider:brightness"])
     // Items without hardware (no Bluetooth adapter, no DDC monitor) are left out of both lists
     readonly property list<string> shown: layout.filter(id => ids.includes(id) && byId[id].available)
@@ -82,7 +82,7 @@ Singleton {
         property var rightClick: () => {}
     }
 
-    readonly property var byId: ({ wifi: wifi, bluetooth: bluetooth, dnd: dnd, game: game, nightlight: nightlight, caffeine: caffeine, mic: mic, dark: dark, streamer: streamer, record: record, screenshot: screenshot, keyboard: keyboard, "slider:volume": volumeSlider, "slider:mic": micSlider, "slider:brightness": brightnessSlider })
+    readonly property var byId: ({ wifi: wifi, bluetooth: bluetooth, dnd: dnd, game: game, nightlight: nightlight, caffeine: caffeine, mic: mic, dark: dark, streamer: streamer, record: record, screenshot: screenshot, keyboard: keyboard, battery: battery, "slider:volume": volumeSlider, "slider:mic": micSlider, "slider:brightness": brightnessSlider })
 
     property Tile wifi: Tile {
         icon: Network.icon
@@ -179,6 +179,17 @@ Singleton {
         active: UiState.osk
         settings: "desktop"
         run: () => UiState.osk = !UiState.osk
+    }
+
+    // Laptops whose battery has a charge limit (Battery.qml): toggles it
+    property Tile battery: Tile {
+        icon: Battery.icon
+        title: "Battery bypass"
+        subtitle: (Battery.limitEnabled ? "On" : "Off") + " · " + Battery.percent + "%"
+        active: Battery.limitEnabled
+        available: Battery.available && Battery.limitSupported
+        settings: "power"
+        run: () => Battery.toggleLimit()
     }
 
     property SliderItem volumeSlider: SliderItem {

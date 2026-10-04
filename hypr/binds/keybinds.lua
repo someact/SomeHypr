@@ -3,7 +3,7 @@
 --   * shell binds go through shell_bind() (binds/shell.lua): global shortcut + CLI fallback
 --   * SUPER+ALT+number also binds raw keycodes, so it works on the Thai layout
 --   * SUPER+ALT+Page_Down/Up use the canonical key names
---   * removed: touchpad gestures (desktop, no touchpad), the edit-custom-keybinds
+--   * touchpad gestures live in core/input.lua; removed: the edit-custom-keybinds
 --     shortcut now opens this file
 -- Description strings feed the cheatsheet; keep the "Group: Action" format.
 

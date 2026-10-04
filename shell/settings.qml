@@ -13,6 +13,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import qs.core
 import qs.components
+import qs.services
 import qs.settings
 import qs.settings.ui
 
@@ -28,6 +29,7 @@ ShellRoot {
         { id: "keybinds", name: "Keybinds", icon: "keyboard" },
         { id: "hyprland", name: "Hyprland", icon: "tune" },
         { id: "displays", name: "Displays", icon: "desktop_windows" },
+        { id: "power", name: "Power", icon: "battery_full", laptop: true },
         { id: "apps", name: "Apps & Autostart", icon: "apps" },
         { id: "capture", name: "Capture", icon: "screenshot_region" },
         { id: "modes", name: "Modes", icon: "sports_esports" }
@@ -81,7 +83,8 @@ ShellRoot {
                 }
 
                 Repeater {
-                    model: app.pages
+                    // Laptop pages (Power) are listed only while a battery is present
+                    model: app.pages.filter(p => !p.laptop || Battery.available)
                     PressButton {
                         id: nav
                         required property var modelData

@@ -638,6 +638,13 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
 - [ ] 11a-8. Polish pass: the open hands-on checks of Phases 7–10 and the rough edges you report
 - [x] 11a+ (2026-10-04). Second machine (laptop, eDP-1 2560x1440@165): a catch-all `hl.monitor` (`highrr`, auto position, scale 1) in `hyprland.lua` before `monitors.lua`, so outputs the file does not name get their fastest mode instead of 60 Hz. The desktop's DP-1 line still wins there
   - Verified on the laptop: config ok, no config errors, 201 binds, eDP-1 at 165 Hz. Open laptop gaps for later: no battery indicator in the shell, no touchpad settings or gestures
+- [x] 11a++ (2026-10-04). Laptop support, detected at runtime (desktop unchanged):
+  - Battery in the status pill (`services/Battery.qml`, Quickshell UPower): icon, percent, red at 15% on battery; right-click → Settings → Power
+  - Battery bypass: UPower `EnableChargeThreshold` (Legion: charge_types Long_Life = conservation mode); a Power settings page (listed only with a battery) and a `battery` quick tile. No password (polkit allows the active session)
+  - Touchpad: defaults from the old ii config in `core/input.lua` (natural scroll, tap, finger clicks, scroll 0.7) and its gestures (4-finger workspace swipe and overview, 3-finger move and pinch fullscreen); Settings → Hyprland → Touchpad, shown only with a touchpad, `touchpad.gestures` switch
+  - Brightness: the panel backlight via brightnessctl on eDP/LVDS/DSI (was DDC only, so laptop keys did nothing)
+  - Displays page writes `hypr/generated/monitors.lua` (per machine, gitignored); the tracked desktop `monitors.lua` loads only without it
+  - Verified on the laptop: config ok, no errors, 201 binds; tile and Power switch flip charge_types Standard ↔ Long_Life; brightness 83 ↔ 88; shell and settings start with only the known warnings
 - [ ] Verify 11a: CLAUDE.md checks, bench fresh and `--cycle 3` against the numbers above, game mode, grim in light and dark to show the look did not change
 
 **11b. Public repo layout**

@@ -5,22 +5,27 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 
-// External monitor brightness over DDC/CI (ddcutil). Displays are detected once
-// at start; the one in use follows the focused monitor (by DRM connector), else
-// the first valid one. Writes are coalesced so dragging a slider sends one
-// setvcp at a time.
+// Screen brightness: a laptop panel through its backlight (brightnessctl), external
+// monitors over DDC/CI (ddcutil). Both are detected once at start; the one in use
+// follows the focused monitor (eDP/LVDS/DSI is the built-in panel; by DRM connector
+// for DDC), else the backlight, else the first DDC display. Writes are coalesced
+// so dragging a slider sends one write at a time.
 Singleton {
     id: root
 
     property var displays: []      // [{ bus, connector }], valid DDC displays only
     readonly property string monitor: Hyprland.focusedMonitor?.name ?? ""
+    property string backlight: ""  // /sys/class/backlight device name, "" without one
+    readonly property bool useBacklight: backlight !== "" && (/^(eDP|LVDS|DSI)/.test(monitor) || !displays.some(d => d.connector === monitor))
     readonly property string bus: {
+        if (useBacklight)
+            return "";
         const d = displays.find(d => d.connector === monitor) ?? displays[0];
         return d ? d.bus : "";
     }
     property int max: 100
     property real value: 0.5       // 0..1, what the UI shows
-    readonly property bool available: bus !== ""
+    readonly property bool available: useBacklight || bus !== ""
     property bool _pending: false
     property bool _warned: false
 
@@ -40,19 +45,37 @@ Singleton {
     function decrement() {
         set(value - 0.05);
     }
+    function setterName() {
+        return useBacklight ? "brightnessctl on " + backlight : "ddcutil setvcp on bus " + bus;
+    }
     function write() {
-        setter.command = ["ddcutil", "-b", bus, "--noverify", "setvcp", "10", String(Math.round(value * max))];
+        setter.command = useBacklight ? ["brightnessctl", "-q", "-d", backlight, "set", Math.max(1, Math.round(value * 100)) + "%"] : ["ddcutil", "-b", bus, "--noverify", "setvcp", "10", String(Math.round(value * max))];
         setter.running = true;
     }
     // Checks `bus` and sets the command here instead of using bindings: in
     // onBusChanged, `available` and a bound command have not caught up yet
     function read() {
-        if (bus === "" || getter.running)
+        if (getter.running)
             return;
-        getter.command = ["ddcutil", "-b", bus, "getvcp", "10", "--brief"];
+        if (useBacklight)
+            getter.command = ["brightnessctl", "-m", "-d", backlight, "info"];
+        else if (bus !== "")
+            getter.command = ["ddcutil", "-b", bus, "getvcp", "10", "--brief"];
+        else
+            return;
         getter.running = true;
     }
     onBusChanged: read()
+    onUseBacklightChanged: read()
+
+    // The first backlight device (a laptop panel); none on a desktop
+    Process {
+        running: true
+        command: ["sh", "-c", "ls /sys/class/backlight 2>/dev/null | head -n1"]
+        stdout: StdioCollector {
+            onStreamFinished: root.backlight = text.trim()
+        }
+    }
 
     // "detect --brief" prints one block per display; blocks headed "Invalid display"
     // (no DDC, e.g. a second input of the same monitor) must be skipped.
@@ -78,6 +101,12 @@ Singleton {
         id: getter
         stdout: StdioCollector {
             onStreamFinished: {
+                // brightnessctl -m: "<device>,backlight,<current>,<percent>%,<max>"
+                const b = text.trim().split(",");
+                if (b.length >= 5 && b[1] === "backlight") {
+                    root.value = (parseInt(b[2]) || 0) / (parseInt(b[4]) || 1);
+                    return;
+                }
                 // "VCP 10 C <current> <max>"
                 const p = text.trim().split(/\s+/);
                 if (p.length >= 5) {
@@ -96,7 +125,7 @@ Singleton {
         onExited: code => {
             if (code !== 0) {
                 if (!root._warned)
-                    console.warn("Brightness: ddcutil setvcp on bus " + root.bus + " failed: " + setterErr.text.trim());
+                    console.warn("Brightness: " + root.setterName() + " failed: " + setterErr.text.trim());
                 root._warned = true;
                 root._pending = false;
                 root.read();    // show the level the monitor really has
