@@ -1,0 +1,13 @@
+[SddmGreeterTheme]
+Name=SomeHypr
+Description=SomeHypr's lock screen, adapted for SDDM
+Author=SomeHypr contributors
+Website=https://github.com/someact/SomeHypr
+License=MIT
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=somehypr
+Theme-API=2.0
+QtVersion=6

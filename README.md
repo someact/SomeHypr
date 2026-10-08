@@ -96,6 +96,23 @@ Every step is safe to run again. Without a terminal and without `-y`, every ques
 - **After a Quickshell update:** restart the shell.
 - **After a Qt update:** restart the shell to load the updated image plugins. If Quickshell warns that it was built against a different Qt version, it also needs a matching package rebuild. Application icons support both theme names and absolute image paths from desktop files.
 
+## SDDM login screen (optional)
+
+The SDDM theme ports SomeHypr's lock screen: blurred wallpaper, large clock,
+glass password pill and animated Material password shapes. It adds user,
+session and keyboard layout selection, and power controls.
+
+```sh
+./scripts/sddm-theme.sh --preview   # try it without logging out
+./scripts/sddm-theme.sh --install   # sudo is requested for the system copy
+./scripts/sddm-theme.sh --rollback  # restore the previous theme selection
+```
+
+Installation snapshots the current wallpaper and copies the fonts into the
+theme so SDDM can read them before login. It takes effect at the next login;
+the installer does not restart SDDM. See [the theme's README](sddm/README.md)
+for requirements and customization.
+
 ## Liquid glass (optional)
 
 [hyprglass](https://github.com/hyprnux/hyprglass) adds refraction and an edge light to the island, pills, dock and keyboard. It is off by default. It is built from source, because a plugin only works with the exact Hyprland build it was compiled for:

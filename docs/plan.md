@@ -669,7 +669,9 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
 **11a+ App icons and SDDM (2026-10-08, requested)**
 - [x] Diagnose and repair missing application icons after the Qt upgrade; verify launcher and dock image loading.
   - Absolute `Icon=` paths now load as file URLs instead of theme names, shared by the launcher, dock, overview and dock settings. Pinned icons re-evaluate after the asynchronous desktop-entry scan. All 99 visible application icons loaded without image errors; restarted the shell to load the Qt SVG plugins upgraded during this session. Quickshell's separate Qt 6.11/6.12 build warning remains a packaging issue.
-- [ ] Port SomeHypr's lock screen to a standalone Qt 6 SDDM theme, with shaped password dots, users/sessions/layout selection, power controls, preview and installer.
+- [x] Port SomeHypr's lock screen to a standalone Qt 6 SDDM theme, with shaped password dots, users/sessions/layout selection, power controls, preview and installer.
+  - `sddm/` uses only standard Qt 6 modules and SDDM's login/model APIs. The clock, blurred wallpaper, glass pill, shuffled Material password outlines and failure shake match the lock screen. An alpha-capable greeter surface fixes the RGB565 banding seen in the first preview.
+  - `scripts/sddm-theme.sh` stages a wallpaper snapshot and fonts, previews without authenticating or powering off, and installs/rolls back a dedicated SDDM drop-in. The installer never restarts SDDM. Live preview, Qt 6 QML lint, mocked authentication/power flows, 800×600 layout, and isolated install/reinstall/rollback checks passed. System installation remains a user command because sudo requires a password.
 
 ## Verification
 - **Hyprland:**
