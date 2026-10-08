@@ -33,6 +33,23 @@ Singleton {
     property bool superMightTrigger: false
     property bool superHeld: false
 
+    // One shared delay for every workspace pill. A release or disabling the
+    // setting cancels the pending preview and hides it immediately.
+    property bool superPeek: false
+    readonly property bool superPeekPending: superHeld && Config.pills.superPeek
+    onSuperPeekPendingChanged: {
+        superPeek = false;
+        if (superPeekPending)
+            superPeekDelay.restart();
+        else
+            superPeekDelay.stop();
+    }
+    Timer {
+        id: superPeekDelay
+        interval: 1000
+        onTriggered: root.superPeek = root.superPeekPending
+    }
+
     signal searchReset
 
     function open(name, text) {

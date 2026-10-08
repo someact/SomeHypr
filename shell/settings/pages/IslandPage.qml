@@ -109,16 +109,25 @@ Page {
         SettingRow {
             icon: "check_box_outline_blank"
             title: "Show empty workspaces"
-            subtitle: "Off shows only workspaces with windows and the one you are on (holding Super or hovering shows them all)"
+            subtitle: "Off shows only workspaces with windows and the one you are on; previews can temporarily show them all"
             Switch {
                 checked: Config.pills.showEmpty
                 onToggled: on => Config.pills.showEmpty = on
             }
         }
         SettingRow {
+            icon: "keyboard"
+            title: "Show all workspaces on Super hold"
+            subtitle: "Hold Super for one second to preview every workspace; release to close"
+            Switch {
+                checked: Config.pills.superPeek
+                onToggled: on => Config.pills.superPeek = on
+            }
+        }
+        SettingRow {
             icon: "touch_app"
             title: "Show all workspaces on hover"
-            subtitle: "Resting the pointer on the workspaces shows every one as its shape, like holding Super"
+            subtitle: "Resting the pointer on the workspaces shows every one as its shape"
             Switch {
                 checked: Config.pills.hoverPeek
                 onToggled: on => Config.pills.hoverPeek = on

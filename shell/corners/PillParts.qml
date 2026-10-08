@@ -34,12 +34,13 @@ QtObject {
             style: Config.pills.workspaces
             spacing: 0
 
-            // Every workspace as its shape: while Super is held, or while the
-            // pointer rests on the part (pills.hoverPeek). The hover waits a moment
+            // Every workspace as its shape: after Super is held for one second
+            // (pills.superPeek), or while the pointer rests on the part
+            // (pills.hoverPeek). The hover waits a moment
             // before showing and a little longer before going, so passing over or
             // the part growing under the cursor does not flicker.
             property bool hoverPeek: false
-            readonly property bool peek: UiState.superHeld || hoverPeek && Config.pills.hoverPeek
+            readonly property bool peek: UiState.superPeek || hoverPeek && Config.pills.hoverPeek
 
             HoverHandler {
                 id: wsHover

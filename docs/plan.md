@@ -673,6 +673,10 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
   - `sddm/` uses only standard Qt 6 modules and SDDM's login/model APIs. The clock, blurred wallpaper, glass pill, shuffled Material password outlines and failure shake match the lock screen. An alpha-capable greeter surface fixes the RGB565 banding seen in the first preview.
   - `scripts/sddm-theme.sh` stages a wallpaper snapshot and fonts, previews without authenticating or powering off, and installs/rolls back a dedicated SDDM drop-in. The installer never restarts SDDM. Live preview, Qt 6 QML lint, mocked authentication/power flows, 800×600 layout, and isolated install/reinstall/rollback checks passed. System installation remains a user command because sudo requires a password.
 
+**11a+ Super workspace preview (2026-10-08, requested)**
+- [x] Show all top-pill workspaces only after holding Super for one second, with a persistent setting to disable the Super hold preview.
+  - A shared, cancellable timer delays the preview; releasing Super or disabling `pills.superPeek` closes it. Settings → Island → Corner pills exposes the switch, enabled by default. Hover preview remains independent. Live keypress checks passed for short holds, long holds, early release, disabling/re-enabling and quick Super taps; shell/settings smoke checks and Hyprland validation passed.
+
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.

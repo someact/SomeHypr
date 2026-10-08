@@ -81,7 +81,8 @@ Singleton {
                 property string halo: "shadow"        // floating text and icons: shadow (soft) | outline
                 property string workspaceShape: "cookie7Sided"   // the active workspace (components/MaterialShape.qml names)
                 property bool showEmpty: false        // also show workspaces without windows
-                property bool hoverPeek: true         // hovering the workspaces shows them all, like holding Super
+                property bool superPeek: true         // holding Super for one second shows every workspace
+                property bool hoverPeek: true         // hovering the workspaces shows them all
                 // Where each part sits, in order: the top corners or beside the island.
                 // A part in no list is hidden. Ids: workspaces special title tray status clock
                 property var layout: ({ left: ["workspaces", "special", "title"], islandLeft: [], islandRight: [], right: ["tray", "status", "clock"] })
