@@ -51,7 +51,18 @@ Singleton {
     }
 
     function icon(entry) {
-        return Quickshell.iconPath(entry?.icon ?? "", "application-x-executable");
+        return iconSource(entry?.icon ?? "");
+    }
+
+    // Desktop files may name a theme icon OR an image on disk. Passing an
+    // absolute path to the theme provider loses that app's actual artwork.
+    function iconSource(value) {
+        const name = value || "";
+        if (name.startsWith("/"))
+            return Paths.url(name);
+        if (name.startsWith("file:") || name.startsWith("image:"))
+            return name;
+        return Quickshell.iconPath(name, "application-x-executable");
     }
 
     Timer {

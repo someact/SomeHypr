@@ -666,6 +666,11 @@ Your choices: window blur xray as an opt-in "Fast glass" setting; the SDDM greet
 
 - [ ] Verify Phase 11: a fresh install from a clone works, rollback works, the CLAUDE.md checks pass
 
+**11a+ App icons and SDDM (2026-10-08, requested)**
+- [x] Diagnose and repair missing application icons after the Qt upgrade; verify launcher and dock image loading.
+  - Absolute `Icon=` paths now load as file URLs instead of theme names, shared by the launcher, dock, overview and dock settings. Pinned icons re-evaluate after the asynchronous desktop-entry scan. All 99 visible application icons loaded without image errors; restarted the shell to load the Qt SVG plugins upgraded during this session. Quickshell's separate Qt 6.11/6.12 build warning remains a packaging issue.
+- [ ] Port SomeHypr's lock screen to a standalone Qt 6 SDDM theme, with shaped password dots, users/sessions/layout selection, power controls, preview and installer.
+
 ## Verification
 - **Hyprland:**
   - `hyprctl configerrors` is empty.

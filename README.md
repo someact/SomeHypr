@@ -94,6 +94,7 @@ Every step is safe to run again. Without a terminal and without `-y`, every ques
 - **Shell:** files under `shell/` reload the running shell as soon as they change, so a pull is live at once. If something looks stuck, restart it with `pkill -x qs; qs -c somehypr &`.
 - **After a Hyprland update:** rebuild the liquid glass plugin if you use it (see below). Until you rebuild it, it simply isn't loaded.
 - **After a Quickshell update:** restart the shell.
+- **After a Qt update:** restart the shell to load the updated image plugins. If Quickshell warns that it was built against a different Qt version, it also needs a matching package rebuild. Application icons support both theme names and absolute image paths from desktop files.
 
 ## Liquid glass (optional)
 

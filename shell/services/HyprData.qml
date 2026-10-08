@@ -80,7 +80,10 @@ Singleton {
         return (t?.workspace?.name ?? "").startsWith("special:");
     }
     function appIcon(appId) {
+        // Track the asynchronous desktop-entry scan so pinned icons update
+        // after startup instead of keeping the fallback from the empty list.
+        const ready = DesktopEntries.applications.values.length;
         const e = DesktopEntries.heuristicLookup(appId);
-        return Quickshell.iconPath(e?.icon ?? appId, "application-x-executable");
+        return Apps.iconSource(e?.icon || appId);
     }
 }

@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.core
 import qs.components
+import qs.services
 import qs.settings
 import qs.settings.ui
 
@@ -68,7 +69,7 @@ Page {
                 required property int index
                 // Re-looked up once the desktop entries finish loading
                 readonly property var entry: DesktopEntries.applications.values.length, DesktopEntries.heuristicLookup(modelData)
-                iconSource: Quickshell.iconPath(entry?.icon ?? modelData, "application-x-executable")
+                iconSource: Apps.iconSource(entry?.icon || modelData)
                 title: entry?.name ?? modelData
                 subtitle: modelData
                 Row {
